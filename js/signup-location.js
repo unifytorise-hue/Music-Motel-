@@ -53,7 +53,10 @@
   });
 
   // ===== shared: setting the final location value =====
+  var selectedLat = null, selectedLng = null;
   function setLocation(label, lat, lng){
+    selectedLat = lat;
+    selectedLng = lng;
     var sel = document.getElementById('loc-selected');
     document.getElementById('loc-selected-text').textContent = label;
     document.getElementById('loc-selected-coords').textContent =
@@ -297,19 +300,17 @@
       });
   }
 
-  // ===== submit (placeholder — no backend yet) =====
-  document.getElementById('signup-submit-btn').addEventListener('click', function(){
-    var name = document.getElementById('signup-name').value.trim() || 'New member';
-    var loc = document.getElementById('loc-selected-text').textContent;
-    var type = window.getCurrentAccountType ? window.getCurrentAccountType() : 'fan';
-    var role = document.getElementById('signup-role').value.trim();
+  // ===== submit =====
+  var PAID_TIERS = {
+    educator: { label: 'Educator', price: '$12/mo' },
+    venue: { label: 'Talent Booker', price: '$29/mo' },
+    publicspace: { label: 'Public Space', price: '$39/mo' }
+  };
 
-    var PAID_TIERS = {
-      educator: { label: 'Educator', price: '$12/mo' },
-      venue: { label: 'Talent Booker', price: '$29/mo' },
-      publicspace: { label: 'Public Space', price: '$39/mo' }
-    };
-
+  // No backend configured yet: keep the original preview-only flow exactly
+  // as it was, so the demo experience is unchanged until a real anon key
+  // is wired up in js/supabase-client.js.
+  function submitPreviewOnly(name, loc, type, role){
     if (PAID_TIERS[type]){
       var tier = PAID_TIERS[type];
       alert('Account draft ready:\n\n' + name + ' (' + tier.label + ')\n' + loc + (role ? '\n' + role : '') +
@@ -320,6 +321,74 @@
     } else {
       alert('Profile draft ready:\n\n' + name + '\n' + loc + (role ? '\n' + role : '') +
         '\n\n(Hook this up to your backend / database next — the location data is already captured above.)');
+    }
+  }
+
+  // Real account creation: supabase.auth.signUp() followed by a row in
+  // public.profiles. Errors surface inline in #signup-status rather than
+  // via alert(), since a failed signUp shouldn't look identical to success.
+  function submitReal(name, loc, type, role){
+    var email = document.getElementById('signup-email').value.trim();
+    var password = document.getElementById('signup-password').value;
+    var statusEl = document.getElementById('signup-status');
+    var submitBtn = document.getElementById('signup-submit-btn');
+
+    if (!email || !password){
+      statusEl.textContent = 'Enter an email and password to create your account.';
+      return;
+    }
+    if (password.length < 6){
+      statusEl.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    statusEl.textContent = 'Creating your account…';
+
+    window.mmAuth.signUp(email, password).then(function(res){
+      if (res.error) throw res.error;
+      var user = res.data && res.data.user;
+      if (!user){
+        throw new Error('Check your email to confirm your account, then sign in.');
+      }
+      return window.mmSupabase.from('profiles').insert({
+        id: user.id,
+        account_type: type,
+        name: name,
+        role_label: role,
+        location_label: loc,
+        lat: selectedLat,
+        lng: selectedLng
+      }).then(function(profileRes){
+        if (profileRes.error) throw profileRes.error;
+        if (window.recordReferralIfAny) window.recordReferralIfAny(user.id);
+        if (window.syncReferralCodeForUser) window.syncReferralCodeForUser(user.id);
+        statusEl.textContent = '';
+        submitBtn.disabled = false;
+        document.getElementById('signup-email').value = '';
+        document.getElementById('signup-password').value = '';
+        closeSignup();
+        if (PAID_TIERS[type]){
+          var tier = PAID_TIERS[type];
+          alert('Profile created for ' + name + ' (' + tier.label + ').\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar.)');
+        }
+      });
+    }).catch(function(err){
+      submitBtn.disabled = false;
+      statusEl.textContent = (err && err.message) || 'Something went wrong creating your account.';
+    });
+  }
+
+  document.getElementById('signup-submit-btn').addEventListener('click', function(){
+    var name = document.getElementById('signup-name').value.trim() || 'New member';
+    var loc = document.getElementById('loc-selected-text').textContent;
+    var type = window.getCurrentAccountType ? window.getCurrentAccountType() : 'fan';
+    var role = document.getElementById('signup-role').value.trim();
+
+    if (window.mmAuth && window.mmAuth.isConfigured()){
+      submitReal(name, loc, type, role);
+    } else {
+      submitPreviewOnly(name, loc, type, role);
     }
   });
 })();

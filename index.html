@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -35,7 +36,12 @@
     </nav>
     <div class="nav-right">
       <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="#" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
       <a href="#" class="nav-cta" id="open-signup-nav">Create profile</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
       <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -53,13 +59,22 @@
     <a href="#gear">Donate gear</a>
     <a href="#public-spaces">For businesses</a>
     <a href="#sponsor">Advertise</a>
+    <a href="#" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
     <a href="#" class="mobile-cta" id="open-signup-mobile">Create profile</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
   </div>
 </div>
 
 <script src="js/focus-trap.js"></script>
 
 <script src="js/storage.js"></script>
+
+<script src="js/supabase-client.js"></script>
+
+<script src="js/auth.js"></script>
 
 <script src="js/nav.js"></script>
 
@@ -468,6 +483,7 @@
         <label for="gig-date">Date</label>
         <input type="text" id="gig-date" placeholder="e.g. March 2025">
       </div>
+      <div class="loc-search-status" id="gig-log-status" role="status"></div>
       <button class="signup-submit" id="gig-save-btn">Save to gig log</button>
     </div>
   </div>
@@ -521,6 +537,7 @@
         <label for="gear-item-loc">Your city</label>
         <input type="text" id="gear-item-loc" placeholder="e.g. Austin, US">
       </div>
+      <div class="loc-search-status" id="gear-list-status" role="status"></div>
       <button class="signup-submit" id="gear-list-save-btn">List for donation</button>
     </div>
   </div>
@@ -755,6 +772,13 @@
         <input type="text" id="signup-name" placeholder="e.g. Naledi Khumalo">
       </div>
 
+      <div class="form-field" id="signup-auth-fields" style="display:none;">
+        <label for="signup-email">Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+        <label for="signup-password" style="margin-top:10px;">Password</label>
+        <input type="password" id="signup-password" placeholder="At least 6 characters" autocomplete="new-password">
+      </div>
+
       <div class="form-field">
         <label>Location</label>
         <div class="loc-picker">
@@ -803,7 +827,32 @@
         <input type="text" id="signup-role" placeholder="e.g. Bassist, Sound Engineer, Tour Manager">
       </div>
 
+      <div class="loc-search-status" id="signup-status" role="status"></div>
       <button class="signup-submit" id="signup-submit-btn" disabled>Set a location to continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="signin-modal" role="dialog" aria-modal="true" aria-labelledby="signin-title">
+  <div class="signup-card">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ Welcome back</span>
+        <h2 class="display" id="signin-title">Sign in</h2>
+      </div>
+      <button class="modal-close" id="signin-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="signin-email">Email</label>
+        <input type="email" id="signin-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label for="signin-password">Password</label>
+        <input type="password" id="signin-password" placeholder="Your password" autocomplete="current-password">
+      </div>
+      <div class="loc-search-status" id="signin-status" role="status"></div>
+      <button class="signup-submit" id="signin-submit-btn">Sign in</button>
     </div>
   </div>
 </div>
