@@ -307,9 +307,16 @@
       var item = document.createElement('div');
       item.className = 'follow-item';
       item.innerHTML =
-        '<div class="follow-avatar" style="background:linear-gradient(135deg, ' + person.color + ', var(--yellow));"></div>' +
+        '<div class="follow-avatar"></div>' +
         '<div class="follow-meta"><h5>' + escapeHtml(person.name) + '</h5><p>' + escapeHtml(person.role) + '</p></div>' +
         '<button class="unfollow-btn">Unfollow</button>';
+      // person.color can come from a real profiles row (resolvePersonMeta),
+      // which is remote, other-user-controlled data — set it via the style
+      // API instead of interpolating into innerHTML, and validate the
+      // shape so a malicious value can't do anything but fall back to a
+      // default color.
+      var safeColor = /^#[0-9a-f]{3,8}$/i.test(person.color) ? person.color : '#2BE8D9';
+      item.querySelector('.follow-avatar').style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
       item.querySelector('.unfollow-btn').addEventListener('click', function(){
         window.toggleFollow(id, person);
       });
