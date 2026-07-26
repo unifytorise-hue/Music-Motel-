@@ -90,15 +90,15 @@
     letter-spacing:0.02em; text-transform:uppercase;
   }
   .logo-img{
-    height:38px; width:auto; border-radius:50%;
-    box-shadow:0 0 14px rgba(155,63,196,0.55);
+    height:38px; width:auto;
+    filter:drop-shadow(0 0 8px rgba(155,63,196,0.55));
   }
   .footer-brand .logo-img{ height:34px; }
   .hero-logo-badge{
     position:relative; z-index:1;
-    width:92px; height:auto; border-radius:50%;
+    width:92px; height:auto;
     margin-bottom:24px;
-    box-shadow:0 0 30px rgba(155,63,196,0.4), 0 0 55px rgba(232,185,61,0.18);
+    filter:drop-shadow(0 0 22px rgba(155,63,196,0.4)) drop-shadow(0 0 40px rgba(232,185,61,0.18));
   }
   .nav-links{
     display:flex; gap:32px; font-size:14px;
