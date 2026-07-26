@@ -10,7 +10,7 @@
   // only) — every module that touches Supabase checks
   // window.mmSupabaseConfigured first and falls back automatically.
   var SUPABASE_URL = 'https://gtqnyjiqfhsxngwspkky.supabase.co';
-  var SUPABASE_ANON_KEY = 'REPLACE_WITH_ANON_PUBLISHABLE_KEY';
+  var SUPABASE_ANON_KEY = 'sb_publishable_fqNJjwd1fxCDjoLHE6UUJA_XAB8V_3m';
 
   var hasKey = !!(SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.indexOf('REPLACE_WITH_') !== 0);
   var hasLibrary = (typeof window.supabase === 'object' && window.supabase !== null && typeof window.supabase.createClient === 'function');
