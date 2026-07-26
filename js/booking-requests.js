@@ -27,7 +27,27 @@
       .catch(function(){ return []; });
   }
 
-  function renderRealArtists(artists){
+  function loadReviewSummaries(){
+    return window.mmSupabase.from('booking_reviews').select('reviewee_id,rating')
+      .then(function(res){
+        var summaries = {};
+        (res.data || []).forEach(function(r){
+          var s = summaries[r.reviewee_id] || (summaries[r.reviewee_id] = { total: 0, count: 0 });
+          s.total += r.rating;
+          s.count += 1;
+        });
+        return summaries;
+      })
+      .catch(function(){ return {}; });
+  }
+
+  function reviewSummaryText(summary){
+    if (!summary || !summary.count) return 'No reviews yet';
+    var avg = summary.total / summary.count;
+    return '★ ' + avg.toFixed(1) + ' (' + summary.count + (summary.count === 1 ? ' review' : ' reviews') + ')';
+  }
+
+  function renderRealArtists(artists, reviewSummaries){
     var section = document.getElementById('real-artists');
     var grid = document.getElementById('real-artist-grid');
     var empty = document.getElementById('real-artist-empty');
@@ -47,6 +67,7 @@
         '<div class="gear-card-cat">' + escapeHtml(p.account_type) + '</div>' +
         '<h4>' + escapeHtml(p.name) + '</h4>' +
         '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
+        '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
         '<div class="gear-card-foot">' +
           '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +
           '<button class="request-quote-btn">Request a quote</button>' +
@@ -60,7 +81,9 @@
 
   function initRealArtists(){
     if (!configured()) return;
-    loadRealArtists().then(renderRealArtists);
+    Promise.all([loadRealArtists(), loadReviewSummaries()]).then(function(results){
+      renderRealArtists(results[0], results[1]);
+    });
   }
 
   // ===== quote request modal (client -> artist) =====
@@ -222,6 +245,18 @@
   // ===== booking requests: incoming (artist) + sent (client) =====
   var incomingRequests = [];
   var sentRequests = [];
+  var reviewedBookingIds = {};
+
+  function loadMyReviewedBookingIds(){
+    if (!currentUser()) return Promise.resolve({});
+    return window.mmSupabase.from('booking_reviews').select('booking_request_id').eq('reviewer_id', currentUser().id)
+      .then(function(res){
+        var map = {};
+        (res.data || []).forEach(function(row){ map[row.booking_request_id] = true; });
+        return map;
+      })
+      .catch(function(){ return {}; });
+  }
 
   function loadIncomingRequests(){
     if (!currentUser()) return Promise.resolve([]);
@@ -303,6 +338,10 @@
         var total = Number(r.quote_amount) + fee;
         feeInfo = '<p>Quote: $' + Number(r.quote_amount).toFixed(2) + ' + $' + fee.toFixed(2) + ' platform fee = $' + total.toFixed(2) + ' total</p>';
         actionsHtml = '<button class="request-action-btn accept-btn">Accept</button><button class="request-action-btn decline decline-btn">Decline</button>';
+      } else if (r.status === 'completed'){
+        actionsHtml = reviewedBookingIds[r.id]
+          ? '<span class="request-status-pill status-completed">★ Reviewed</span>'
+          : '<button class="request-action-btn review-btn">Leave a review</button>';
       }
       item.innerHTML =
         '<div class="request-item-meta">' +
@@ -330,6 +369,8 @@
           renderSent();
         });
       });
+      var reviewBtn = item.querySelector('.review-btn');
+      if (reviewBtn) reviewBtn.addEventListener('click', function(){ openReviewModal(r); });
       list.appendChild(item);
     });
   }
@@ -340,6 +381,7 @@
     if (requestsCard) requestsCard.style.display = 'block';
     loadIncomingRequests().then(function(rows){ incomingRequests = rows; renderIncoming(); });
     loadSentRequests().then(function(rows){ sentRequests = rows; renderSent(); });
+    loadMyReviewedBookingIds().then(function(map){ reviewedBookingIds = map; renderSent(); });
   }
 
   // ===== respond-to-request (artist sends a quote) =====
@@ -410,6 +452,55 @@
       return;
     }
     submitQuote(amount);
+  });
+
+  // ===== leave a review (client, on a completed booking) =====
+  var reviewingBooking = null;
+
+  function openReviewModal(booking){
+    reviewingBooking = booking;
+    document.getElementById('review-rating').value = '5';
+    document.getElementById('review-comment').value = '';
+    document.getElementById('review-status').textContent = '';
+    var modal = document.getElementById('review-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeReviewModal(){
+    var modal = document.getElementById('review-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+  document.getElementById('review-close-btn').addEventListener('click', closeReviewModal);
+  document.getElementById('review-modal').addEventListener('click', function(e){
+    if (e.target.id === 'review-modal') closeReviewModal();
+  });
+
+  document.getElementById('review-submit-btn').addEventListener('click', function(){
+    if (!reviewingBooking) return;
+    var rating = parseInt(document.getElementById('review-rating').value, 10);
+    var comment = document.getElementById('review-comment').value.trim();
+    var statusEl = document.getElementById('review-status');
+    statusEl.textContent = 'Submitting…';
+    window.mmSupabase.from('booking_reviews').insert({
+      booking_request_id: reviewingBooking.id,
+      reviewer_id: currentUser().id,
+      reviewee_id: reviewingBooking.artist_id,
+      rating: rating,
+      comment: comment
+    }).then(function(res){
+      if (res.error){
+        statusEl.textContent = res.error.message;
+        return;
+      }
+      statusEl.textContent = '';
+      reviewedBookingIds[reviewingBooking.id] = true;
+      closeReviewModal();
+      renderSent();
+      initRealArtists();
+    });
   });
 
   // ===== boot =====

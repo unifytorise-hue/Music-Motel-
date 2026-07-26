@@ -595,6 +595,36 @@
   </div>
 </div>
 
+<div class="signup-overlay" id="review-modal" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--yellow);">/ Leave a review</span>
+        <h2 class="display" id="review-modal-title" style="font-size:26px;">Rate the gig</h2>
+      </div>
+      <button class="modal-close" id="review-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="review-rating">Rating</label>
+        <select id="review-rating">
+          <option value="5">★★★★★ Excellent</option>
+          <option value="4">★★★★ Good</option>
+          <option value="3">★★★ Okay</option>
+          <option value="2">★★ Not great</option>
+          <option value="1">★ Poor</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="review-comment">Comment (optional)</label>
+        <input type="text" id="review-comment" placeholder="How did it go?">
+      </div>
+      <div class="loc-search-status" id="review-status" role="status"></div>
+      <button class="signup-submit" id="review-submit-btn">Submit review</button>
+    </div>
+  </div>
+</div>
+
 <div class="signup-overlay" id="add-gig-modal" role="dialog" aria-modal="true" aria-labelledby="add-gig-title">
   <div class="signup-card" style="max-width:480px;">
     <div class="signup-head">
