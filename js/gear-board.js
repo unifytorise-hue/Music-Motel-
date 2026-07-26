@@ -125,6 +125,7 @@
             if (res.error) return;
             remoteClaimedIds[g.id] = true;
             renderGearGrid();
+            if (window.refreshRealXP) window.refreshRealXP();
           });
           return;
         }

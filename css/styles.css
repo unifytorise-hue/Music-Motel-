@@ -644,8 +644,16 @@
     border:1px solid rgba(166,107,255,0.25);
     border-radius:8px;
     padding:12px 16px;
-    margin-bottom:32px;
+    margin-bottom:16px;
     line-height:1.6;
+  }
+  .fan-rank-row{
+    display:flex; align-items:center; gap:14px;
+    margin-bottom:32px;
+  }
+  .fan-rank-xp{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; color:var(--cream-dim); line-height:1.5;
   }
   .fan-dashboard-grid{
     display:grid;

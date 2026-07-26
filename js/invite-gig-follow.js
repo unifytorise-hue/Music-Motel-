@@ -227,6 +227,7 @@
         currentGigs.push({ id: res.data.id, artist: res.data.artist, venue: res.data.venue, date: res.data.date_text });
         renderGigLog(currentGigs);
         resetForm();
+        if (window.refreshRealXP) window.refreshRealXP();
       });
     } else {
       currentGigs.push({ artist: artist, venue: venue, date: date });
