@@ -687,6 +687,43 @@
     transition:all 0.2s;
   }
   .fan-add-btn:hover{ background:rgba(166,107,255,0.12); }
+  .requests-subhead{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--cream-dim);
+    margin:16px 0 8px;
+  }
+  .requests-subhead:first-of-type{ margin-top:4px; }
+  .request-item{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .request-item:last-child{ border-bottom:none; }
+  .request-item-meta{ flex:1; }
+  .request-item-meta h5{ font-size:14px; margin-bottom:3px; }
+  .request-item-meta p{ font-size:12px; color:var(--cream-dim); line-height:1.5; }
+  .request-status-pill{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    padding:4px 10px; border-radius:999px; white-space:nowrap;
+    border:1.5px solid var(--cream-dim); color:var(--cream-dim);
+  }
+  .request-status-pill.status-quoted{ border-color:var(--yellow); color:var(--yellow); }
+  .request-status-pill.status-accepted{ border-color:var(--cyan); color:var(--cyan); }
+  .request-status-pill.status-completed{ border-color:var(--green); color:var(--green); }
+  .request-status-pill.status-declined,
+  .request-status-pill.status-cancelled{ border-color:var(--red); color:var(--red); }
+  .request-item-actions{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+  .request-action-btn{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    border-radius:999px; padding:5px 11px;
+    border:1.5px solid var(--green); color:var(--green);
+    transition:all 0.2s;
+  }
+  .request-action-btn:hover{ background:rgba(74,222,128,0.12); }
+  .request-action-btn.decline{ border-color:var(--red); color:var(--red); }
+  .request-action-btn.decline:hover{ background:rgba(255,77,77,0.12); }
   .fan-follow-count{
     font-family:'JetBrains Mono', monospace;
     font-size:11.5px;
@@ -1045,6 +1082,23 @@
   .gear-footnote{ border-top:1px solid var(--line); padding-top:24px; }
   .gear-footnote p{ font-size:13px; line-height:1.7; color:var(--cream-dim); max-width:760px; }
   .gear-footnote strong{ color:var(--cream); }
+
+  /* ===== real artist directory ===== */
+  .real-artist-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  @media (max-width:880px){ .real-artist-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .real-artist-grid{ grid-template-columns:1fr; } }
+  .request-quote-btn{
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--green); border:1.5px solid var(--green);
+    border-radius:999px; padding:7px 13px;
+    transition:all 0.2s;
+  }
+  .request-quote-btn:hover{ background:rgba(74,222,128,0.12); }
   .gear-empty{
     grid-column:1 / -1;
     text-align:center;
