@@ -23,9 +23,16 @@
   var GEAR_CLAIMS_KEY = 'gear-claims';
   var activeGearFilter = 'all';
   var gearItems = [];
-  var claimedIds = {};
+  var claimedIds = {};       // local-only claims: seed items + items added while unconfigured
+  var remoteClaimedIds = {}; // real gear_claims rows, keyed by gear_listings.id
 
-  function loadGear(){
+  var configured = !!window.mmSupabaseConfigured;
+
+  function isSignedIn(){
+    return !!(configured && window.mmAuth && window.mmAuth.getUser());
+  }
+
+  function loadGearLocal(){
     return storageGet(GEAR_KEY).then(function(val){
       return val ? JSON.parse(val) : SEED_GEAR.slice();
     }).catch(function(){ return SEED_GEAR.slice(); });
@@ -40,6 +47,30 @@
   }
   function saveClaims(map){
     return storageSet(GEAR_CLAIMS_KEY, JSON.stringify(map));
+  }
+
+  // Real listings live in gear_listings (publicly readable regardless of
+  // sign-in state) and sit alongside the hardcoded SEED_GEAR samples. Claims
+  // on those real rows go in gear_claims — a separate table, since seed
+  // items have no row in gear_listings for a claim to foreign-key against.
+  function loadGear(){
+    if (!configured) return loadGearLocal();
+    return window.mmSupabase.from('gear_listings').select('*').order('created_at', { ascending: true })
+      .then(function(res){
+        var remoteItems = (res.data || []).map(function(row){
+          return { id: row.id, name: row.name, category: row.category, condition: row.condition, loc: row.location_label, remote: true };
+        });
+        return SEED_GEAR.concat(remoteItems);
+      })
+      .catch(function(){ return SEED_GEAR.slice(); });
+  }
+  function loadRemoteClaims(){
+    if (!configured) return Promise.resolve({});
+    return window.mmSupabase.from('gear_claims').select('gear_id').then(function(res){
+      var map = {};
+      (res.data || []).forEach(function(row){ map[row.gear_id] = true; });
+      return map;
+    }).catch(function(){ return {}; });
   }
 
   function renderGearTabs(){
@@ -68,7 +99,7 @@
     }
     grid.innerHTML = '';
     visible.forEach(function(g){
-      var isClaimed = !!claimedIds[g.id];
+      var isClaimed = g.remote ? !!remoteClaimedIds[g.id] : !!claimedIds[g.id];
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
@@ -80,7 +111,24 @@
           '<button class="gear-claim-btn' + (isClaimed ? ' claimed' : '') + '">' + (isClaimed ? '✓ Claimed' : 'Claim item') + '</button>' +
         '</div>';
       card.querySelector('.gear-claim-btn').addEventListener('click', function(){
-        if (claimedIds[g.id]) return;
+        if (isClaimed) return;
+
+        if (g.remote){
+          if (!isSignedIn()){
+            if (window.openSignin) window.openSignin();
+            return;
+          }
+          window.mmSupabase.from('gear_claims').insert({
+            gear_id: g.id,
+            claimed_by: window.mmAuth.getUser().id
+          }).then(function(res){
+            if (res.error) return;
+            remoteClaimedIds[g.id] = true;
+            renderGearGrid();
+          });
+          return;
+        }
+
         var fee = '5%';
         var confirmed = confirm(
           'Claim "' + g.name + '"?\n\n' +
@@ -96,9 +144,10 @@
     });
   }
 
-  Promise.all([loadGear(), loadClaims()]).then(function(results){
+  Promise.all([loadGear(), loadClaims(), loadRemoteClaims()]).then(function(results){
     gearItems = results[0];
     claimedIds = results[1];
+    remoteClaimedIds = results[2];
     renderGearTabs();
     renderGearGrid();
   });
@@ -114,7 +163,13 @@
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
-  document.getElementById('gear-list-btn').addEventListener('click', openGearList);
+  document.getElementById('gear-list-btn').addEventListener('click', function(){
+    if (configured && !isSignedIn()){
+      if (window.openSignin) window.openSignin();
+      return;
+    }
+    openGearList();
+  });
   document.getElementById('gear-list-close-btn').addEventListener('click', closeGearList);
   document.getElementById('gear-list-modal').addEventListener('click', function(e){
     if (e.target.id === 'gear-list-modal') closeGearList();
@@ -127,19 +182,46 @@
     var category = document.getElementById('gear-item-category').value.trim() || 'Other';
     var condition = document.getElementById('gear-item-condition').value.trim() || 'Condition not specified';
     var loc = document.getElementById('gear-item-loc').value.trim() || 'Location not specified';
+    var statusEl = document.getElementById('gear-list-status');
+    var saveBtn = document.getElementById('gear-list-save-btn');
     if (!name){
       document.getElementById('gear-item-name').focus();
       return;
     }
-    var newItem = { id:'g-' + Date.now(), name:name, category:category, condition:condition, loc:loc, claimed:false };
-    gearItems.push(newItem);
-    saveGear(gearItems);
-    renderGearTabs();
-    renderGearGrid();
-    document.getElementById('gear-item-name').value = '';
-    document.getElementById('gear-item-category').value = '';
-    document.getElementById('gear-item-condition').value = '';
-    document.getElementById('gear-item-loc').value = '';
-    closeGearList();
+
+    function resetForm(){
+      document.getElementById('gear-item-name').value = '';
+      document.getElementById('gear-item-category').value = '';
+      document.getElementById('gear-item-condition').value = '';
+      document.getElementById('gear-item-loc').value = '';
+      if (statusEl) statusEl.textContent = '';
+      closeGearList();
+    }
+
+    if (configured && isSignedIn()){
+      saveBtn.disabled = true;
+      if (statusEl) statusEl.textContent = 'Listing…';
+      window.mmSupabase.from('gear_listings').insert({
+        user_id: window.mmAuth.getUser().id,
+        name: name, category: category, condition: condition, location_label: loc
+      }).select().single().then(function(res){
+        saveBtn.disabled = false;
+        if (res.error){
+          if (statusEl) statusEl.textContent = res.error.message;
+          return;
+        }
+        gearItems.push({ id: res.data.id, name: res.data.name, category: res.data.category, condition: res.data.condition, loc: res.data.location_label, remote: true });
+        renderGearTabs();
+        renderGearGrid();
+        resetForm();
+      });
+    } else {
+      var newItem = { id:'g-' + Date.now(), name:name, category:category, condition:condition, loc:loc };
+      gearItems.push(newItem);
+      saveGear(gearItems);
+      renderGearTabs();
+      renderGearGrid();
+      resetForm();
+    }
   });
 })();

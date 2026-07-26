@@ -90,21 +90,48 @@
   // block right after the focus-trap utility).
   var siteStorage = window.siteStorage;
 
+  function isSignedIn(){
+    return !!(window.mmSupabaseConfigured && window.mmAuth && window.mmAuth.getUser());
+  }
+  var authReady = window.mmAuthReady || Promise.resolve();
+
+  function escapeHtml(str){
+    var d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
   // ===== gig log =====
   var GIG_LOG_KEY = 'fan-gig-log';
 
-  function loadGigLog(){
+  function loadGigLogLocal(){
     return siteStorage.get(GIG_LOG_KEY)
       .then(function(val){ return val ? JSON.parse(val) : []; })
       .catch(function(){ return []; });
   }
-  function saveGigLog(gigs){
+  function saveGigLogLocal(gigs){
     return siteStorage.set(GIG_LOG_KEY, JSON.stringify(gigs));
   }
+  function loadGigLogRemote(){
+    return window.mmSupabase.from('gig_log').select('*').order('created_at', { ascending: true })
+      .then(function(res){
+        if (res.error || !res.data) return [];
+        return res.data.map(function(row){
+          return { id: row.id, artist: row.artist, venue: row.venue, date: row.date_text };
+        });
+      })
+      .catch(function(){ return []; });
+  }
+
+  // Captured once, before any render ever clears #gig-log-list via
+  // innerHTML — that placeholder is a child of the list, so re-querying it
+  // by id after the first non-empty render would return null (it was
+  // wiped out along with the old items) and crash the next empty render.
+  var gigLogEmptyEl = document.getElementById('gig-log-empty');
 
   function renderGigLog(gigs){
     var list = document.getElementById('gig-log-list');
-    var empty = document.getElementById('gig-log-empty');
+    var empty = gigLogEmptyEl;
     if (!gigs || gigs.length === 0){
       list.innerHTML = '';
       list.appendChild(empty);
@@ -120,24 +147,33 @@
         '<div style="flex:1;"><h5>' + escapeHtml(gig.artist) + '</h5><p>' + escapeHtml(gig.venue) + (gig.date ? ' · ' + escapeHtml(gig.date) : '') + '</p></div>' +
         '<button class="gig-log-remove" aria-label="Remove">✕</button>';
       item.querySelector('.gig-log-remove').addEventListener('click', function(){
-        gigs.splice(realIdx, 1);
-        saveGigLog(gigs);
-        renderGigLog(gigs);
+        removeGig(realIdx);
       });
       list.appendChild(item);
     });
   }
 
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
+  var currentGigs = [];
+  function removeGig(idx){
+    var removed = currentGigs[idx];
+    currentGigs.splice(idx, 1);
+    renderGigLog(currentGigs);
+    if (isSignedIn() && removed && removed.id){
+      // Supabase's query builder is a lazy thenable — the request isn't
+      // actually dispatched until something calls .then()/awaits it, so
+      // this can't be fire-and-forget without one.
+      window.mmSupabase.from('gig_log').delete().eq('id', removed.id).then(function(){});
+    } else {
+      saveGigLogLocal(currentGigs);
+    }
   }
 
-  var currentGigs = [];
-  loadGigLog().then(function(gigs){
-    currentGigs = gigs;
-    renderGigLog(currentGigs);
+  authReady.then(function(){
+    var loader = isSignedIn() ? loadGigLogRemote() : loadGigLogLocal();
+    return loader.then(function(gigs){
+      currentGigs = gigs;
+      renderGigLog(currentGigs);
+    });
   });
 
   document.getElementById('fan-add-gig-btn').addEventListener('click', function(){
@@ -161,40 +197,103 @@
     var artist = document.getElementById('gig-artist').value.trim();
     var venue = document.getElementById('gig-venue').value.trim();
     var date = document.getElementById('gig-date').value.trim();
+    var statusEl = document.getElementById('gig-log-status');
+    var saveBtn = document.getElementById('gig-save-btn');
     if (!artist){
       document.getElementById('gig-artist').focus();
       return;
     }
-    currentGigs.push({ artist: artist, venue: venue, date: date });
-    saveGigLog(currentGigs);
-    renderGigLog(currentGigs);
-    document.getElementById('gig-artist').value = '';
-    document.getElementById('gig-venue').value = '';
-    document.getElementById('gig-date').value = '';
-    closeAddGig();
+
+    function resetForm(){
+      document.getElementById('gig-artist').value = '';
+      document.getElementById('gig-venue').value = '';
+      document.getElementById('gig-date').value = '';
+      if (statusEl) statusEl.textContent = '';
+      closeAddGig();
+    }
+
+    if (isSignedIn()){
+      saveBtn.disabled = true;
+      if (statusEl) statusEl.textContent = 'Saving…';
+      window.mmSupabase.from('gig_log').insert({
+        user_id: window.mmAuth.getUser().id,
+        artist: artist, venue: venue, date_text: date
+      }).select().single().then(function(res){
+        saveBtn.disabled = false;
+        if (res.error){
+          if (statusEl) statusEl.textContent = res.error.message;
+          return;
+        }
+        currentGigs.push({ id: res.data.id, artist: res.data.artist, venue: res.data.venue, date: res.data.date_text });
+        renderGigLog(currentGigs);
+        resetForm();
+      });
+    } else {
+      currentGigs.push({ artist: artist, venue: venue, date: date });
+      saveGigLogLocal(currentGigs);
+      renderGigLog(currentGigs);
+      resetForm();
+    }
   });
 
   // ===== following =====
   var FOLLOW_KEY = 'fan-following';
 
-  function loadFollowing(){
+  function loadFollowingLocal(){
     return siteStorage.get(FOLLOW_KEY)
       .then(function(val){ return val ? JSON.parse(val) : {}; })
       .catch(function(){ return {}; });
   }
-  function saveFollowing(map){
+  function saveFollowingLocal(map){
     return siteStorage.set(FOLLOW_KEY, JSON.stringify(map));
   }
 
+  // The follows table only stores follower_id/following_id (no name/role/
+  // color), so on load we resolve each id back to display info: sample
+  // people via the client-side PATCH_JACKS lookup, real accounts via a
+  // public read of their profiles row.
+  function resolvePersonMeta(id){
+    var sample = window.getSamplePersonBySlug && window.getSamplePersonBySlug(id);
+    if (sample) return Promise.resolve(sample);
+    return window.mmSupabase.from('profiles').select('name,role_label,avatar_color').eq('id', id).maybeSingle()
+      .then(function(res){
+        if (res.error || !res.data) return { name: id, role: '', loc: '', color: '#2BE8D9' };
+        return { name: res.data.name, role: res.data.role_label, loc: '', color: res.data.avatar_color };
+      })
+      .catch(function(){ return { name: id, role: '', loc: '', color: '#2BE8D9' }; });
+  }
+
+  function loadFollowingRemote(){
+    return window.mmSupabase.from('follows').select('following_id').eq('follower_id', window.mmAuth.getUser().id)
+      .then(function(res){
+        if (res.error || !res.data) return {};
+        var ids = res.data.map(function(r){ return r.following_id; });
+        return Promise.all(ids.map(resolvePersonMeta)).then(function(metas){
+          var map = {};
+          ids.forEach(function(id, i){ map[id] = metas[i]; });
+          return map;
+        });
+      })
+      .catch(function(){ return {}; });
+  }
+
   var followingMap = {};
-  loadFollowing().then(function(map){
-    followingMap = map || {};
-    renderFollowList();
+  authReady.then(function(){
+    var loader = isSignedIn() ? loadFollowingRemote() : loadFollowingLocal();
+    return loader.then(function(map){
+      followingMap = map || {};
+      renderFollowList();
+    });
   });
+
+  // Same reasoning as gigLogEmptyEl above: capture once, before any render
+  // wipes #follow-list's children (including this placeholder) via
+  // innerHTML.
+  var followEmptyEl = document.getElementById('follow-empty');
 
   function renderFollowList(){
     var list = document.getElementById('follow-list');
-    var empty = document.getElementById('follow-empty');
+    var empty = followEmptyEl;
     var ids = Object.keys(followingMap);
     document.getElementById('fan-follow-count').textContent = ids.length + (ids.length === 1 ? ' artist' : ' artists');
     if (ids.length === 0){
@@ -208,26 +307,47 @@
       var item = document.createElement('div');
       item.className = 'follow-item';
       item.innerHTML =
-        '<div class="follow-avatar" style="background:linear-gradient(135deg, ' + person.color + ', var(--yellow));"></div>' +
+        '<div class="follow-avatar"></div>' +
         '<div class="follow-meta"><h5>' + escapeHtml(person.name) + '</h5><p>' + escapeHtml(person.role) + '</p></div>' +
         '<button class="unfollow-btn">Unfollow</button>';
+      // person.color can come from a real profiles row (resolvePersonMeta),
+      // which is remote, other-user-controlled data — set it via the style
+      // API instead of interpolating into innerHTML, and validate the
+      // shape so a malicious value can't do anything but fall back to a
+      // default color.
+      var safeColor = /^#[0-9a-f]{3,8}$/i.test(person.color) ? person.color : '#2BE8D9';
+      item.querySelector('.follow-avatar').style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
       item.querySelector('.unfollow-btn').addEventListener('click', function(){
-        delete followingMap[id];
-        saveFollowing(followingMap);
-        renderFollowList();
+        window.toggleFollow(id, person);
       });
       list.appendChild(item);
     });
   }
 
   window.toggleFollow = function(personId, person){
-    if (followingMap[personId]){
+    var wasFollowing = !!followingMap[personId];
+    if (wasFollowing){
       delete followingMap[personId];
     } else {
       followingMap[personId] = person;
     }
-    saveFollowing(followingMap);
     renderFollowList();
+
+    if (isSignedIn()){
+      var uid = window.mmAuth.getUser().id;
+      var op = wasFollowing
+        ? window.mmSupabase.from('follows').delete().eq('follower_id', uid).eq('following_id', personId)
+        : window.mmSupabase.from('follows').insert({ follower_id: uid, following_id: personId });
+      op.then(function(res){
+        if (res && res.error){
+          // revert the optimistic update if the write failed
+          if (wasFollowing) followingMap[personId] = person; else delete followingMap[personId];
+          renderFollowList();
+        }
+      });
+    } else {
+      saveFollowingLocal(followingMap);
+    }
   };
 
   window.refreshFollowButton = function(btn, personId){

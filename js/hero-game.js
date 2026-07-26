@@ -21,11 +21,37 @@
     return code;
   }
 
-  function getOrCreateReferralCode(){
+  function getOrCreateReferralCodeLocal(){
     return storageGet(REFERRAL_CODE_KEY).then(function(existing){
       if (existing) return existing;
       var fresh = generateCode();
       return storageSet(REFERRAL_CODE_KEY, fresh).then(function(){ return fresh; });
+    });
+  }
+
+  // Signed-in users get a code that lives in referral_codes, so a referrer
+  // on a different browser/device can actually be credited (the local-only
+  // version above can't cross browsers, which is what referral_codes
+  // exists to fix). Signed-out visitors keep the local-only preview code.
+  function getOrCreateReferralCodeRemote(userId){
+    return window.mmSupabase.from('referral_codes').select('code').eq('user_id', userId).maybeSingle()
+      .then(function(res){
+        if (res.data && res.data.code) return res.data.code;
+        var fresh = generateCode();
+        return window.mmSupabase.from('referral_codes').insert({ user_id: userId, code: fresh }).then(function(insertRes){
+          if (insertRes.error) return getOrCreateReferralCodeLocal();
+          return fresh;
+        });
+      })
+      .catch(function(){ return getOrCreateReferralCodeLocal(); });
+  }
+
+  function getOrCreateReferralCode(){
+    var authReady = window.mmAuthReady || Promise.resolve();
+    return authReady.then(function(){
+      var user = window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser();
+      if (window.mmSupabaseConfigured && user) return getOrCreateReferralCodeRemote(user.id);
+      return getOrCreateReferralCodeLocal();
     });
   }
 
@@ -250,6 +276,18 @@
           {title:'Historical instrument restoration', detail:'Restored a 1920s grand piano for a private collector.', xp:75}
         ]}}
   ];
+
+  // Lets other scripts (following) resolve a slugified id back to a
+  // sample person's display info, since the follows table only stores the
+  // slug/uuid, not the name/role/color needed to render a follow-list row.
+  var samplePeopleBySlug = {};
+  PATCH_JACKS.forEach(function(jack){
+    var p = jack.person;
+    if (!p) return;
+    var slug = p.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    samplePeopleBySlug[slug] = { name: p.name, role: p.role, loc: jack.loc, color: jack.color };
+  });
+  window.getSamplePersonBySlug = function(slug){ return samplePeopleBySlug[slug]; };
 
   var xp = 0;
   var band = [];
@@ -560,6 +598,48 @@
   // without a real backend — see note in the referral panel UI).
   window.markReferralConversion = function(){
     return storageGet(REFERRED_BY_KEY);
+  };
+
+  // Called right after a real signup succeeds, so this visitor's own
+  // invite code (generated locally on page load, before they had an
+  // account) becomes a real referral_codes row and actually survives
+  // across devices from here on — otherwise it would stay local-only for
+  // the rest of this browser session, since the local/remote choice above
+  // is only made once, at page load.
+  window.syncReferralCodeForUser = function(userId){
+    if (!(window.mmSupabaseConfigured && window.mmSupabase)) return Promise.resolve();
+    return window.mmSupabase.from('referral_codes').select('code').eq('user_id', userId).maybeSingle().then(function(res){
+      if (res.data && res.data.code) return res.data.code;
+      var codeToUse = myReferralCode || generateCode();
+      return window.mmSupabase.from('referral_codes').insert({ user_id: userId, code: codeToUse }).then(function(insertRes){
+        return insertRes.error ? myReferralCode : codeToUse;
+      });
+    }).then(function(code){
+      if (!code) return;
+      myReferralCode = code;
+      var input = document.getElementById('invite-link-input');
+      if (input) input.value = getReferralLink(code);
+    }).catch(function(){});
+  };
+
+  // Called right after a real signup succeeds. If this visitor arrived via
+  // someone's invite link, look up the referrer's real referral_codes row
+  // and record the conversion in referrals — this is the part that
+  // actually works across devices, unlike the local-only XP bonus above.
+  window.recordReferralIfAny = function(newUserId){
+    if (!(window.mmSupabaseConfigured && window.mmSupabase)) return Promise.resolve();
+    return storageGet(REFERRED_BY_KEY).then(function(code){
+      if (!code) return;
+      return window.mmSupabase.from('referral_codes').select('user_id').eq('code', code).maybeSingle().then(function(res){
+        if (res.error || !res.data) return;
+        var referrerId = res.data.user_id;
+        if (referrerId === newUserId) return;
+        return window.mmSupabase.from('referrals').insert({
+          referred_user_id: newUserId,
+          referrer_user_id: referrerId
+        });
+      });
+    }).catch(function(){});
   };
 
   getOrCreateReferralCode().then(function(code){
