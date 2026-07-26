@@ -1,0 +1,522 @@
+(function(){
+  function escapeHtml(str){
+    var d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function configured(){ return !!(window.mmSupabaseConfigured && window.mmSupabase); }
+  function currentUser(){ return window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser(); }
+  var authReady = window.mmAuthReady || Promise.resolve();
+
+  // Captured once, before any render ever clears these lists via
+  // innerHTML — each placeholder is a child of the list it describes, so
+  // re-querying by id after the first non-empty render would return null
+  // (see the same bug already fixed in js/invite-gig-follow.js).
+  var ratesEmptyEl = document.getElementById('rates-empty');
+  var incomingEmptyEl = document.getElementById('incoming-requests-empty');
+  var sentEmptyEl = document.getElementById('sent-requests-empty');
+
+  // ===== real artist directory =====
+  function loadRealArtists(){
+    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type')
+      .then(function(res){
+        if (res.error || !res.data) return [];
+        return res.data.filter(function(p){ return p.account_type !== 'fan'; });
+      })
+      .catch(function(){ return []; });
+  }
+
+  function loadReviewSummaries(){
+    return window.mmSupabase.from('booking_reviews').select('reviewee_id,rating')
+      .then(function(res){
+        var summaries = {};
+        (res.data || []).forEach(function(r){
+          var s = summaries[r.reviewee_id] || (summaries[r.reviewee_id] = { total: 0, count: 0 });
+          s.total += r.rating;
+          s.count += 1;
+        });
+        return summaries;
+      })
+      .catch(function(){ return {}; });
+  }
+
+  function reviewSummaryText(summary){
+    if (!summary || !summary.count) return 'No reviews yet';
+    var avg = summary.total / summary.count;
+    return '★ ' + avg.toFixed(1) + ' (' + summary.count + (summary.count === 1 ? ' review' : ' reviews') + ')';
+  }
+
+  function renderRealArtists(artists, reviewSummaries){
+    var section = document.getElementById('real-artists');
+    var grid = document.getElementById('real-artist-grid');
+    var empty = document.getElementById('real-artist-empty');
+    if (!section || !grid) return;
+    section.style.display = '';
+    if (!artists.length){
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = '';
+    artists.forEach(function(p){
+      var card = document.createElement('div');
+      card.className = 'gear-card';
+      card.innerHTML =
+        '<div class="gear-card-cat">' + escapeHtml(p.account_type) + '</div>' +
+        '<h4>' + escapeHtml(p.name) + '</h4>' +
+        '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
+        '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
+        '<div class="gear-card-foot">' +
+          '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +
+          '<button class="request-quote-btn">Request a quote</button>' +
+        '</div>';
+      card.querySelector('.request-quote-btn').addEventListener('click', function(){
+        openQuoteRequest(p);
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  function initRealArtists(){
+    if (!configured()) return;
+    Promise.all([loadRealArtists(), loadReviewSummaries()]).then(function(results){
+      renderRealArtists(results[0], results[1]);
+    });
+  }
+
+  // ===== quote request modal (client -> artist) =====
+  var quoteTargetArtist = null;
+
+  window.openQuoteRequest = function(artist){
+    if (!currentUser()){
+      if (window.openSignup) window.openSignup();
+      return;
+    }
+    quoteTargetArtist = artist;
+    document.getElementById('quote-modal-title').textContent = 'Request ' + artist.name.split(' ')[0];
+    document.getElementById('quote-date').value = '';
+    document.getElementById('quote-location').value = '';
+    document.getElementById('quote-details').value = '';
+    document.getElementById('quote-status').textContent = '';
+    var modal = document.getElementById('quote-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  };
+
+  function closeQuoteModal(){
+    var modal = document.getElementById('quote-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+  document.getElementById('quote-close-btn').addEventListener('click', closeQuoteModal);
+  document.getElementById('quote-modal').addEventListener('click', function(e){
+    if (e.target.id === 'quote-modal') closeQuoteModal();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && document.getElementById('quote-modal').classList.contains('open')) closeQuoteModal();
+  });
+
+  document.getElementById('quote-submit-btn').addEventListener('click', function(){
+    var eventType = document.getElementById('quote-event-type').value;
+    var date = document.getElementById('quote-date').value.trim();
+    var location = document.getElementById('quote-location').value.trim();
+    var details = document.getElementById('quote-details').value.trim();
+    var statusEl = document.getElementById('quote-status');
+    var btn = document.getElementById('quote-submit-btn');
+
+    if (!date || !details){
+      statusEl.textContent = 'Add a date and a short description of the gig.';
+      return;
+    }
+    if (!quoteTargetArtist) return;
+
+    btn.disabled = true;
+    statusEl.textContent = 'Sending…';
+    window.mmSupabase.from('booking_requests').insert({
+      client_id: currentUser().id,
+      artist_id: quoteTargetArtist.id,
+      event_type: eventType,
+      event_date: date,
+      location_label: location,
+      details: details
+    }).select().single().then(function(res){
+      btn.disabled = false;
+      if (res.error){
+        statusEl.textContent = res.error.message;
+        return;
+      }
+      statusEl.textContent = '';
+      closeQuoteModal();
+      refreshRequests();
+    });
+  });
+
+  // ===== artist rates (quick-reply price presets) =====
+  var myRates = [];
+
+  function loadMyRates(){
+    if (!currentUser()) return Promise.resolve([]);
+    return window.mmSupabase.from('artist_rates').select('*').eq('user_id', currentUser().id).order('created_at')
+      .then(function(res){ return res.data || []; })
+      .catch(function(){ return []; });
+  }
+
+  function renderRates(){
+    var card = document.getElementById('rates-card');
+    var list = document.getElementById('rates-list');
+    var empty = ratesEmptyEl;
+    if (!card) return;
+    card.style.display = 'block';
+    if (!myRates.length){
+      list.innerHTML = '';
+      list.appendChild(empty);
+      return;
+    }
+    list.innerHTML = '';
+    myRates.forEach(function(r){
+      var item = document.createElement('div');
+      item.className = 'gig-log-item';
+      item.innerHTML =
+        '<span class="gig-log-dot"></span>' +
+        '<div style="flex:1;"><h5>$' + Number(r.amount).toFixed(0) + '</h5><p>' + escapeHtml(r.label) + '</p></div>' +
+        '<button class="gig-log-remove" aria-label="Remove">✕</button>';
+      item.querySelector('.gig-log-remove').addEventListener('click', function(){
+        window.mmSupabase.from('artist_rates').delete().eq('id', r.id).then(function(){
+          myRates = myRates.filter(function(x){ return x.id !== r.id; });
+          renderRates();
+        });
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function initRates(){
+    if (!(configured() && currentUser())) return;
+    loadMyRates().then(function(rates){
+      myRates = rates;
+      renderRates();
+    });
+  }
+
+  document.getElementById('rates-add-btn').addEventListener('click', function(){
+    document.getElementById('rate-label').value = '';
+    document.getElementById('rate-amount').value = '';
+    document.getElementById('rate-status').textContent = '';
+    var modal = document.getElementById('add-rate-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  });
+  function closeAddRate(){
+    var modal = document.getElementById('add-rate-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+  document.getElementById('add-rate-close-btn').addEventListener('click', closeAddRate);
+  document.getElementById('add-rate-modal').addEventListener('click', function(e){
+    if (e.target.id === 'add-rate-modal') closeAddRate();
+  });
+  document.getElementById('rate-save-btn').addEventListener('click', function(){
+    var label = document.getElementById('rate-label').value.trim();
+    var amount = parseFloat(document.getElementById('rate-amount').value);
+    var statusEl = document.getElementById('rate-status');
+    if (!label || isNaN(amount) || amount <= 0){
+      statusEl.textContent = 'Add a label and a price greater than 0.';
+      return;
+    }
+    window.mmSupabase.from('artist_rates').insert({
+      user_id: currentUser().id, label: label, amount: amount
+    }).select().single().then(function(res){
+      if (res.error){
+        statusEl.textContent = res.error.message;
+        return;
+      }
+      myRates.push(res.data);
+      renderRates();
+      closeAddRate();
+    });
+  });
+
+  // ===== booking requests: incoming (artist) + sent (client) =====
+  var incomingRequests = [];
+  var sentRequests = [];
+  var reviewedBookingIds = {};
+
+  function loadMyReviewedBookingIds(){
+    if (!currentUser()) return Promise.resolve({});
+    return window.mmSupabase.from('booking_reviews').select('booking_request_id').eq('reviewer_id', currentUser().id)
+      .then(function(res){
+        var map = {};
+        (res.data || []).forEach(function(row){ map[row.booking_request_id] = true; });
+        return map;
+      })
+      .catch(function(){ return {}; });
+  }
+
+  function loadIncomingRequests(){
+    if (!currentUser()) return Promise.resolve([]);
+    return window.mmSupabase.from('booking_requests').select('*').eq('artist_id', currentUser().id).order('created_at')
+      .then(function(res){ return res.data || []; })
+      .catch(function(){ return []; });
+  }
+  function loadSentRequests(){
+    if (!currentUser()) return Promise.resolve([]);
+    return window.mmSupabase.from('booking_requests').select('*').eq('client_id', currentUser().id).order('created_at')
+      .then(function(res){ return res.data || []; })
+      .catch(function(){ return []; });
+  }
+
+  function statusLabel(status){
+    return { requested:'Requested', quoted:'Quoted', accepted:'Accepted', declined:'Declined', completed:'Completed', cancelled:'Cancelled' }[status] || status;
+  }
+
+  function renderIncoming(){
+    var list = document.getElementById('incoming-requests-list');
+    var empty = incomingEmptyEl;
+    if (!list) return;
+    if (!incomingRequests.length){
+      list.innerHTML = '';
+      list.appendChild(empty);
+      return;
+    }
+    list.innerHTML = '';
+    incomingRequests.forEach(function(r){
+      var item = document.createElement('div');
+      item.className = 'request-item';
+      var actionsHtml = '';
+      if (r.status === 'requested'){
+        actionsHtml = '<button class="request-action-btn quote-btn">Send quote</button>';
+      } else if (r.status === 'accepted'){
+        actionsHtml = '<button class="request-action-btn complete-btn">Mark complete</button>';
+      }
+      item.innerHTML =
+        '<div class="request-item-meta">' +
+          '<h5>' + escapeHtml(r.event_type) + (r.event_date ? ' — ' + escapeHtml(r.event_date) : '') + '</h5>' +
+          '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
+          (r.quote_amount ? '<p>Your quote: $' + Number(r.quote_amount).toFixed(2) + '</p>' : '') +
+        '</div>' +
+        '<div class="request-item-actions">' +
+          '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
+          actionsHtml +
+        '</div>';
+      var quoteBtn = item.querySelector('.quote-btn');
+      if (quoteBtn) quoteBtn.addEventListener('click', function(){ openRespondQuote(r); });
+      var completeBtn = item.querySelector('.complete-btn');
+      if (completeBtn) completeBtn.addEventListener('click', function(){
+        window.mmSupabase.from('booking_requests').update({ status: 'completed' }).eq('id', r.id).then(function(res){
+          if (res.error) return;
+          r.status = 'completed';
+          renderIncoming();
+        });
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function renderSent(){
+    var list = document.getElementById('sent-requests-list');
+    var empty = sentEmptyEl;
+    if (!list) return;
+    if (!sentRequests.length){
+      list.innerHTML = '';
+      list.appendChild(empty);
+      return;
+    }
+    list.innerHTML = '';
+    sentRequests.forEach(function(r){
+      var item = document.createElement('div');
+      item.className = 'request-item';
+      var feeInfo = '';
+      var actionsHtml = '';
+      if (r.status === 'quoted' && r.quote_amount){
+        var fee = Number(r.quote_amount) * Number(r.platform_fee_rate);
+        var total = Number(r.quote_amount) + fee;
+        feeInfo = '<p>Quote: $' + Number(r.quote_amount).toFixed(2) + ' + $' + fee.toFixed(2) + ' platform fee = $' + total.toFixed(2) + ' total</p>';
+        actionsHtml = '<button class="request-action-btn accept-btn">Accept</button><button class="request-action-btn decline decline-btn">Decline</button>';
+      } else if (r.status === 'completed'){
+        actionsHtml = reviewedBookingIds[r.id]
+          ? '<span class="request-status-pill status-completed">★ Reviewed</span>'
+          : '<button class="request-action-btn review-btn">Leave a review</button>';
+      }
+      item.innerHTML =
+        '<div class="request-item-meta">' +
+          '<h5>' + escapeHtml(r.event_type) + (r.event_date ? ' — ' + escapeHtml(r.event_date) : '') + '</h5>' +
+          '<p>' + escapeHtml(r.details) + '</p>' +
+          feeInfo +
+        '</div>' +
+        '<div class="request-item-actions">' +
+          '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
+          actionsHtml +
+        '</div>';
+      var acceptBtn = item.querySelector('.accept-btn');
+      if (acceptBtn) acceptBtn.addEventListener('click', function(){
+        window.mmSupabase.from('booking_requests').update({ status: 'accepted' }).eq('id', r.id).then(function(res){
+          if (res.error) return;
+          r.status = 'accepted';
+          renderSent();
+        });
+      });
+      var declineBtn = item.querySelector('.decline-btn');
+      if (declineBtn) declineBtn.addEventListener('click', function(){
+        window.mmSupabase.from('booking_requests').update({ status: 'declined' }).eq('id', r.id).then(function(res){
+          if (res.error) return;
+          r.status = 'declined';
+          renderSent();
+        });
+      });
+      var reviewBtn = item.querySelector('.review-btn');
+      if (reviewBtn) reviewBtn.addEventListener('click', function(){ openReviewModal(r); });
+      list.appendChild(item);
+    });
+  }
+
+  function refreshRequests(){
+    if (!(configured() && currentUser())) return;
+    var requestsCard = document.getElementById('requests-card');
+    if (requestsCard) requestsCard.style.display = 'block';
+    loadIncomingRequests().then(function(rows){ incomingRequests = rows; renderIncoming(); });
+    loadSentRequests().then(function(rows){ sentRequests = rows; renderSent(); });
+    loadMyReviewedBookingIds().then(function(map){ reviewedBookingIds = map; renderSent(); });
+  }
+
+  // ===== respond-to-request (artist sends a quote) =====
+  var respondingTo = null;
+
+  function openRespondQuote(request){
+    respondingTo = request;
+    document.getElementById('respond-quote-title').textContent = 'Quote for ' + request.event_type;
+    document.getElementById('respond-quote-detail').innerHTML =
+      '<div class="request-item-meta"><h5>' + escapeHtml(request.event_type) +
+      (request.event_date ? ' — ' + escapeHtml(request.event_date) : '') + '</h5><p>' +
+      escapeHtml(request.details) + (request.location_label ? ' · ' + escapeHtml(request.location_label) : '') + '</p></div>';
+
+    var ratesField = document.getElementById('respond-quote-rates-field');
+    var ratesRow = document.getElementById('respond-quote-rates');
+    ratesRow.innerHTML = '';
+    if (myRates.length){
+      ratesField.style.display = 'block';
+      myRates.forEach(function(r){
+        var btn = document.createElement('button');
+        btn.className = 'patch-tab';
+        btn.textContent = '$' + Number(r.amount).toFixed(0) + ' — ' + r.label;
+        btn.addEventListener('click', function(){ submitQuote(r.amount); });
+        ratesRow.appendChild(btn);
+      });
+    } else {
+      ratesField.style.display = 'none';
+    }
+
+    document.getElementById('respond-quote-amount').value = '';
+    document.getElementById('respond-quote-status').textContent = '';
+    var modal = document.getElementById('respond-quote-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeRespondQuote(){
+    var modal = document.getElementById('respond-quote-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+  document.getElementById('respond-quote-close-btn').addEventListener('click', closeRespondQuote);
+  document.getElementById('respond-quote-modal').addEventListener('click', function(e){
+    if (e.target.id === 'respond-quote-modal') closeRespondQuote();
+  });
+
+  function submitQuote(amount){
+    if (!respondingTo) return;
+    var statusEl = document.getElementById('respond-quote-status');
+    statusEl.textContent = 'Sending…';
+    window.mmSupabase.from('booking_requests').update({ status: 'quoted', quote_amount: amount }).eq('id', respondingTo.id)
+      .then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        statusEl.textContent = '';
+        closeRespondQuote();
+        refreshRequests();
+      });
+  }
+
+  document.getElementById('respond-quote-submit-btn').addEventListener('click', function(){
+    var amount = parseFloat(document.getElementById('respond-quote-amount').value);
+    if (isNaN(amount) || amount <= 0){
+      document.getElementById('respond-quote-status').textContent = 'Enter a price greater than 0.';
+      return;
+    }
+    submitQuote(amount);
+  });
+
+  // ===== leave a review (client, on a completed booking) =====
+  var reviewingBooking = null;
+
+  function openReviewModal(booking){
+    reviewingBooking = booking;
+    document.getElementById('review-rating').value = '5';
+    document.getElementById('review-comment').value = '';
+    document.getElementById('review-status').textContent = '';
+    var modal = document.getElementById('review-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeReviewModal(){
+    var modal = document.getElementById('review-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+  document.getElementById('review-close-btn').addEventListener('click', closeReviewModal);
+  document.getElementById('review-modal').addEventListener('click', function(e){
+    if (e.target.id === 'review-modal') closeReviewModal();
+  });
+
+  document.getElementById('review-submit-btn').addEventListener('click', function(){
+    if (!reviewingBooking) return;
+    var rating = parseInt(document.getElementById('review-rating').value, 10);
+    var comment = document.getElementById('review-comment').value.trim();
+    var statusEl = document.getElementById('review-status');
+    statusEl.textContent = 'Submitting…';
+    window.mmSupabase.from('booking_reviews').insert({
+      booking_request_id: reviewingBooking.id,
+      reviewer_id: currentUser().id,
+      reviewee_id: reviewingBooking.artist_id,
+      rating: rating,
+      comment: comment
+    }).then(function(res){
+      if (res.error){
+        statusEl.textContent = res.error.message;
+        return;
+      }
+      statusEl.textContent = '';
+      reviewedBookingIds[reviewingBooking.id] = true;
+      closeReviewModal();
+      renderSent();
+      initRealArtists();
+    });
+  });
+
+  // ===== boot =====
+  authReady.then(function(){
+    initRealArtists();
+    initRates();
+    refreshRequests();
+  });
+  if (configured()){
+    window.mmSupabase.auth.onAuthStateChange(function(){
+      // A new artist may have just signed up since the directory last
+      // loaded (authReady only resolves once, at initial page load) —
+      // re-check it on every auth change too, not just once.
+      initRealArtists();
+      initRates();
+      refreshRequests();
+    });
+  }
+})();

@@ -27,7 +27,7 @@
 
 <header>
   <div class="wrap nav">
-    <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img">MUSIC MOTEL</div>
+    <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
     <nav class="nav-links">
       <a href="#about">About</a>
       <a href="#roles">Who's on it</a>
@@ -294,6 +294,19 @@
     </div>
   </div>
 </section>
+<section class="section" id="real-artists" style="display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Real profiles</span>
+        <h2 class="display">Artists who've actually signed up.</h2>
+      </div>
+      <p>Request a quote directly — they'll reply with a price and you'll get a real answer, not a sample.</p>
+    </div>
+    <div class="real-artist-grid" id="real-artist-grid"></div>
+    <div class="gear-empty" id="real-artist-empty" style="display:none;">No real artist profiles yet — be the first to create one.</div>
+  </div>
+</section>
 <section class="section pricing-section" id="pricing">
   <div class="wrap">
     <div class="section-head">
@@ -464,9 +477,153 @@
         <div class="invite-status" id="invite-status"></div>
         <div class="invite-honesty-note" id="invite-honesty-note">This works when the link is opened in the <em>same browser</em> you're using now — sign in to get credit for a friend's signup even from a different phone or browser.</div>
       </div>
+
+      <div class="fan-card" id="rates-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Your rates</h3>
+          <button class="fan-add-btn" id="rates-add-btn">+ Add a rate</button>
+        </div>
+        <p class="invite-desc">Save a price so you can reply to a quote request with one tap instead of typing an amount every time.</p>
+        <div class="gig-log-list" id="rates-list">
+          <div class="gig-log-empty" id="rates-empty">No rates saved yet — add one to enable quick replies.</div>
+        </div>
+      </div>
+
+      <div class="fan-card" id="requests-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Booking requests</h3>
+        </div>
+        <div class="requests-subhead">Requests for you</div>
+        <div class="gig-log-list" id="incoming-requests-list">
+          <div class="gig-log-empty" id="incoming-requests-empty">No one's requested a quote yet.</div>
+        </div>
+        <div class="requests-subhead">Your sent requests</div>
+        <div class="gig-log-list" id="sent-requests-list">
+          <div class="gig-log-empty" id="sent-requests-empty">You haven't requested a quote from anyone yet — try the real artist directory.</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<div class="signup-overlay" id="add-rate-modal" role="dialog" aria-modal="true" aria-labelledby="add-rate-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Your rates</span>
+        <h2 class="display" id="add-rate-title" style="font-size:26px;">Add a rate</h2>
+      </div>
+      <button class="modal-close" id="add-rate-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="rate-label">What's included</label>
+        <input type="text" id="rate-label" placeholder="e.g. 2hr acoustic set">
+      </div>
+      <div class="form-field">
+        <label for="rate-amount">Price (USD)</label>
+        <input type="text" id="rate-amount" placeholder="e.g. 250" inputmode="decimal">
+      </div>
+      <div class="loc-search-status" id="rate-status" role="status"></div>
+      <button class="signup-submit" id="rate-save-btn">Save rate</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="quote-modal" role="dialog" aria-modal="true" aria-labelledby="quote-modal-title">
+  <div class="signup-card">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Request a quote</span>
+        <h2 class="display" id="quote-modal-title" style="font-size:clamp(24px,4vw,30px);">Request —</h2>
+      </div>
+      <button class="modal-close" id="quote-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="quote-event-type">Event type</label>
+        <select id="quote-event-type">
+          <option>Home gig / private event</option>
+          <option>Birthday / party</option>
+          <option>Wedding</option>
+          <option>Venue show</option>
+          <option>Corporate event</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="quote-date">Date</label>
+        <input type="text" id="quote-date" placeholder="e.g. Saturday, August 9, 2026">
+      </div>
+      <div class="form-field">
+        <label for="quote-location">Location</label>
+        <input type="text" id="quote-location" placeholder="e.g. Your address or venue name">
+      </div>
+      <div class="form-field">
+        <label for="quote-details">Tell them about the gig</label>
+        <input type="text" id="quote-details" placeholder="e.g. 2-hour acoustic set for a birthday">
+      </div>
+      <div class="booking-honesty-note">They'll set a price and reply with a quote — you won't be charged anything by sending this request. Music Motel takes a 10% platform fee once a quote is accepted and the gig is paid for.</div>
+      <div class="loc-search-status" id="quote-status" role="status"></div>
+      <button class="signup-submit" id="quote-submit-btn">Send request</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="respond-quote-modal" role="dialog" aria-modal="true" aria-labelledby="respond-quote-title">
+  <div class="signup-card">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Send a quote</span>
+        <h2 class="display" id="respond-quote-title" style="font-size:clamp(24px,4vw,30px);">Quote —</h2>
+      </div>
+      <button class="modal-close" id="respond-quote-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="booking-artist-row" id="respond-quote-detail"></div>
+      <div class="form-field" id="respond-quote-rates-field" style="display:none;">
+        <label>Quick reply with a saved rate</label>
+        <div class="patch-tabs" id="respond-quote-rates"></div>
+      </div>
+      <div class="form-field">
+        <label for="respond-quote-amount">Or enter a custom price (USD)</label>
+        <input type="text" id="respond-quote-amount" placeholder="e.g. 250" inputmode="decimal">
+      </div>
+      <div class="loc-search-status" id="respond-quote-status" role="status"></div>
+      <button class="signup-submit" id="respond-quote-submit-btn">Send quote</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="review-modal" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--yellow);">/ Leave a review</span>
+        <h2 class="display" id="review-modal-title" style="font-size:26px;">Rate the gig</h2>
+      </div>
+      <button class="modal-close" id="review-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="review-rating">Rating</label>
+        <select id="review-rating">
+          <option value="5">★★★★★ Excellent</option>
+          <option value="4">★★★★ Good</option>
+          <option value="3">★★★ Okay</option>
+          <option value="2">★★ Not great</option>
+          <option value="1">★ Poor</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="review-comment">Comment (optional)</label>
+        <input type="text" id="review-comment" placeholder="How did it go?">
+      </div>
+      <div class="loc-search-status" id="review-status" role="status"></div>
+      <button class="signup-submit" id="review-submit-btn">Submit review</button>
+    </div>
+  </div>
+</div>
 
 <div class="signup-overlay" id="add-gig-modal" role="dialog" aria-modal="true" aria-labelledby="add-gig-title">
   <div class="signup-card" style="max-width:480px;">
@@ -644,7 +801,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img">MUSIC MOTEL</div>
+        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
         <p>The social directory for the music industry. Founded 2014, South Africa. Built to unify musicians, engineers, managers, and every role between.</p>
       </div>
       <div class="footer-cols">
@@ -883,6 +1040,8 @@
 <script src="js/gear-board.js"></script>
 
 <script src="js/real-xp.js"></script>
+
+<script src="js/booking-requests.js"></script>
 
 </body>
 </html>
