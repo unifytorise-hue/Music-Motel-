@@ -292,9 +292,17 @@
   var xp = 0;
   var band = [];
 
+  // Signed-in users see their real, server-computed XP (from js/real-xp.js)
+  // in the nav pill instead — this local band-builder game is a no-stakes
+  // homepage toy that shouldn't be able to overwrite that with a
+  // click-as-many-times-as-you-like number.
+  function realXPActive(){
+    return !!(window.mmSupabaseConfigured && window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser());
+  }
+
   function setXP(n){
     xp = n;
-    document.getElementById('nav-xp').textContent = xp;
+    if (!realXPActive()) document.getElementById('nav-xp').textContent = xp;
     storageSet('total-xp', String(xp));
   }
 
@@ -302,7 +310,7 @@
   storageGet('total-xp').then(function(saved){
     if (saved){
       xp = parseInt(saved, 10) || 0;
-      document.getElementById('nav-xp').textContent = xp;
+      if (!realXPActive()) document.getElementById('nav-xp').textContent = xp;
     }
   });
 

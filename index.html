@@ -424,7 +424,11 @@
       <p>Log gigs you've attended, follow the artists you care about, and build a music history that's actually yours.</p>
     </div>
 
-    <div class="fan-dashboard-note">Saved on this device/browser only — there's no account system yet, so this won't follow you to another phone or browser until a real backend is connected.</div>
+    <div class="fan-dashboard-note" id="fan-dashboard-note">Saved on this device/browser only — sign in to make this follow you across devices.</div>
+    <div class="fan-rank-row" id="fan-rank-row" style="display:none;">
+      <span class="game-rank" id="fan-rank-badge">SOLO ACT</span>
+      <span class="fan-rank-xp"><span id="fan-rank-xp-num">0</span> XP earned from real activity — logging gigs, successful referrals, and gear donations.</span>
+    </div>
 
     <div class="fan-dashboard-grid fan-dashboard-grid-3">
       <div class="fan-card">
@@ -458,7 +462,7 @@
           <button class="invite-copy-btn" id="invite-copy-btn">Copy</button>
         </div>
         <div class="invite-status" id="invite-status"></div>
-        <div class="invite-honesty-note">This works when the link is opened in the <em>same browser</em> you're using now — there's no account system yet to credit a friend's signup across two different phones or browsers until a real backend exists.</div>
+        <div class="invite-honesty-note" id="invite-honesty-note">This works when the link is opened in the <em>same browser</em> you're using now — sign in to get credit for a friend's signup even from a different phone or browser.</div>
       </div>
     </div>
   </div>
@@ -877,6 +881,8 @@
 <script src="js/invite-gig-follow.js"></script>
 
 <script src="js/gear-board.js"></script>
+
+<script src="js/real-xp.js"></script>
 
 </body>
 </html>
