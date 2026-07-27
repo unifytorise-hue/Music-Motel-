@@ -27,6 +27,23 @@
       .catch(function(){ return []; });
   }
 
+  function loadRateCards(){
+    return window.mmSupabase.from('artist_rate_cards')
+      .select('user_id,pricing_basis,rate_amount,travel_note,accommodation_required,food_drink_required,has_own_equipment,equipment_note,booking_agent_terms_accepted_at')
+      .then(function(res){
+        var map = {};
+        (res.data || []).forEach(function(row){
+          // Only treat a card as "published" once the artist has agreed to
+          // the booking-agent terms and actually set an amount — a bare
+          // row can exist the moment someone ticks the terms checklist,
+          // before they've filled in a real rate.
+          if (row.booking_agent_terms_accepted_at && row.rate_amount != null) map[row.user_id] = row;
+        });
+        return map;
+      })
+      .catch(function(){ return {}; });
+  }
+
   function loadReviewSummaries(){
     return window.mmSupabase.from('booking_reviews').select('reviewee_id,rating')
       .then(function(res){
@@ -47,7 +64,7 @@
     return '★ ' + avg.toFixed(1) + ' (' + summary.count + (summary.count === 1 ? ' review' : ' reviews') + ')';
   }
 
-  function renderRealArtists(artists, reviewSummaries){
+  function renderRealArtists(artists, reviewSummaries, rateCards){
     var section = document.getElementById('real-artists');
     var grid = document.getElementById('real-artist-grid');
     var empty = document.getElementById('real-artist-empty');
@@ -62,6 +79,7 @@
     grid.innerHTML = '';
     artists.forEach(function(p){
       var instrumentsText = (p.instruments && p.instruments.length) ? 'Plays: ' + p.instruments.join(', ') : '';
+      var rateShort = window.formatRateCardShort ? window.formatRateCardShort(rateCards[p.id]) : null;
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
@@ -69,6 +87,7 @@
         '<h4>' + escapeHtml(p.name) + '</h4>' +
         '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
         (instrumentsText ? '<p class="gear-card-condition">' + escapeHtml(instrumentsText) + '</p>' : '') +
+        (rateShort ? '<p class="gear-card-condition">From ' + escapeHtml(rateShort) + ', apart from travel</p>' : '') +
         '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
         '<div class="gear-card-foot">' +
           '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +
@@ -83,10 +102,13 @@
 
   function initRealArtists(){
     if (!configured()) return;
-    Promise.all([loadRealArtists(), loadReviewSummaries()]).then(function(results){
-      renderRealArtists(results[0], results[1]);
+    Promise.all([loadRealArtists(), loadReviewSummaries(), loadRateCards()]).then(function(results){
+      renderRealArtists(results[0], results[1], results[2]);
     });
   }
+  // Called by js/rate-card.js after a save, so a fresh rate shows up in
+  // the directory without waiting for the next page load.
+  window.refreshRealArtistDirectory = initRealArtists;
 
   // ===== quote request modal (client -> artist) =====
   var quoteTargetArtist = null;
@@ -98,10 +120,29 @@
     }
     quoteTargetArtist = artist;
     document.getElementById('quote-modal-title').textContent = 'Request ' + artist.name.split(' ')[0];
+    document.getElementById('quote-intro').textContent =
+      'Are you available for a gig on your date, ' + artist.name.split(' ')[0] + ', and what’s your estimate apart from travel?';
     document.getElementById('quote-date').value = '';
+    document.getElementById('quote-time').value = '';
     document.getElementById('quote-location').value = '';
     document.getElementById('quote-details').value = '';
+    document.getElementById('quote-budget').value = '';
     document.getElementById('quote-status').textContent = '';
+
+    var previewEl = document.getElementById('quote-rate-preview');
+    previewEl.style.display = 'none';
+    if (configured()){
+      window.mmSupabase.from('artist_rate_cards').select('*').eq('user_id', artist.id).maybeSingle().then(function(res){
+        if (quoteTargetArtist !== artist) return; // modal moved on to a different artist
+        var card = (res.error || !res.data) ? null : res.data;
+        if (card && card.rate_amount != null && card.booking_agent_terms_accepted_at){
+          previewEl.innerHTML = '<div class="rate-card-note" style="margin-bottom:8px;">' + escapeHtml(artist.name.split(' ')[0]) + '’s standing estimate:</div>' +
+            window.renderRateCardBox(card);
+          previewEl.style.display = 'block';
+        }
+      }).catch(function(){});
+    }
+
     var modal = document.getElementById('quote-modal');
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -125,13 +166,20 @@
   document.getElementById('quote-submit-btn').addEventListener('click', function(){
     var eventType = document.getElementById('quote-event-type').value;
     var date = document.getElementById('quote-date').value.trim();
+    var time = document.getElementById('quote-time').value.trim();
     var location = document.getElementById('quote-location').value.trim();
     var details = document.getElementById('quote-details').value.trim();
+    var budgetRaw = document.getElementById('quote-budget').value.trim();
+    var budget = budgetRaw ? parseFloat(budgetRaw) : null;
     var statusEl = document.getElementById('quote-status');
     var btn = document.getElementById('quote-submit-btn');
 
     if (!date || !details){
       statusEl.textContent = 'Add a date and a short description of the gig.';
+      return;
+    }
+    if (budgetRaw && (isNaN(budget) || budget <= 0)){
+      statusEl.textContent = 'Budget should be a number greater than 0, or leave it blank.';
       return;
     }
     if (!quoteTargetArtist) return;
@@ -143,8 +191,10 @@
       artist_id: quoteTargetArtist.id,
       event_type: eventType,
       event_date: date,
+      event_time: time,
       location_label: location,
-      details: details
+      details: details,
+      budget_amount: budget
     }).select().single().then(function(res){
       btn.disabled = false;
       if (res.error){
@@ -277,6 +327,31 @@
     return { requested:'Requested', quoted:'Quoted', accepted:'Accepted', declined:'Declined', completed:'Completed', cancelled:'Cancelled' }[status] || status;
   }
 
+  function eventWhen(r){
+    var parts = [];
+    if (r.event_date) parts.push(r.event_date);
+    if (r.event_time) parts.push(r.event_time);
+    return parts.join(' at ');
+  }
+
+  // The same request row is an "estimate" once quoted, a "formal proforma
+  // invoice" the moment the client accepts it, and an "invoice" once the
+  // gig is completed — same numbers throughout, just relabeled at each
+  // step of the funnel.
+  function renderFeeBreakdown(r){
+    if (!r.quote_amount) return '';
+    var heading = r.status === 'quoted' ? 'Estimate' : (r.status === 'accepted' ? 'Proforma invoice' : 'Invoice');
+    var fee = Number(r.quote_amount) * Number(r.platform_fee_rate);
+    var total = Number(r.quote_amount) + fee;
+    var payout = Number(r.quote_amount) - fee;
+    return '<div class="fee-breakdown">' +
+      '<div class="fee-row"><span>' + heading + '</span><span>$' + Number(r.quote_amount).toFixed(2) + '</span></div>' +
+      '<div class="fee-row fee-row-fee"><span>Booking fee (10%, incl. transaction costs)</span><span>$' + fee.toFixed(2) + '</span></div>' +
+      '<div class="fee-row fee-row-total"><span>Client pays</span><span>$' + total.toFixed(2) + '</span></div>' +
+      '<div class="fee-row fee-row-payout"><span>Artist receives</span><span>$' + payout.toFixed(2) + '</span></div>' +
+    '</div>';
+  }
+
   function renderIncoming(){
     var list = document.getElementById('incoming-requests-list');
     var empty = incomingEmptyEl;
@@ -298,9 +373,10 @@
       }
       item.innerHTML =
         '<div class="request-item-meta">' +
-          '<h5>' + escapeHtml(r.event_type) + (r.event_date ? ' — ' + escapeHtml(r.event_date) : '') + '</h5>' +
+          '<h5>' + escapeHtml(r.event_type) + (eventWhen(r) ? ' — ' + escapeHtml(eventWhen(r)) : '') + '</h5>' +
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
-          (r.quote_amount ? '<p>Your quote: $' + Number(r.quote_amount).toFixed(2) + '</p>' : '') +
+          (r.budget_amount ? '<p>Their budget: $' + Number(r.budget_amount).toFixed(2) + '</p>' : '') +
+          renderFeeBreakdown(r) +
         '</div>' +
         '<div class="request-item-actions">' +
           '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
@@ -333,12 +409,8 @@
     sentRequests.forEach(function(r){
       var item = document.createElement('div');
       item.className = 'request-item';
-      var feeInfo = '';
       var actionsHtml = '';
       if (r.status === 'quoted' && r.quote_amount){
-        var fee = Number(r.quote_amount) * Number(r.platform_fee_rate);
-        var total = Number(r.quote_amount) + fee;
-        feeInfo = '<p>Quote: $' + Number(r.quote_amount).toFixed(2) + ' + $' + fee.toFixed(2) + ' platform fee = $' + total.toFixed(2) + ' total</p>';
         actionsHtml = '<button class="request-action-btn accept-btn">Accept</button><button class="request-action-btn decline decline-btn">Decline</button>';
       } else if (r.status === 'completed'){
         actionsHtml = reviewedBookingIds[r.id]
@@ -347,9 +419,10 @@
       }
       item.innerHTML =
         '<div class="request-item-meta">' +
-          '<h5>' + escapeHtml(r.event_type) + (r.event_date ? ' — ' + escapeHtml(r.event_date) : '') + '</h5>' +
-          '<p>' + escapeHtml(r.details) + '</p>' +
-          feeInfo +
+          '<h5>' + escapeHtml(r.event_type) + (eventWhen(r) ? ' — ' + escapeHtml(eventWhen(r)) : '') + '</h5>' +
+          '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
+          (r.budget_amount ? '<p>Your budget: $' + Number(r.budget_amount).toFixed(2) + '</p>' : '') +
+          renderFeeBreakdown(r) +
         '</div>' +
         '<div class="request-item-actions">' +
           '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
@@ -394,14 +467,15 @@
     document.getElementById('respond-quote-title').textContent = 'Quote for ' + request.event_type;
     document.getElementById('respond-quote-detail').innerHTML =
       '<div class="request-item-meta"><h5>' + escapeHtml(request.event_type) +
-      (request.event_date ? ' — ' + escapeHtml(request.event_date) : '') + '</h5><p>' +
-      escapeHtml(request.details) + (request.location_label ? ' · ' + escapeHtml(request.location_label) : '') + '</p></div>';
+      (eventWhen(request) ? ' — ' + escapeHtml(eventWhen(request)) : '') + '</h5><p>' +
+      escapeHtml(request.details) + (request.location_label ? ' · ' + escapeHtml(request.location_label) : '') +
+      '</p>' + (request.budget_amount ? '<p>Their budget: $' + Number(request.budget_amount).toFixed(2) + '</p>' : '') + '</div>';
 
     var ratesField = document.getElementById('respond-quote-rates-field');
     var ratesRow = document.getElementById('respond-quote-rates');
     ratesRow.innerHTML = '';
-    if (myRates.length){
-      ratesField.style.display = 'block';
+
+    function addPresetButtons(){
       myRates.forEach(function(r){
         var btn = document.createElement('button');
         btn.className = 'patch-tab';
@@ -409,8 +483,27 @@
         btn.addEventListener('click', function(){ submitQuote(r.amount); });
         ratesRow.appendChild(btn);
       });
+      ratesField.style.display = ratesRow.children.length ? 'block' : 'none';
+    }
+
+    // "Use my standard rate" (from My Rate) sits alongside any named
+    // quick-reply presets, so responding to a request never means retyping
+    // a price that's already published.
+    if (configured() && currentUser()){
+      window.mmSupabase.from('artist_rate_cards').select('rate_amount,pricing_basis').eq('user_id', currentUser().id).maybeSingle().then(function(res){
+        if (respondingTo !== request) return;
+        var card = (res.error || !res.data) ? null : res.data;
+        if (card && card.rate_amount != null){
+          var btn = document.createElement('button');
+          btn.className = 'patch-tab';
+          btn.textContent = 'My standard rate — ' + (window.formatRateCardShort ? window.formatRateCardShort(card) : '$' + Number(card.rate_amount).toFixed(0));
+          btn.addEventListener('click', function(){ submitQuote(card.rate_amount); });
+          ratesRow.insertBefore(btn, ratesRow.firstChild);
+        }
+        addPresetButtons();
+      }).catch(addPresetButtons);
     } else {
-      ratesField.style.display = 'none';
+      addPresetButtons();
     }
 
     document.getElementById('respond-quote-amount').value = '';
