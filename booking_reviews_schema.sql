@@ -7,7 +7,7 @@
 -- Reviews are immutable once posted (no update/delete policy granted) —
 -- matches how real review systems work, and keeps this simple rather
 -- than building an edit/moderation flow nobody asked for yet.
-create table public.booking_reviews (
+create table if not exists public.booking_reviews (
   id uuid primary key default gen_random_uuid(),
   booking_request_id uuid not null unique references public.booking_requests(id) on delete cascade,
   reviewer_id uuid not null references auth.users(id) on delete cascade,
@@ -19,6 +19,7 @@ create table public.booking_reviews (
 
 alter table public.booking_reviews enable row level security;
 
+drop policy if exists "reviews are publicly readable" on public.booking_reviews;
 create policy "reviews are publicly readable"
   on public.booking_reviews for select
   using (true);
@@ -27,6 +28,7 @@ create policy "reviews are publicly readable"
 -- review a booking where you were the client, the reviewee actually was
 -- the artist on that booking, and the booking is completed. No separate
 -- trigger needed since there's no UPDATE/DELETE path to guard.
+drop policy if exists "clients can review their own completed bookings once" on public.booking_reviews;
 create policy "clients can review their own completed bookings once"
   on public.booking_reviews for insert
   with check (
