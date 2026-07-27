@@ -96,8 +96,9 @@
   .footer-brand .logo-img{ height:50px; }
   .hero-logo-badge{
     position:relative; z-index:1;
+    display:block;
     width:200px; height:auto;
-    margin-bottom:24px;
+    margin:0 auto 24px;
     filter:drop-shadow(0 0 22px rgba(155,63,196,0.4)) drop-shadow(0 0 40px rgba(232,185,61,0.18));
   }
   .nav-links{
