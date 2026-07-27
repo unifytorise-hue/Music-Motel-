@@ -202,6 +202,12 @@
     border-bottom:1px solid var(--line);
     overflow:hidden;
   }
+  @media (max-width:640px){
+    /* 160px clears the 72px fixed header with room to spare on desktop;
+       on narrow screens that leftover gap reads as a dead zone above the
+       logo, so tighten it. */
+    .hero{ padding-top:108px; }
+  }
   .blob{
     position:absolute; border-radius:50%; z-index:0; filter:blur(0px);
   }
@@ -209,15 +215,13 @@
   .blob.b2{ bottom:60px; left:-220px; width:520px; height:520px; background:radial-gradient(circle, rgba(43,232,217,0.16), transparent 70%); }
   .blob.b3{ top:120px; left:38%; width:340px; height:340px; background:radial-gradient(circle, rgba(255,211,25,0.12), transparent 70%); }
 
-  .eyebrow{
-    position:relative; z-index:1; display:inline-flex; align-items:center; gap:10px;
-    font-family:'JetBrains Mono', monospace; font-size:12px;
-    letter-spacing:0.12em; text-transform:uppercase; color:var(--yellow);
-    border:1px solid rgba(255,211,25,0.35); padding:7px 14px;
-    border-radius:999px; margin-bottom:26px;
+  .hero-since{
+    position:relative; z-index:1;
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--cream-dim); opacity:0.55;
+    margin:0 0 14px;
   }
-  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--yellow); animation:pulse 2s infinite; }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
   .hero h1{
     position:relative; z-index:1;
