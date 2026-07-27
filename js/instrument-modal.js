@@ -46,6 +46,100 @@
     }
   ];
 
+  function escapeHtml(str){
+    var d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  // ===== "instruments I play" persistence — same local/remote split used
+  // everywhere else on the site (gig log, following, gear board) =====
+  var INSTRUMENTS_KEY = 'my-instruments';
+  var siteStorage = window.siteStorage;
+  var authReady = window.mmAuthReady || Promise.resolve();
+
+  function isSignedIn(){
+    return !!(window.mmSupabaseConfigured && window.mmAuth && window.mmAuth.getUser());
+  }
+
+  function loadMyInstrumentsLocal(){
+    return siteStorage.get(INSTRUMENTS_KEY)
+      .then(function(val){ return val ? JSON.parse(val) : []; })
+      .catch(function(){ return []; });
+  }
+  function saveMyInstrumentsLocal(list){
+    return siteStorage.set(INSTRUMENTS_KEY, JSON.stringify(list));
+  }
+  function loadMyInstrumentsRemote(){
+    return window.mmSupabase.from('profiles').select('instruments').eq('id', window.mmAuth.getUser().id).maybeSingle()
+      .then(function(res){
+        if (res.error || !res.data) return [];
+        return res.data.instruments || [];
+      })
+      .catch(function(){ return []; });
+  }
+  function saveMyInstrumentsRemote(list){
+    return window.mmSupabase.from('profiles').update({ instruments: list }).eq('id', window.mmAuth.getUser().id).then(function(){});
+  }
+
+  var myInstruments = [];
+
+  function toggleInstrument(name){
+    var idx = myInstruments.indexOf(name);
+    if (idx > -1) myInstruments.splice(idx, 1);
+    else myInstruments.push(name);
+
+    if (isSignedIn()) saveMyInstrumentsRemote(myInstruments);
+    else saveMyInstrumentsLocal(myInstruments);
+
+    applySelectedState();
+    renderMyInstrumentsCard();
+  }
+
+  function applySelectedState(){
+    document.querySelectorAll('.instr-pill').forEach(function(pill){
+      pill.classList.toggle('selected', myInstruments.indexOf(pill.getAttribute('data-name')) > -1);
+    });
+  }
+
+  // Captured once — this placeholder is a child of the list it describes,
+  // so re-querying it by id after the first non-empty render would return
+  // null (same bug class already fixed elsewhere: js/invite-gig-follow.js,
+  // js/booking-requests.js).
+  var myInstrumentsEmptyEl = document.getElementById('my-instruments-empty');
+
+  function renderMyInstrumentsCard(){
+    var list = document.getElementById('my-instruments-list');
+    var countEl = document.getElementById('my-instruments-count');
+    if (!list) return;
+    if (countEl) countEl.textContent = myInstruments.length + (myInstruments.length === 1 ? ' instrument' : ' instruments');
+    if (!myInstruments.length){
+      list.innerHTML = '';
+      list.appendChild(myInstrumentsEmptyEl);
+      return;
+    }
+    list.innerHTML = '';
+    myInstruments.forEach(function(name){
+      var tag = document.createElement('span');
+      tag.className = 'instr-tag';
+      tag.innerHTML = escapeHtml(name) + '<button class="instr-tag-remove" aria-label="Remove ' + escapeHtml(name) + '">✕</button>';
+      tag.querySelector('.instr-tag-remove').addEventListener('click', function(){
+        toggleInstrument(name);
+      });
+      list.appendChild(tag);
+    });
+  }
+
+  authReady.then(function(){
+    var loader = isSignedIn() ? loadMyInstrumentsRemote() : loadMyInstrumentsLocal();
+    return loader.then(function(list){
+      myInstruments = list;
+      renderMyInstrumentsCard();
+      applySelectedState();
+    });
+  });
+
+  // ===== instrument directory modal =====
   function renderInstruments(){
     var body = document.getElementById('instrument-body');
     body.innerHTML = '';
@@ -76,7 +170,10 @@
           var pill = document.createElement('span');
           pill.className = 'instr-pill';
           pill.textContent = item;
+          pill.setAttribute('data-name', item);
           pill.setAttribute('data-search', item.toLowerCase());
+          pill.setAttribute('role', 'button');
+          pill.setAttribute('tabindex', '0');
           pills.appendChild(pill);
         });
         sub.appendChild(pills);
@@ -86,6 +183,7 @@
       body.appendChild(catEl);
     });
     document.getElementById('instrument-count').textContent = total;
+    applySelectedState();
   }
 
   function filterInstruments(query){
@@ -130,6 +228,8 @@
   renderInstruments();
 
   document.getElementById('open-instruments-btn').addEventListener('click', openModal);
+  var editBtn = document.getElementById('edit-instruments-btn');
+  if (editBtn) editBtn.addEventListener('click', openModal);
   document.getElementById('modal-close-btn').addEventListener('click', closeModal);
   document.getElementById('instrument-modal').addEventListener('click', function(e){
     if (e.target.id === 'instrument-modal') closeModal();
@@ -139,5 +239,22 @@
   });
   document.getElementById('instrument-search').addEventListener('input', function(e){
     filterInstruments(e.target.value);
+  });
+
+  // Pills have a hover affordance (colored border, lift) implying they're
+  // clickable. Tapping one now toggles it onto the member's own profile —
+  // this is the actual "select the instruments you play" flow, not just a
+  // browsable reference list.
+  document.getElementById('instrument-body').addEventListener('click', function(e){
+    var pill = e.target.closest('.instr-pill');
+    if (!pill) return;
+    toggleInstrument(pill.getAttribute('data-name'));
+  });
+  document.getElementById('instrument-body').addEventListener('keydown', function(e){
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var pill = e.target.closest('.instr-pill');
+    if (!pill) return;
+    e.preventDefault();
+    toggleInstrument(pill.getAttribute('data-name'));
   });
 })();
