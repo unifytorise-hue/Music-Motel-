@@ -358,7 +358,8 @@
         role_label: role,
         location_label: loc,
         lat: selectedLat,
-        lng: selectedLng
+        lng: selectedLng,
+        profile_kind: window.getCurrentProfileKind ? window.getCurrentProfileKind() : 'personal'
       }).then(function(profileRes){
         if (profileRes.error) throw profileRes.error;
         if (window.recordReferralIfAny) window.recordReferralIfAny(user.id);

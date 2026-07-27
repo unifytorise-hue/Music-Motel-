@@ -37,6 +37,7 @@
     }
   };
   var currentAccountType = 'fan';
+  var currentProfileKind = 'personal';
 
   document.querySelectorAll('.account-type-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -49,7 +50,19 @@
       document.getElementById('signup-role-label').textContent = cfg.roleLabel;
       document.getElementById('signup-role').placeholder = cfg.rolePlaceholder;
       document.getElementById('signup-role-field').style.display = currentAccountType === 'fan' ? 'block' : 'block';
+      // A fan is always a personal profile — the Personal/Band choice only
+      // makes sense for the roles that can actually be a group act.
+      document.getElementById('profile-kind-field').style.display = currentAccountType === 'fan' ? 'none' : 'block';
       updateSubmitLabel();
+    });
+  });
+
+  document.querySelectorAll('.profile-kind-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      currentProfileKind = btn.getAttribute('data-kind');
+      document.querySelectorAll('.profile-kind-btn').forEach(function(b){
+        b.classList.toggle('active', b === btn);
+      });
     });
   });
 
@@ -66,6 +79,9 @@
     var btn = document.querySelector('.account-type-btn[data-type="' + type + '"]');
     if (btn) btn.click();
   };
+  // A fan can never be a band profile, regardless of what was selected
+  // before switching account type back to fan.
+  window.getCurrentProfileKind = function(){ return currentAccountType === 'fan' ? 'personal' : currentProfileKind; };
 
   // Sync the role field to the default (Fan) state on load, since the HTML
   // ships with musician-oriented copy as a static fallback.

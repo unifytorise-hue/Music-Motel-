@@ -479,6 +479,38 @@
         </div>
       </div>
 
+      <div class="fan-card" id="prefs-card">
+        <div class="fan-card-head">
+          <h3>Preferences</h3>
+        </div>
+        <div class="rate-card-grid">
+          <div class="form-field">
+            <label for="pref-distance-unit">Distance</label>
+            <select id="pref-distance-unit">
+              <option value="km">Kilometers (km)</option>
+              <option value="mi">Miles (mi)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="pref-currency">Currency</label>
+            <select id="pref-currency"></select>
+          </div>
+        </div>
+        <div class="loc-search-status" id="prefs-status" role="status"></div>
+        <div class="rate-card-note" id="prefs-signed-out-note" style="display:none;">Sign in to save these — for now they only affect what you see on this device.</div>
+
+        <div class="converter-box">
+          <div class="rate-card-note" style="margin-bottom:10px;">Currency converter <span style="opacity:0.6;">(indicative rates — not live market rates)</span></div>
+          <div class="converter-row">
+            <input type="text" id="converter-amount" inputmode="decimal" value="100">
+            <select id="converter-from"></select>
+            <span class="converter-arrow">→</span>
+            <select id="converter-to"></select>
+          </div>
+          <div class="converter-result" id="converter-result"></div>
+        </div>
+      </div>
+
       <div class="fan-card invite-card">
         <div class="fan-card-head">
           <h3>Invite &amp; earn XP</h3>
@@ -515,6 +547,31 @@
         <div class="requests-subhead">Your sent requests</div>
         <div class="gig-log-list" id="sent-requests-list">
           <div class="gig-log-empty" id="sent-requests-empty">You haven't requested a quote from anyone yet — try the real artist directory.</div>
+        </div>
+      </div>
+
+      <div class="fan-card" id="my-memberships-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Bands you're in</h3>
+        </div>
+        <p class="invite-desc">Requests you've sent to unify with a band, and bands you're already an approved member of.</p>
+        <div class="gig-log-list" id="my-memberships-list">
+          <div class="gig-log-empty" id="my-memberships-empty">Not part of any band yet — find one in the directory and tap Unify.</div>
+        </div>
+      </div>
+
+      <div class="fan-card" id="band-manage-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Manage band members</h3>
+        </div>
+        <p class="invite-desc">People who've asked to unify with this band. Approving picks their access level — they can edit the page once approved.</p>
+        <div class="requests-subhead">Pending requests</div>
+        <div class="gig-log-list" id="band-pending-list">
+          <div class="gig-log-empty" id="band-pending-empty">No pending requests.</div>
+        </div>
+        <div class="requests-subhead">Approved members</div>
+        <div class="gig-log-list" id="band-approved-list">
+          <div class="gig-log-empty" id="band-approved-empty">No approved members yet.</div>
         </div>
       </div>
     </div>
@@ -1023,6 +1080,15 @@
         <div class="account-type-note" id="account-type-note">Free forever — follow artists, log gigs you've attended, and book talent.</div>
       </div>
 
+      <div class="form-field" id="profile-kind-field" style="display:none;">
+        <label>Profile type</label>
+        <div class="profile-kind-grid">
+          <button type="button" class="profile-kind-btn active" data-kind="personal">Personal</button>
+          <button type="button" class="profile-kind-btn" data-kind="band">Band / Group</button>
+        </div>
+        <div class="account-type-note" id="profile-kind-note">A band profile can be unified with by other members — once you approve them, they can help edit it too.</div>
+      </div>
+
       <div class="form-field">
         <label for="signup-name">Name</label>
         <input type="text" id="signup-name" placeholder="e.g. Naledi Khumalo">
@@ -1133,9 +1199,13 @@
 
 <script src="js/real-xp.js"></script>
 
+<script src="js/preferences.js"></script>
+
 <script src="js/rate-card.js"></script>
 
 <script src="js/booking-requests.js"></script>
+
+<script src="js/band-members.js"></script>
 
 </body>
 </html>
