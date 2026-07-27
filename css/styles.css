@@ -476,6 +476,15 @@
     font-family:'JetBrains Mono', monospace; font-size:11px;
     letter-spacing:0.1em; color:var(--cream-dim);
   }
+  /* Same framed-box chrome as .patch-console, without its hardcoded
+     "PATCH BAY — TAP TO FILTER" ::before label. */
+  .content-box{
+    border:1px solid var(--line); border-radius:14px;
+    background:linear-gradient(180deg, var(--black-3), var(--black-2));
+    padding:36px; margin-bottom:24px;
+  }
+  @media (max-width:640px){ .content-box{ padding:24px 20px; } }
+
   .patch-tabs{ display:flex; gap:10px; flex-wrap:wrap; }
   .patch-controls{
     display:flex;
@@ -902,10 +911,12 @@
     margin:20px 0;
   }
   .fee-row{
-    display:flex; justify-content:space-between;
+    display:flex; justify-content:space-between; gap:14px;
     font-size:13.5px; color:var(--cream-dim);
     padding:7px 0;
   }
+  .fee-row span:first-child{ flex-shrink:0; }
+  .fee-row span:last-child{ text-align:right; }
   .fee-row-fee{ color:var(--orange); }
   .fee-row-total{
     border-top:1px solid var(--line);
@@ -1527,7 +1538,10 @@
     color:var(--cream-dim);
     margin-bottom:9px;
   }
-  .form-field input[type="text"]{
+  .form-field input[type="text"],
+  .form-field input[type="date"],
+  .form-field input[type="time"],
+  .form-field select{
     width:100%;
     background:var(--black-3);
     border:1.5px solid var(--line);
@@ -1538,8 +1552,40 @@
     font-size:14.5px;
     transition:border-color 0.2s;
   }
-  .form-field input[type="text"]:focus{ border-color:var(--cyan); outline:none; }
+  .form-field input[type="text"]:focus,
+  .form-field input[type="date"]:focus,
+  .form-field input[type="time"]:focus,
+  .form-field select:focus{ border-color:var(--cyan); outline:none; }
   .form-field input::placeholder{ color:var(--cream-dim); opacity:0.7; }
+  /* Date/time inputs render their calendar/clock picker icon in a fixed
+     dark glyph that's unreadable against this dark theme by default. */
+  .form-field input[type="date"]::-webkit-calendar-picker-indicator,
+  .form-field input[type="time"]::-webkit-calendar-picker-indicator{
+    filter:invert(1) opacity(0.6);
+    cursor:pointer;
+  }
+
+  .rate-card-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  }
+  @media (max-width:480px){ .rate-card-grid{ grid-template-columns:1fr; } }
+
+  .rate-card-note{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px; line-height:1.6;
+    color:var(--cream-dim);
+  }
+
+  .terms-check{
+    display:flex; align-items:flex-start; gap:10px;
+    font-size:13.5px; line-height:1.5; color:var(--cream-dim);
+    margin-bottom:14px; cursor:pointer;
+  }
+  .terms-check input{ margin-top:3px; flex-shrink:0; accent-color:var(--pink); }
+  .terms-check strong{ color:var(--cream); }
+
+  .rate-toggle-list{ margin:18px 0; }
+  .rate-toggle-list .terms-check{ margin-bottom:12px; }
 
   .account-type-grid{
     display:grid;

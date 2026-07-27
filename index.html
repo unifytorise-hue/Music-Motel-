@@ -34,6 +34,7 @@
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="#fan-dashboard">My profile</a>
+      <a href="#my-rate">My Rate</a>
       <a href="#gear">Donate gear</a>
     </nav>
     <div class="nav-right">
@@ -58,6 +59,7 @@
     <a href="#how">How it works</a>
     <a href="#pricing">Pricing</a>
     <a href="#fan-dashboard">My profile</a>
+    <a href="#my-rate">My Rate</a>
     <a href="#gear">Donate gear</a>
     <a href="#public-spaces">For businesses</a>
     <a href="#sponsor">Advertise</a>
@@ -425,7 +427,7 @@
     </div>
 
     <div class="pricing-footnote">
-      <p>Bookings made through Music Motel carry a <strong>10% platform fee</strong>, charged to the client and held until the gig is confirmed complete — the same model used by Fiverr and similar freelance marketplaces. Payouts are processed through our payment partner once both sides confirm.</p>
+      <p>Bookings made through Music Motel carry a <strong>10% booking fee</strong>, deducted from the artist's payout once the gig is confirmed complete — part of that 10% covers payment transaction processing, the rest is Music Motel's booking agent fee. The artist keeps 90%. Payouts are processed through our payment partner once both sides confirm.</p>
     </div>
   </div>
 </section>
@@ -553,6 +555,8 @@
       <button class="modal-close" id="quote-close-btn" aria-label="Close">✕</button>
     </div>
     <div class="signup-body">
+      <p class="rate-card-note" id="quote-intro" style="margin-bottom:16px;">Ask if they're available on your date, and what their estimate is — apart from travel.</p>
+      <div id="quote-rate-preview" style="display:none;"></div>
       <div class="form-field">
         <label for="quote-event-type">Event type</label>
         <select id="quote-event-type">
@@ -564,9 +568,15 @@
           <option>Other</option>
         </select>
       </div>
-      <div class="form-field">
-        <label for="quote-date">Date</label>
-        <input type="text" id="quote-date" placeholder="e.g. Saturday, August 9, 2026">
+      <div class="rate-card-grid">
+        <div class="form-field">
+          <label for="quote-date">Date</label>
+          <input type="date" id="quote-date">
+        </div>
+        <div class="form-field">
+          <label for="quote-time">Time</label>
+          <input type="time" id="quote-time">
+        </div>
       </div>
       <div class="form-field">
         <label for="quote-location">Location</label>
@@ -576,7 +586,11 @@
         <label for="quote-details">Tell them about the gig</label>
         <input type="text" id="quote-details" placeholder="e.g. 2-hour acoustic set for a birthday">
       </div>
-      <div class="booking-honesty-note">They'll set a price and reply with a quote — you won't be charged anything by sending this request. Music Motel takes a 10% platform fee once a quote is accepted and the gig is paid for.</div>
+      <div class="form-field">
+        <label for="quote-budget">Your budget (optional)</label>
+        <input type="text" id="quote-budget" inputmode="decimal" placeholder="Leave blank to just ask for their estimate">
+      </div>
+      <div class="booking-honesty-note">They'll confirm availability and reply with a quote — you won't be charged anything by sending this request. If you accept their quote, it becomes a formal proforma invoice. Music Motel takes a 10% booking fee once a quote is accepted and the gig is paid for, which includes payment transaction processing costs — the artist keeps 90%.</div>
       <div class="loc-search-status" id="quote-status" role="status"></div>
       <button class="signup-submit" id="quote-submit-btn">Send request</button>
     </div>
@@ -602,6 +616,7 @@
         <label for="respond-quote-amount">Or enter a custom price (USD)</label>
         <input type="text" id="respond-quote-amount" placeholder="e.g. 250" inputmode="decimal">
       </div>
+      <div class="booking-honesty-note">If they accept, this becomes a formal proforma invoice. Music Motel deducts a 10% booking fee (which includes payment transaction processing costs) once the gig is marked complete and paid — you receive 90%.</div>
       <div class="loc-search-status" id="respond-quote-status" role="status"></div>
       <button class="signup-submit" id="respond-quote-submit-btn">Send quote</button>
     </div>
@@ -665,6 +680,69 @@
     </div>
   </div>
 </div>
+
+<section class="section" id="my-rate">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Your standard rate</span>
+        <h2 class="display">Tell clients what you charge, before they even ask.</h2>
+      </div>
+      <p>Set your standard estimate once. When a fan, venue, or client asks about booking you, this is what they see immediately — before any back-and-forth.</p>
+    </div>
+
+    <div class="rate-card-note" id="rate-card-signed-out" style="display:none;">Sign in to set your rate — it'll show up instantly when someone requests a quote from you.</div>
+
+    <div class="content-box" id="rate-card-terms" style="display:none;">
+      <h3 style="margin-bottom:10px;">Become a Music Motel booking agent client</h3>
+      <p class="rate-card-note" style="margin-bottom:18px;">Before you can publish a rate, agree to how booking requests work on Music Motel:</p>
+      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="0"><span>I want Music Motel to act as my booking agent for requests that come through the platform.</span></label>
+      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="1"><span>I understand Music Motel charges a <strong>10% booking fee</strong>, deducted from my payout for any gig booked through the platform — this covers being found and booked here, and <strong>includes payment transaction processing costs</strong>.</span></label>
+      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="2"><span>I understand I receive <strong>90% of the agreed price</strong> once a gig is marked complete and paid.</span></label>
+      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="3"><span>I'll keep my rate and equipment details accurate, and I'll honor quotes I send through the platform.</span></label>
+      <div class="loc-search-status" id="terms-status" role="status"></div>
+      <button class="signup-submit" id="terms-agree-btn" disabled>Agree and continue</button>
+    </div>
+
+    <div class="content-box" id="rate-card-form" style="display:none;">
+      <div class="rate-card-grid">
+        <div class="form-field">
+          <label for="rate-basis">Priced per</label>
+          <select id="rate-basis">
+            <option value="gig">Gig (flat rate)</option>
+            <option value="hour">Hour</option>
+            <option value="set_45min">45-min set</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="rate-card-amount">Estimate (USD)</label>
+          <input type="text" id="rate-card-amount" inputmode="decimal" placeholder="e.g. 350">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="rate-travel-note">Travel — apart from the estimate above</label>
+        <input type="text" id="rate-travel-note" placeholder="e.g. Quoted separately based on distance, or Included within 30km">
+      </div>
+      <div class="rate-toggle-list">
+        <label class="terms-check"><input type="checkbox" id="rate-accommodation"><span>Accommodation required for gigs that need travel</span></label>
+        <label class="terms-check"><input type="checkbox" id="rate-food-drink"><span>Food &amp; drink (hospitality) required</span></label>
+        <label class="terms-check"><input type="checkbox" id="rate-own-equipment" checked><span>I bring my own sound/equipment — price is without/excluding gear if unchecked</span></label>
+      </div>
+      <div class="form-field" id="rate-equipment-note-field" style="display:none;">
+        <label for="rate-equipment-note">Equipment notes</label>
+        <input type="text" id="rate-equipment-note" placeholder="e.g. Price excludes PA rental — client to provide a sound system">
+      </div>
+      <div class="loc-search-status" id="rate-card-status" role="status"></div>
+      <button class="signup-submit" id="rate-card-save-btn">Save my rate</button>
+    </div>
+
+    <div class="content-box" id="rate-card-preview" style="display:none;">
+      <h3 style="margin-bottom:10px;">How clients see this</h3>
+      <div id="rate-preview-box"></div>
+    </div>
+  </div>
+</section>
+
 <section class="section gear-section" id="gear">
   <div class="wrap">
     <div class="section-head">
@@ -1054,6 +1132,8 @@
 <script src="js/gear-board.js"></script>
 
 <script src="js/real-xp.js"></script>
+
+<script src="js/rate-card.js"></script>
 
 <script src="js/booking-requests.js"></script>
 
