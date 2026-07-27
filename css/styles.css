@@ -164,10 +164,14 @@
     border-bottom:1px solid var(--line);
     z-index:49;
     max-height:0;
-    overflow:hidden;
+    overflow-y:auto;
     transition:max-height 0.3s ease;
   }
-  .mobile-menu.open{ max-height:420px; }
+  /* A fixed pixel cap here previously clipped off the "Create profile"/
+     "Sign in" buttons with no way to scroll to them once the signed-in
+     account block or full link list pushed content past it. Cap against
+     the viewport instead so it always fits, scrolling if it still can't. */
+  .mobile-menu.open{ max-height:calc(100vh - 72px); }
   .mobile-menu-inner{
     padding:16px 28px 24px;
     display:flex;
@@ -187,13 +191,17 @@
   .mobile-menu a:last-child{ border-bottom:none; }
   .mobile-menu a:hover{ color:var(--cream); }
   .mobile-menu .mobile-cta{
+    display:block;
+    width:100%;
     margin-top:12px;
     background:var(--pink);
     color:var(--cream);
     text-align:center;
     border-radius:6px;
     padding:14px;
-    border-bottom:none;
+    border:none;
+    font:inherit;
+    cursor:pointer;
   }
 
   /* ===== hero ===== */
@@ -202,6 +210,12 @@
     border-bottom:1px solid var(--line);
     overflow:hidden;
   }
+  @media (max-width:640px){
+    /* 160px clears the 72px fixed header with room to spare on desktop;
+       on narrow screens that leftover gap reads as a dead zone above the
+       logo, so tighten it. */
+    .hero{ padding-top:108px; }
+  }
   .blob{
     position:absolute; border-radius:50%; z-index:0; filter:blur(0px);
   }
@@ -209,15 +223,13 @@
   .blob.b2{ bottom:60px; left:-220px; width:520px; height:520px; background:radial-gradient(circle, rgba(43,232,217,0.16), transparent 70%); }
   .blob.b3{ top:120px; left:38%; width:340px; height:340px; background:radial-gradient(circle, rgba(255,211,25,0.12), transparent 70%); }
 
-  .eyebrow{
-    position:relative; z-index:1; display:inline-flex; align-items:center; gap:10px;
-    font-family:'JetBrains Mono', monospace; font-size:12px;
-    letter-spacing:0.12em; text-transform:uppercase; color:var(--yellow);
-    border:1px solid rgba(255,211,25,0.35); padding:7px 14px;
-    border-radius:999px; margin-bottom:26px;
+  .hero-since{
+    position:relative; z-index:1;
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--cream-dim); opacity:0.55;
+    margin:0 0 14px;
   }
-  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--yellow); animation:pulse 2s infinite; }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
   .hero h1{
     position:relative; z-index:1;
@@ -1147,7 +1159,8 @@
     margin-bottom:40px;
     align-items:start;
   }
-  .pricing-grid-4{ grid-template-columns:repeat(3, 1fr); }
+  .pricing-grid-4{ grid-template-columns:repeat(4, 1fr); }
+  @media (max-width:1080px){ .pricing-grid-4{ grid-template-columns:repeat(2, 1fr); } }
   @media (max-width:880px){ .pricing-grid{ grid-template-columns:1fr; } }
   .price-card{
     background:var(--black-2);
@@ -1157,7 +1170,11 @@
     overflow:hidden;
     transition:border-color 0.2s;
   }
-  .price-card.featured{ position:relative; }
+  /* The card's own overflow:hidden (for clipping the accordion body's
+     rounded corners) was also clipping this badge, since it sits above
+     the card's top edge. The accordion still clips correctly via
+     .price-card-body's own overflow:hidden below. */
+  .price-card.featured{ position:relative; overflow:visible; }
   .price-card.featured::before{
     content:"MOST POPULAR";
     position:absolute; top:-13px; right:24px;
@@ -1490,7 +1507,12 @@
     gap:8px;
     margin-bottom:10px;
   }
-  @media (max-width:480px){ .account-type-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:480px){
+    .account-type-grid{ grid-template-columns:repeat(2,1fr); }
+    /* 5 buttons in a 2-col grid leaves the last one stranded alone with
+       empty space beside it — span it across both columns instead. */
+    .account-type-btn:last-child{ grid-column:1 / -1; }
+  }
   .account-type-btn{
     font-family:'JetBrains Mono', monospace;
     font-size:12px; font-weight:600;
