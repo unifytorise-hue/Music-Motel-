@@ -8,6 +8,7 @@
   function configured(){ return !!(window.mmSupabaseConfigured && window.mmSupabase); }
   function currentUser(){ return window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser(); }
   var authReady = window.mmAuthReady || Promise.resolve();
+  function money(usd){ return window.mmFormatMoney ? window.mmFormatMoney(usd) : '$' + Number(usd).toFixed(2); }
 
   // Captured once, before any render ever clears these lists via
   // innerHTML — each placeholder is a child of the list it describes, so
@@ -19,7 +20,7 @@
 
   // ===== real artist directory =====
   function loadRealArtists(){
-    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments')
+    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind')
       .then(function(res){
         if (res.error || !res.data) return [];
         return res.data.filter(function(p){ return p.account_type !== 'fan'; });
@@ -78,12 +79,13 @@
     empty.style.display = 'none';
     grid.innerHTML = '';
     artists.forEach(function(p){
+      var isBand = p.profile_kind === 'band';
       var instrumentsText = (p.instruments && p.instruments.length) ? 'Plays: ' + p.instruments.join(', ') : '';
       var rateShort = window.formatRateCardShort ? window.formatRateCardShort(rateCards[p.id]) : null;
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
-        '<div class="gear-card-cat">' + escapeHtml(p.account_type) + '</div>' +
+        '<div class="gear-card-cat">' + escapeHtml(p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
         '<h4>' + escapeHtml(p.name) + '</h4>' +
         '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
         (instrumentsText ? '<p class="gear-card-condition">' + escapeHtml(instrumentsText) + '</p>' : '') +
@@ -91,10 +93,17 @@
         '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
         '<div class="gear-card-foot">' +
           '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +
-          '<button class="request-quote-btn">Request a quote</button>' +
+          '<div class="gear-card-actions">' +
+            (isBand ? '<button class="request-quote-btn unify-band-btn">Unify</button>' : '') +
+            '<button class="request-quote-btn">Request a quote</button>' +
+          '</div>' +
         '</div>';
-      card.querySelector('.request-quote-btn').addEventListener('click', function(){
+      card.querySelector('.gear-card-actions .request-quote-btn:not(.unify-band-btn)').addEventListener('click', function(){
         openQuoteRequest(p);
+      });
+      var unifyBtn = card.querySelector('.unify-band-btn');
+      if (unifyBtn) unifyBtn.addEventListener('click', function(){
+        if (window.requestJoinBand) window.requestJoinBand(p);
       });
       grid.appendChild(card);
     });
@@ -234,7 +243,7 @@
       item.className = 'gig-log-item';
       item.innerHTML =
         '<span class="gig-log-dot"></span>' +
-        '<div style="flex:1;"><h5>$' + Number(r.amount).toFixed(0) + '</h5><p>' + escapeHtml(r.label) + '</p></div>' +
+        '<div style="flex:1;"><h5>' + money(r.amount) + '</h5><p>' + escapeHtml(r.label) + '</p></div>' +
         '<button class="gig-log-remove" aria-label="Remove">✕</button>';
       item.querySelector('.gig-log-remove').addEventListener('click', function(){
         window.mmSupabase.from('artist_rates').delete().eq('id', r.id).then(function(){
@@ -345,10 +354,10 @@
     var total = Number(r.quote_amount) + fee;
     var payout = Number(r.quote_amount) - fee;
     return '<div class="fee-breakdown">' +
-      '<div class="fee-row"><span>' + heading + '</span><span>$' + Number(r.quote_amount).toFixed(2) + '</span></div>' +
-      '<div class="fee-row fee-row-fee"><span>Booking fee (10%, incl. transaction costs)</span><span>$' + fee.toFixed(2) + '</span></div>' +
-      '<div class="fee-row fee-row-total"><span>Client pays</span><span>$' + total.toFixed(2) + '</span></div>' +
-      '<div class="fee-row fee-row-payout"><span>Artist receives</span><span>$' + payout.toFixed(2) + '</span></div>' +
+      '<div class="fee-row"><span>' + heading + '</span><span>' + money(r.quote_amount) + '</span></div>' +
+      '<div class="fee-row fee-row-fee"><span>Booking fee (10%, incl. transaction costs)</span><span>' + money(fee) + '</span></div>' +
+      '<div class="fee-row fee-row-total"><span>Client pays</span><span>' + money(total) + '</span></div>' +
+      '<div class="fee-row fee-row-payout"><span>Artist receives</span><span>' + money(payout) + '</span></div>' +
     '</div>';
   }
 
@@ -375,7 +384,7 @@
         '<div class="request-item-meta">' +
           '<h5>' + escapeHtml(r.event_type) + (eventWhen(r) ? ' — ' + escapeHtml(eventWhen(r)) : '') + '</h5>' +
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
-          (r.budget_amount ? '<p>Their budget: $' + Number(r.budget_amount).toFixed(2) + '</p>' : '') +
+          (r.budget_amount ? '<p>Their budget: ' + money(r.budget_amount) + '</p>' : '') +
           renderFeeBreakdown(r) +
         '</div>' +
         '<div class="request-item-actions">' +
@@ -421,7 +430,7 @@
         '<div class="request-item-meta">' +
           '<h5>' + escapeHtml(r.event_type) + (eventWhen(r) ? ' — ' + escapeHtml(eventWhen(r)) : '') + '</h5>' +
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
-          (r.budget_amount ? '<p>Your budget: $' + Number(r.budget_amount).toFixed(2) + '</p>' : '') +
+          (r.budget_amount ? '<p>Your budget: ' + money(r.budget_amount) + '</p>' : '') +
           renderFeeBreakdown(r) +
         '</div>' +
         '<div class="request-item-actions">' +
@@ -469,7 +478,7 @@
       '<div class="request-item-meta"><h5>' + escapeHtml(request.event_type) +
       (eventWhen(request) ? ' — ' + escapeHtml(eventWhen(request)) : '') + '</h5><p>' +
       escapeHtml(request.details) + (request.location_label ? ' · ' + escapeHtml(request.location_label) : '') +
-      '</p>' + (request.budget_amount ? '<p>Their budget: $' + Number(request.budget_amount).toFixed(2) + '</p>' : '') + '</div>';
+      '</p>' + (request.budget_amount ? '<p>Their budget: ' + money(request.budget_amount) + '</p>' : '') + '</div>';
 
     var ratesField = document.getElementById('respond-quote-rates-field');
     var ratesRow = document.getElementById('respond-quote-rates');
@@ -479,7 +488,7 @@
       myRates.forEach(function(r){
         var btn = document.createElement('button');
         btn.className = 'patch-tab';
-        btn.textContent = '$' + Number(r.amount).toFixed(0) + ' — ' + r.label;
+        btn.textContent = money(r.amount) + ' — ' + r.label;
         btn.addEventListener('click', function(){ submitQuote(r.amount); });
         ratesRow.appendChild(btn);
       });
@@ -496,7 +505,7 @@
         if (card && card.rate_amount != null){
           var btn = document.createElement('button');
           btn.className = 'patch-tab';
-          btn.textContent = 'My standard rate — ' + (window.formatRateCardShort ? window.formatRateCardShort(card) : '$' + Number(card.rate_amount).toFixed(0));
+          btn.textContent = 'My standard rate — ' + (window.formatRateCardShort ? window.formatRateCardShort(card) : money(card.rate_amount));
           btn.addEventListener('click', function(){ submitQuote(card.rate_amount); });
           ratesRow.insertBefore(btn, ratesRow.firstChild);
         }

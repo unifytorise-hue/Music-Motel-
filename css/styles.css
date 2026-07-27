@@ -750,6 +750,11 @@
   .request-status-pill.status-declined,
   .request-status-pill.status-cancelled{ border-color:var(--red); color:var(--red); }
   .request-item-actions{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+  .band-role-select{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px;
+    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
+    color:var(--cream); padding:5px 8px; max-width:180px;
+  }
   .request-action-btn{
     font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.03em;
@@ -1100,6 +1105,7 @@
     display:flex; justify-content:space-between; align-items:center;
     padding-top:12px; border-top:1px solid var(--line);
   }
+  .gear-card-actions{ display:flex; gap:8px; flex-wrap:wrap; }
   .gear-card-loc{
     font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--cream-dim);
     display:flex; align-items:center; gap:6px;
@@ -1587,6 +1593,31 @@
   .rate-toggle-list{ margin:18px 0; }
   .rate-toggle-list .terms-check{ margin-bottom:12px; }
 
+  .converter-box{
+    margin-top:20px; padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+  .converter-row{
+    display:flex; align-items:center; gap:8px;
+    flex-wrap:wrap;
+  }
+  .converter-row input{
+    flex:1 1 90px; min-width:0;
+    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
+    padding:11px 12px; color:var(--cream);
+    font-family:'Space Grotesk', sans-serif; font-size:14px;
+  }
+  .converter-row select{
+    flex:1 1 100px; min-width:0;
+    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
+    padding:11px 8px; color:var(--cream);
+    font-family:'Space Grotesk', sans-serif; font-size:13px;
+  }
+  .converter-arrow{ color:var(--cream-dim); flex-shrink:0; }
+  .converter-result{
+    margin-top:12px; font-size:17px; font-weight:700; color:var(--cream);
+  }
+
   .account-type-grid{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -1599,7 +1630,7 @@
        empty space beside it — span it across both columns instead. */
     .account-type-btn:last-child{ grid-column:1 / -1; }
   }
-  .account-type-btn{
+  .account-type-btn, .profile-kind-btn{
     font-family:'JetBrains Mono', monospace;
     font-size:12px; font-weight:600;
     padding:11px 8px;
@@ -1609,11 +1640,14 @@
     text-align:center;
     transition:all 0.2s;
   }
-  .account-type-btn:hover{ border-color:var(--cream); color:var(--cream); }
-  .account-type-btn.active{
+  .account-type-btn:hover, .profile-kind-btn:hover{ border-color:var(--cream); color:var(--cream); }
+  .account-type-btn.active, .profile-kind-btn.active{
     border-color:var(--pink);
     background:rgba(255,45,120,0.1);
     color:var(--cream);
+  }
+  .profile-kind-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:10px;
   }
   .account-type-note{
     font-size:12.5px;

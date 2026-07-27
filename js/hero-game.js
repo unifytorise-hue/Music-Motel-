@@ -526,6 +526,7 @@
   }
 
   function formatDistance(km){
+    if (window.mmFormatDistanceKm) return window.mmFormatDistanceKm(km);
     if (km < 1) return '<1 km away';
     if (km < 10) return Math.round(km) + ' km away';
     return Math.round(km / 10) * 10 + ' km away';

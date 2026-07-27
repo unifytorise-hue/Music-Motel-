@@ -13,11 +13,13 @@
   var PRICING_LABEL = { hour: '/hour', gig: '/gig (flat rate)', set_45min: '/45-min set' };
   var PRICING_SHORT = { hour: '/hr', gig: '/gig', set_45min: '/45-min set' };
 
+  function money(usd){ return window.mmFormatMoney ? window.mmFormatMoney(usd) : '$' + Number(usd).toFixed(2); }
+
   // Shared with js/booking-requests.js: the directory card and the quote
   // request modal both need a one-line "$X/gig" summary.
   window.formatRateCardShort = function(card){
     if (!card || card.rate_amount == null) return null;
-    return '$' + Number(card.rate_amount).toFixed(0) + (PRICING_SHORT[card.pricing_basis] || '');
+    return money(card.rate_amount) + (PRICING_SHORT[card.pricing_basis] || '');
   };
 
   // Shared with js/booking-requests.js: renders the same itemized-estimate
@@ -31,7 +33,7 @@
       return '<div class="rate-card-note">' + escapeHtml(opts.emptyText || 'No standard rate published yet — ask for a custom quote.') + '</div>';
     }
     var rows = [
-      '<div class="fee-row"><span>Estimate</span><span class="fee-row-total">$' + Number(card.rate_amount).toFixed(2) + (PRICING_LABEL[card.pricing_basis] || '') + '</span></div>',
+      '<div class="fee-row"><span>Estimate</span><span class="fee-row-total">' + money(card.rate_amount) + (PRICING_LABEL[card.pricing_basis] || '') + '</span></div>',
       '<div class="fee-row"><span>Travel</span><span>' + escapeHtml(card.travel_note || 'Ask for a travel estimate') + '</span></div>',
       '<div class="fee-row"><span>Accommodation</span><span>' + (card.accommodation_required ? 'Required for travel gigs' : 'Not required') + '</span></div>',
       '<div class="fee-row"><span>Food &amp; drink</span><span>' + (card.food_drink_required ? 'Required (hospitality rider)' : 'Not required') + '</span></div>',
