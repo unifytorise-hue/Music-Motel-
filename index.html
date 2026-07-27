@@ -821,11 +821,12 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 MUSIC MOTEL. UNIFY®.</span>
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
       <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
     </div>
   </div>
 </footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 
 <script src="js/hero-game.js"></script>
 
