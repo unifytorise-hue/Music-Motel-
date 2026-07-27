@@ -6,7 +6,7 @@
 -- Lets an artist save named prices ("2hr acoustic set - $250") so they can
 -- respond to a request with one tap instead of typing a custom quote
 -- every time.
-create table public.artist_rates (
+create table if not exists public.artist_rates (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   label text not null,
@@ -16,10 +16,12 @@ create table public.artist_rates (
 
 alter table public.artist_rates enable row level security;
 
+drop policy if exists "rates are publicly readable" on public.artist_rates;
 create policy "rates are publicly readable"
   on public.artist_rates for select
   using (true);
 
+drop policy if exists "artists manage their own rates" on public.artist_rates;
 create policy "artists manage their own rates"
   on public.artist_rates for all
   using (auth.uid() = user_id)
@@ -31,7 +33,7 @@ create policy "artists manage their own rates"
 -- status = 'completed', the same row is rendered as the invoice. No
 -- separate documents table — there's nothing an invoice needs that this
 -- row doesn't already have.
-create table public.booking_requests (
+create table if not exists public.booking_requests (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references auth.users(id) on delete cascade,
   artist_id uuid not null references auth.users(id) on delete cascade,
@@ -49,14 +51,17 @@ create table public.booking_requests (
 
 alter table public.booking_requests enable row level security;
 
+drop policy if exists "clients and artists see their own requests" on public.booking_requests;
 create policy "clients and artists see their own requests"
   on public.booking_requests for select
   using (auth.uid() = client_id or auth.uid() = artist_id);
 
+drop policy if exists "clients create requests" on public.booking_requests;
 create policy "clients create requests"
   on public.booking_requests for insert
   with check (auth.uid() = client_id and client_id <> artist_id);
 
+drop policy if exists "clients and artists can update their own requests" on public.booking_requests;
 create policy "clients and artists can update their own requests"
   on public.booking_requests for update
   using (auth.uid() = client_id or auth.uid() = artist_id)
@@ -128,6 +133,7 @@ begin
 end;
 $$;
 
+drop trigger if exists trg_enforce_booking_request_edits on public.booking_requests;
 create trigger trg_enforce_booking_request_edits
   before update on public.booking_requests
   for each row execute function public.enforce_booking_request_edits();
