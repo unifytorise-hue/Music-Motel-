@@ -418,6 +418,11 @@
 
   /* ===== section heading pattern ===== */
   .section{ padding:100px 0; border-bottom:1px solid var(--line); scroll-margin-top:88px; }
+  @media (max-width:640px){
+    /* 100px top+bottom (200px between adjacent sections) is fine on
+       desktop but reads as a dead gap on a narrow, shorter viewport. */
+    .section{ padding:56px 0; }
+  }
   .section-head{
     display:flex; justify-content:space-between; align-items:flex-end;
     gap:24px; margin-bottom:56px; flex-wrap:wrap;
@@ -1277,6 +1282,7 @@
 
   /* ===== CTA ===== */
   .cta-section{ text-align:center; padding:120px 0; scroll-margin-top:88px; }
+  @media (max-width:640px){ .cta-section{ padding:64px 0; } }
   .cta-section h2{ font-size:clamp(36px,6vw,68px); margin-bottom:24px; }
   .cta-section p{ color:var(--cream-dim); max-width:460px; margin:0 auto 36px; font-size:16px; line-height:1.6; }
   .cta-buttons{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; }
