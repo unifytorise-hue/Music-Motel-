@@ -174,7 +174,7 @@
     {name:'Session Drummers', loc:'London, UK', cat:'perform', color:'#FF2D78', lat:51.5074, lng:-0.1278,
       person:{ name:'Priya Anand', role:'Session Drummer', strength:74,
         bio:'Session drummer across pop, soul, and broken beat. Owns a fully mic\'d kit and home studio for remote tracking.',
-        badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'🎙'}],
+        badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'mic'}],
         gigs:[
           {title:'Remote tracking — three-track EP', detail:'Drums recorded and stems delivered within 48 hours.', xp:30},
           {title:'Live support — UK club tour', detail:'8-date run backing a touring soul artist.', xp:55}
@@ -190,7 +190,7 @@
     {name:'Mixing Engineers', loc:'Lagos, NG', cat:'production', color:'#2BE8D9', lat:6.5244, lng:3.3792,
       person:{ name:'Chidi Okafor', role:'Mixing Engineer', strength:80,
         bio:'Afrobeats and amapiano mixing engineer. Worked on tracks that charted regionally; open to remote mixing for international artists.',
-        badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'🎙'}],
+        badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'mic'}],
         gigs:[
           {title:'Mix credit — regional chart single', detail:'Full mix and light mastering for an Afrobeats single.', xp:70},
           {title:'EP mixing — independent artist', detail:'Five-track EP, turnaround within two weeks.', xp:40}
@@ -206,7 +206,7 @@
     {name:'Mastering Engineers', loc:'Berlin, DE', cat:'production', color:'#2BE8D9', lat:52.5200, lng:13.4050,
       person:{ name:'Lena Vogel', role:'Mastering Engineer', strength:85,
         bio:'Mastering engineer for electronic and techno labels across Berlin. Vinyl-aware mastering, fast turnaround for label deadlines.',
-        badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'🎙'}],
+        badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'mic'}],
         gigs:[
           {title:'Label mastering — techno EP series', detail:'Ongoing mastering relationship with a Berlin techno label.', xp:55},
           {title:'Vinyl pre-master — independent release', detail:'Prepared masters specifically for vinyl cut.', xp:30}
@@ -246,7 +246,7 @@
     {name:'Music Therapists', loc:'Toronto, CA', cat:'support', color:'#4ADE80', lat:43.6532, lng:-79.3832,
       person:{ name:'Dr. Hannah Lee', role:'Music Therapist', strength:88,
         bio:'Registered music therapist working with both pediatric and elder-care settings. Also offers sessions for performing musicians managing performance anxiety.',
-        badges:[{label:'Verified', icon:'✓'},{label:'Licensed', icon:'🎓'}],
+        badges:[{label:'Verified', icon:'✓'},{label:'Licensed', icon:'graduation'}],
         gigs:[
           {title:'Hospital program — pediatric ward', detail:'Weekly sessions as part of an ongoing hospital arts program.', xp:50},
           {title:'Performance anxiety workshop', detail:'Ran a workshop series for a local conservatory\'s performance majors.', xp:35}
@@ -254,7 +254,7 @@
     {name:'Luthiers', loc:'Cremona, IT', cat:'support', color:'#4ADE80', lat:45.1333, lng:10.0333,
       person:{ name:'Giulia Ferrari', role:'Luthier — String Instrument Maker', strength:90,
         bio:'Third-generation luthier in Cremona\'s violin-making tradition. Builds and restores violins, violas, and cellos for working musicians and collectors.',
-        badges:[{label:'Verified', icon:'✓'},{label:'Master Craft', icon:'🏆'}],
+        badges:[{label:'Verified', icon:'✓'},{label:'Master Craft', icon:'trophy'}],
         gigs:[
           {title:'Commissioned violin build', detail:'Hand-built violin commissioned by a touring soloist.', xp:90},
           {title:'Restoration — 19th century cello', detail:'Full structural restoration of a damaged antique cello.', xp:70}
@@ -270,7 +270,7 @@
     {name:'Piano Tuners', loc:'Vienna, AT', cat:'support', color:'#4ADE80', lat:48.2082, lng:16.3738,
       person:{ name:'Stefan Gruber', role:'Piano Tuner & Technician', strength:84,
         bio:'Trained piano technician maintaining concert hall and conservatory instruments across Vienna, including historical instrument restoration.',
-        badges:[{label:'Verified', icon:'✓'},{label:'Master Craft', icon:'🏆'}],
+        badges:[{label:'Verified', icon:'✓'},{label:'Master Craft', icon:'trophy'}],
         gigs:[
           {title:'Concert hall maintenance contract', detail:'Ongoing tuning and voicing for a chamber music venue.', xp:55},
           {title:'Historical instrument restoration', detail:'Restored a 1920s grand piano for a private collector.', xp:75}

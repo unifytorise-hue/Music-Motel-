@@ -25,7 +25,11 @@
     document.getElementById('profile-modal-title').textContent = p.name;
 
     var badgesHtml = p.badges.map(function(b){
-      return '<span class="profile-modal-badge">' + escapeHtmlProfile(b.icon) + ' ' + escapeHtmlProfile(b.label) + '</span>';
+      // b.icon is either a known icon key (rendered as a trusted, hand-written
+      // SVG — never user input) or a plain symbol character like ✓/★/♪, which
+      // already renders fine as escaped text.
+      var iconHtml = (window.mmIcon && window.mmIcon(b.icon)) || escapeHtmlProfile(b.icon);
+      return '<span class="profile-modal-badge">' + iconHtml + ' ' + escapeHtmlProfile(b.label) + '</span>';
     }).join('');
 
     var gigsHtml = p.gigs.map(function(g){
@@ -56,7 +60,7 @@
       '<button class="follow-btn-profile" id="profile-follow-btn">+ Follow</button>' +
       '<div class="profile-gig-label" style="margin-top:20px;">Gig list history</div>' +
       '<div class="profile-gig-list">' + gigsHtml + '</div>' +
-      '<button class="profile-book-btn" id="profile-book-btn">📅 Book ' + escapeHtmlProfile(p.name.split(' ')[0]) + '</button>' +
+      '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Book ' + escapeHtmlProfile(p.name.split(' ')[0]) + '</button>' +
       '<button class="profile-unify-btn" id="profile-unify-btn">Unify with ' + escapeHtmlProfile(p.name.split(' ')[0]) + '</button>' +
       '<div class="profile-fake-note">This is sample profile data for preview — real profiles will be created by members signing up.</div>';
 
