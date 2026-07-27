@@ -651,10 +651,12 @@
     border-top:3px solid var(--cell-color, transparent);
   }
   .role-cell:hover{ background:var(--black-2); }
+  .rcell-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .role-cell .rnum{
     font-family:'JetBrains Mono', monospace; font-size:11px;
-    color:var(--cell-color, var(--yellow)); display:block; margin-bottom:10px; font-weight:700;
+    color:var(--cell-color, var(--yellow)); font-weight:700;
   }
+  .role-cell .role-icon{ color:var(--cell-color, var(--yellow)); font-size:16px; opacity:0.85; }
   .role-cell h4{ font-size:16px; margin-bottom:10px; font-weight:700; }
   .role-cell ul{ list-style:none; display:flex; flex-direction:column; gap:5px; }
   .role-cell li{ font-size:12.5px; color:var(--cream-dim); }
