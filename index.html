@@ -72,6 +72,8 @@
 
 <script src="js/focus-trap.js"></script>
 
+<script src="js/icons.js"></script>
+
 <script src="js/storage.js"></script>
 
 <script src="js/supabase-client.js"></script>
@@ -92,7 +94,7 @@
 
     <div class="game">
       <div class="game-head">
-        <div class="game-title">🎮 <strong>BUILD YOUR BAND</strong> — tap roles to recruit · scroll for more</div>
+        <div class="game-title"><span data-icon="gamepad"></span> <strong>BUILD YOUR BAND</strong> — tap roles to recruit · scroll for more</div>
         <div class="game-rank" id="rank-badge">SOLO ACT</div>
       </div>
       <div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div>
@@ -718,7 +720,7 @@
 
     <div class="pubspace-grid single">
       <div class="pubspace-card" style="--ps-color:var(--green);">
-        <div class="pubspace-icon">🎤</div>
+        <div class="pubspace-icon" data-icon="mic"></div>
         <h3>Book real musicians, directly</h3>
         <p>Want a live duo for Sunday brunch or a DJ for Friday nights? Search the same directory everyone else uses — no agency markup, no cold emails, just a direct line to working musicians near you.</p>
       </div>
@@ -881,7 +883,7 @@
         <div class="fee-row fee-row-payout"><span>Artist receives</span><span id="fee-payout">$0</span></div>
       </div>
 
-      <div class="escrow-note">💳 Funds are held securely until the gig is marked complete by both sides, then released to the artist automatically — the same escrow model used by Fiverr and similar marketplaces.</div>
+      <div class="escrow-note"><span data-icon="credit-card"></span> Funds are held securely until the gig is marked complete by both sides, then released to the artist automatically — the same escrow model used by Fiverr and similar marketplaces.</div>
 
       <button class="signup-submit" id="booking-submit-btn">Send booking request</button>
     </div>
@@ -922,11 +924,11 @@
       <div class="form-field">
         <label>I am a...</label>
         <div class="account-type-grid">
-          <button class="account-type-btn active" data-type="fan">🎧 Fan</button>
-          <button class="account-type-btn" data-type="musician">🎸 Musician</button>
-          <button class="account-type-btn" data-type="educator">🎓 Educator</button>
-          <button class="account-type-btn" data-type="venue">🏛 Talent Booker</button>
-          <button class="account-type-btn" data-type="publicspace">🔊 Public Space</button>
+          <button class="account-type-btn active" data-type="fan"><span data-icon="headphones"></span> Fan</button>
+          <button class="account-type-btn" data-type="musician"><span data-icon="guitar"></span> Musician</button>
+          <button class="account-type-btn" data-type="educator"><span data-icon="graduation"></span> Educator</button>
+          <button class="account-type-btn" data-type="venue"><span data-icon="building"></span> Talent Booker</button>
+          <button class="account-type-btn" data-type="publicspace"><span data-icon="speaker"></span> Public Space</button>
         </div>
         <div class="account-type-note" id="account-type-note">Free forever — follow artists, log gigs you've attended, and book talent.</div>
       </div>
@@ -947,9 +949,9 @@
         <label>Location</label>
         <div class="loc-picker">
           <div class="loc-tabs">
-            <button class="loc-tab active" data-pane="search">🔍 Search</button>
-            <button class="loc-tab" data-pane="gps">📍 Nearby</button>
-            <button class="loc-tab" data-pane="map">🗺️ Map</button>
+            <button class="loc-tab active" data-pane="search"><span data-icon="search"></span> Search</button>
+            <button class="loc-tab" data-pane="gps"><span data-icon="map-pin"></span> Nearby</button>
+            <button class="loc-tab" data-pane="map"><span data-icon="map"></span> Map</button>
           </div>
 
           <div class="loc-pane active" data-pane="search">

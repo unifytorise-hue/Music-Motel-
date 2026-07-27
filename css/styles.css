@@ -1,3 +1,5 @@
+  .icon{ vertical-align:-0.15em; flex-shrink:0; }
+
   :root{
     --black:#0E0D12;
     --black-2:#181620;
