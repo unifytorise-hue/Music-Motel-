@@ -466,6 +466,17 @@
         </div>
       </div>
 
+      <div class="fan-card">
+        <div class="fan-card-head">
+          <h3>Your instruments</h3>
+          <button class="fan-add-btn" id="edit-instruments-btn">+ Edit</button>
+        </div>
+        <p class="invite-desc">What you play shows up on your profile so the right people can find you.</p>
+        <div class="instr-tag-list" id="my-instruments-list">
+          <div class="gig-log-empty" id="my-instruments-empty">No instruments added yet — tap Edit to add what you play.</div>
+        </div>
+      </div>
+
       <div class="fan-card invite-card">
         <div class="fan-card-head">
           <h3>Invite &amp; earn XP</h3>
@@ -842,7 +853,7 @@
     <div class="modal-search">
       <input type="text" id="instrument-search" placeholder="Search an instrument — try 'sitar' or 'drum'..." autocomplete="off">
     </div>
-    <div class="modal-count"><strong id="instrument-count">0</strong> instruments across <strong>6</strong> categories</div>
+    <div class="modal-count"><strong id="instrument-count">0</strong> instruments across <strong>6</strong> categories — tap an instrument to add it to your profile</div>
     <div class="modal-body" id="instrument-body">
       <!-- injected by JS -->
     </div>

@@ -19,7 +19,7 @@
 
   // ===== real artist directory =====
   function loadRealArtists(){
-    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type')
+    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments')
       .then(function(res){
         if (res.error || !res.data) return [];
         return res.data.filter(function(p){ return p.account_type !== 'fan'; });
@@ -61,12 +61,14 @@
     empty.style.display = 'none';
     grid.innerHTML = '';
     artists.forEach(function(p){
+      var instrumentsText = (p.instruments && p.instruments.length) ? 'Plays: ' + p.instruments.join(', ') : '';
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
         '<div class="gear-card-cat">' + escapeHtml(p.account_type) + '</div>' +
         '<h4>' + escapeHtml(p.name) + '</h4>' +
         '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
+        (instrumentsText ? '<p class="gear-card-condition">' + escapeHtml(instrumentsText) + '</p>' : '') +
         '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
         '<div class="gear-card-foot">' +
           '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +

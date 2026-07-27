@@ -1438,6 +1438,7 @@
     color:var(--cream-dim);
     background:rgba(255,255,255,0.015);
     transition:all 0.15s;
+    cursor:pointer;
   }
   .instr-pill:hover{
     border-color:var(--cat-color, var(--pink));
@@ -1445,9 +1446,35 @@
     background:rgba(255,255,255,0.04);
     transform:translateY(-1px);
   }
+  .instr-pill.selected{
+    background:var(--cat-color, var(--pink));
+    border-color:var(--cat-color, var(--pink));
+    color:var(--black);
+    font-weight:600;
+  }
+  .instr-pill.selected::before{ content:"✓ "; }
   .instr-pill.hidden{ display:none; }
   .instr-category.hidden{ display:none; }
   .instr-subgroup.hidden{ display:none; }
+
+  /* ===== "your instruments" fan-card tags ===== */
+  .instr-tag-list{ display:flex; flex-wrap:wrap; gap:8px; }
+  .instr-tag{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-family:'Space Grotesk', sans-serif;
+    padding:6px 8px 6px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.03);
+    color:var(--cream);
+  }
+  .instr-tag-remove{
+    font-size:10px; color:var(--cream-dim); line-height:1;
+    width:16px; height:16px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.15s; flex-shrink:0;
+  }
+  .instr-tag-remove:hover{ background:rgba(255,45,120,0.2); color:var(--pink); }
 
   .modal-empty{
     text-align:center;
