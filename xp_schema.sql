@@ -95,3 +95,16 @@ drop trigger if exists trg_gear_claim_xp on public.gear_claims;
 create trigger trg_gear_claim_xp
   after insert on public.gear_claims
   for each row execute function public.on_gear_claim_insert();
+
+-- Postgres grants EXECUTE on a new function to PUBLIC by default, which
+-- authenticated/anon inherit — so without this, award_xp is directly
+-- callable via POST /rest/v1/rpc/award_xp with an arbitrary p_user_id and
+-- p_amount, letting anyone hand out unlimited XP to anyone. Confirmed
+-- exploitable locally before this revoke, confirmed blocked (and the
+-- trigger-driven flow still works) after it: a trigger's call to another
+-- SECURITY DEFINER function runs under that function's owner, not the
+-- calling client role, so this doesn't touch the legitimate path at all.
+revoke execute on function public.award_xp(uuid, integer) from authenticated, anon, public;
+revoke execute on function public.on_gig_log_insert() from authenticated, anon, public;
+revoke execute on function public.on_referral_insert() from authenticated, anon, public;
+revoke execute on function public.on_gear_claim_insert() from authenticated, anon, public;

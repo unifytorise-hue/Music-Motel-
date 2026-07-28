@@ -89,6 +89,68 @@
     openProfileModal();
   };
 
+  // ===== real registered profile (from the nearby-players directory) =====
+  // Distinct render path from openProfile() above: real profiles have no
+  // badges/gig-history/strength score (those are sample-data-only fields),
+  // but do have a real uuid, so Follow/Request a quote/Unify wire straight
+  // into the same real tables/functions the artist directory already uses.
+  window.openRealProfile = function(profile, distanceKm){
+    document.getElementById('profile-modal-title').textContent = profile.name || 'Unnamed profile';
+
+    var isBand = profile.profile_kind === 'band';
+    var locBits = [];
+    if (profile.location_label) locBits.push(profile.location_label);
+    if (distanceKm != null && window.mmFormatDistanceKm) locBits.push(window.mmFormatDistanceKm(distanceKm));
+
+    var instrumentsHtml = (profile.instruments && profile.instruments.length)
+      ? '<div class="profile-badge-row">' + profile.instruments.map(function(instr){
+          return '<span class="profile-modal-badge">' + escapeHtmlProfile(instr) + '</span>';
+        }).join('') + '</div>'
+      : '';
+
+    var avatarGradient = 'linear-gradient(135deg, ' + (profile.avatar_color || '#2BE8D9') + ', var(--yellow))';
+
+    document.getElementById('profile-modal-body').innerHTML =
+      '<div class="profile-modal-header">' +
+        '<div class="profile-modal-avatar" style="background:' + avatarGradient + ';"></div>' +
+        '<div class="profile-modal-meta">' +
+          '<div class="profile-modal-name">' + escapeHtmlProfile(profile.name) + (isBand ? ' · BAND' : '') + '</div>' +
+          '<div class="profile-modal-role">' + escapeHtmlProfile(profile.role_label || profile.account_type || '') + '</div>' +
+          (locBits.length ? '<div class="profile-modal-loc"><span class="pindot"></span>' + escapeHtmlProfile(locBits.join(' · ')) + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      (profile.bio ? '<p class="profile-bio">' + escapeHtmlProfile(profile.bio) + '</p>' : '') +
+      instrumentsHtml +
+      '<button class="follow-btn-profile" id="profile-follow-btn">+ Follow</button>' +
+      (profile.account_type !== 'fan' ? '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Request a quote</button>' : '') +
+      (isBand ? '<button class="profile-unify-btn" id="profile-unify-btn">Unify with ' + escapeHtmlProfile(profile.name || 'this band') + '</button>' : '');
+
+    var followBtn = document.getElementById('profile-follow-btn');
+    refreshFollowButton(followBtn, profile.id);
+    followBtn.addEventListener('click', function(){
+      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.location_label, color: profile.avatar_color });
+      refreshFollowButton(followBtn, profile.id);
+    });
+
+    var bookBtn = document.getElementById('profile-book-btn');
+    if (bookBtn){
+      bookBtn.addEventListener('click', function(){
+        closeProfileModal();
+        if (typeof window.openQuoteRequest === 'function') window.openQuoteRequest(profile);
+      });
+    }
+
+    var unifyBtn = document.getElementById('profile-unify-btn');
+    if (unifyBtn){
+      unifyBtn.addEventListener('click', function(){
+        closeProfileModal();
+        if (typeof window.requestJoinBand === 'function') window.requestJoinBand(profile);
+      });
+    }
+
+    openProfileModal();
+  };
+
   document.getElementById('profile-close-btn').addEventListener('click', closeProfileModal);
   document.getElementById('profile-modal').addEventListener('click', function(e){
     if (e.target.id === 'profile-modal') closeProfileModal();
