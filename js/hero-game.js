@@ -349,6 +349,14 @@
       setTimeout(function(){
         showToast('That\'s a real lineup — create your profile to find them for real →');
       }, 700);
+      // Someone already signed in doesn't need the signup modal — the game
+      // is just for visitors deciding whether to join.
+      var alreadySignedIn = !!(window.mmSupabaseConfigured && window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser());
+      if (!alreadySignedIn){
+        setTimeout(function(){
+          if (typeof window.openSignup === 'function') window.openSignup();
+        }, 1700);
+      }
     }
   }
 
@@ -524,6 +532,7 @@
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   }
+  window.mmHaversineKm = haversineKm;
 
   function formatDistance(km){
     if (window.mmFormatDistanceKm) return window.mmFormatDistanceKm(km);

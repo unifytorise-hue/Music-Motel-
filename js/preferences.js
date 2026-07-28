@@ -107,6 +107,7 @@
       applyPrefsToForm();
       runConverter();
       if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
+      if (window.refreshNearbyPlayers) window.refreshNearbyPlayers();
     });
   }
 

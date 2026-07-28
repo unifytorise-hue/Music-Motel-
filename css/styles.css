@@ -800,6 +800,9 @@
     transition:color 0.2s;
   }
   .gig-log-remove:hover{ color:var(--red); }
+  .gig-log-item.tappable{ cursor:pointer; border-radius:8px; transition:background 0.15s; }
+  .gig-log-item.tappable:hover, .gig-log-item.tappable:focus-visible{ background:rgba(255,255,255,0.03); }
+  .gig-log-chevron{ color:var(--cream-dim); font-size:15px; margin-left:auto; flex-shrink:0; }
 
   .follow-item{
     display:flex;
