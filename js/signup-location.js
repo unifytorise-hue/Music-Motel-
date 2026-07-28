@@ -9,10 +9,38 @@
     document.getElementById('signup-modal').classList.remove('open');
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
+    window.__mmCompletingProfile = false;
+    // Only restore these when a backend actually exists — in preview-only
+    // mode they're meant to stay hidden (matches the original unconfigured
+    // behavior; renderAuthUI() itself never touches them when !configured).
+    if (window.mmAuth && window.mmAuth.isConfigured()){
+      document.getElementById('signup-auth-fields').style.display = '';
+      document.getElementById('google-auth-section-signup').style.display = '';
+    }
+    document.getElementById('signup-title').textContent = 'Create your profile';
   }
   window.openSignup = openSignup;
   window.openSignupWithRole = function(roleName){
     document.getElementById('signup-role').value = roleName;
+    openSignup();
+  };
+
+  // Reuses the same form as a fresh signup, just without email/password —
+  // this visitor is already authenticated (arrived via Google), so those
+  // fields don't apply. Called from js/auth.js once per sign-in when it
+  // finds no public.profiles row for the now-signed-in user.
+  window.openProfileCompletion = function(user){
+    window.__mmCompletingProfile = true;
+    document.getElementById('signup-auth-fields').style.display = 'none';
+    // Already authenticated via Google — a second "Continue with Google"
+    // button here would make no sense. Set directly (rather than relying
+    // on the next renderAuthUI() call) since one already ran for this
+    // sign-in before __mmCompletingProfile existed.
+    document.getElementById('google-auth-section-signup').style.display = 'none';
+    document.getElementById('signup-title').textContent = 'Finish setting up your profile';
+    var nameField = document.getElementById('signup-name');
+    var meta = user && user.user_metadata;
+    if (meta && !nameField.value) nameField.value = meta.full_name || meta.name || '';
     openSignup();
   };
   ['open-signup-nav','open-signup-hero','open-signup-final','open-signup-mobile'].forEach(function(id){
@@ -324,14 +352,61 @@
     }
   }
 
+  // Inserts the public.profiles row for a user who's already authenticated
+  // (arrived via Google, or — in principle — any other OAuth provider
+  // added later) and just needs the app-specific fields this form
+  // collects. Shared tail end of both submitReal() below and the
+  // completing-profile path, so the profile-insert logic (and its
+  // referral/PAID_TIERS follow-ups) only exists once.
+  function insertProfileForUser(user, name, loc, type, role, statusEl, submitBtn){
+    return window.mmSupabase.from('profiles').insert({
+      id: user.id,
+      account_type: type,
+      name: name,
+      role_label: role,
+      location_label: loc,
+      lat: selectedLat,
+      lng: selectedLng,
+      profile_kind: window.getCurrentProfileKind ? window.getCurrentProfileKind() : 'personal'
+    }).then(function(profileRes){
+      if (profileRes.error) throw profileRes.error;
+      if (window.recordReferralIfAny) window.recordReferralIfAny(user.id);
+      if (window.syncReferralCodeForUser) window.syncReferralCodeForUser(user.id);
+      if (window.mmAuth && window.mmAuth.refreshOwnProfile) window.mmAuth.refreshOwnProfile();
+      statusEl.textContent = '';
+      submitBtn.disabled = false;
+      document.getElementById('signup-email').value = '';
+      document.getElementById('signup-password').value = '';
+      closeSignup();
+      if (PAID_TIERS[type]){
+        var tier = PAID_TIERS[type];
+        alert('Profile created for ' + name + ' (' + tier.label + ').\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar.)');
+      }
+    });
+  }
+
   // Real account creation: supabase.auth.signUp() followed by a row in
   // public.profiles. Errors surface inline in #signup-status rather than
   // via alert(), since a failed signUp shouldn't look identical to success.
   function submitReal(name, loc, type, role){
-    var email = document.getElementById('signup-email').value.trim();
-    var password = document.getElementById('signup-password').value;
     var statusEl = document.getElementById('signup-status');
     var submitBtn = document.getElementById('signup-submit-btn');
+
+    // Already authenticated (arrived via Google) — just needs the profile
+    // row, no email/password to collect or a second signUp() call to make.
+    var existingUser = window.mmAuth.getUser();
+    if (window.__mmCompletingProfile && existingUser){
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Saving your profile…';
+      insertProfileForUser(existingUser, name, loc, type, role, statusEl, submitBtn).catch(function(err){
+        submitBtn.disabled = false;
+        statusEl.textContent = (err && err.message) || 'Something went wrong saving your profile.';
+      });
+      return;
+    }
+
+    var email = document.getElementById('signup-email').value.trim();
+    var password = document.getElementById('signup-password').value;
 
     if (!email || !password){
       statusEl.textContent = 'Enter an email and password to create your account.';
@@ -351,29 +426,7 @@
       if (!user){
         throw new Error('Check your email to confirm your account, then sign in.');
       }
-      return window.mmSupabase.from('profiles').insert({
-        id: user.id,
-        account_type: type,
-        name: name,
-        role_label: role,
-        location_label: loc,
-        lat: selectedLat,
-        lng: selectedLng,
-        profile_kind: window.getCurrentProfileKind ? window.getCurrentProfileKind() : 'personal'
-      }).then(function(profileRes){
-        if (profileRes.error) throw profileRes.error;
-        if (window.recordReferralIfAny) window.recordReferralIfAny(user.id);
-        if (window.syncReferralCodeForUser) window.syncReferralCodeForUser(user.id);
-        statusEl.textContent = '';
-        submitBtn.disabled = false;
-        document.getElementById('signup-email').value = '';
-        document.getElementById('signup-password').value = '';
-        closeSignup();
-        if (PAID_TIERS[type]){
-          var tier = PAID_TIERS[type];
-          alert('Profile created for ' + name + ' (' + tier.label + ').\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar.)');
-        }
-      });
+      return insertProfileForUser(user, name, loc, type, role, statusEl, submitBtn);
     }).catch(function(err){
       submitBtn.disabled = false;
       statusEl.textContent = (err && err.message) || 'Something went wrong creating your account.';

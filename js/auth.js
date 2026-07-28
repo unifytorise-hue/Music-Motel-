@@ -2,6 +2,7 @@
   var configured = !!window.mmSupabaseConfigured;
   var client = window.mmSupabase;
   var currentUser = null;
+  var currentProfileName = null; // profiles.name — shown in the nav instead of the raw email
   var readyResolve;
 
   // Other modules (gig log, following, referrals) need to know whether a
@@ -24,11 +25,43 @@
       if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
       return client.auth.signInWithPassword({ email: email, password: password });
     },
+    // Full-page redirect to Google, then back to this same URL with a
+    // session already established — Supabase's JS client picks the token
+    // up from the redirect URL automatically (detectSessionInUrl is on by
+    // default), which is what fires onAuthStateChange/getSession() below.
+    signInWithGoogle: function(){
+      if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
+      return client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+    },
     signOut: function(){
       if (!configured) return Promise.resolve();
       return client.auth.signOut();
     }
   };
+
+  // Google sign-in skips the multi-step signup form entirely (no
+  // account_type/location/etc. ever gets collected), so a user can land
+  // back here signed in with zero rows in public.profiles. Detected once
+  // per sign-in transition and handled by prompting the same signup form,
+  // just without the now-irrelevant email/password fields — see
+  // window.openProfileCompletion in js/signup-location.js. Also picks up
+  // profiles.name for the nav display while it's already fetching the row.
+  function refreshOwnProfile(user){
+    if (!user || !configured) return;
+    client.from('profiles').select('id,name').eq('id', user.id).maybeSingle().then(function(res){
+      if (res.error) return;
+      if (!res.data){
+        if (window.openProfileCompletion) window.openProfileCompletion(user);
+        return;
+      }
+      currentProfileName = res.data.name || null;
+      renderAuthUI();
+    }).catch(function(){});
+  }
+  // Called once a freshly-created (or just-completed) profile row exists,
+  // so the nav shows the real name immediately instead of waiting for
+  // another sign-in transition.
+  window.mmAuth.refreshOwnProfile = function(){ refreshOwnProfile(currentUser); };
 
   function renderAuthUI(){
     if (!configured) return; // leave the original signed-out-only UI untouched
@@ -42,23 +75,41 @@
     var accountMobile = document.getElementById('mobile-account');
     var accountMobileEmail = document.getElementById('mobile-account-email');
     var authFields = document.getElementById('signup-auth-fields');
+    var signupHero = document.getElementById('open-signup-hero');
+    var signupFinal = document.getElementById('open-signup-final');
 
-    if (authFields) authFields.style.display = '';
+    // Hidden while completing a profile after Google sign-in — that user
+    // is already authenticated, so email/password fields (and a second
+    // "Continue with Google" button) make no sense.
+    if (authFields) authFields.style.display = window.__mmCompletingProfile ? 'none' : '';
+    var googleSignup = document.getElementById('google-auth-section-signup');
+    var googleSignin = document.getElementById('google-auth-section-signin');
+    if (googleSignup) googleSignup.style.display = window.__mmCompletingProfile ? 'none' : '';
+    if (googleSignin) googleSignin.style.display = '';
 
     var signedIn = !!currentUser;
+    var displayName = (currentProfileName || (currentUser && currentUser.email) || '');
     if (signinNav) signinNav.style.display = signedIn ? 'none' : '';
     if (signupNav) signupNav.style.display = signedIn ? 'none' : '';
+    // Two more "Create your profile" CTAs live further down the page (hero,
+    // bottom cta-section) — pointless to show someone who already has a
+    // profile, same reasoning as hiding the nav version above.
+    if (signupHero) signupHero.style.display = signedIn ? 'none' : '';
+    if (signupFinal) signupFinal.style.display = signedIn ? 'none' : '';
     if (accountEl) accountEl.style.display = signedIn ? 'flex' : 'none';
-    if (accountEmail) accountEmail.textContent = signedIn ? (currentUser.email || '') : '';
+    if (accountEmail) accountEmail.textContent = signedIn ? displayName : '';
     if (signinMobile) signinMobile.style.display = signedIn ? 'none' : '';
     if (signupMobile) signupMobile.style.display = signedIn ? 'none' : '';
     if (accountMobile) accountMobile.style.display = signedIn ? 'block' : 'none';
-    if (accountMobileEmail) accountMobileEmail.textContent = signedIn ? (currentUser.email || '') : '';
+    if (accountMobileEmail) accountMobileEmail.textContent = signedIn ? displayName : '';
   }
 
   function setCurrentUser(user){
+    var wasSignedOut = !currentUser;
     currentUser = user || null;
+    if (!currentUser) currentProfileName = null;
     renderAuthUI();
+    if (currentUser && wasSignedOut) refreshOwnProfile(currentUser);
   }
 
   if (configured){
@@ -152,6 +203,18 @@
     ['nav-signout-btn', 'mobile-signout-btn'].forEach(function(id){
       var btn = document.getElementById(id);
       if (btn) btn.addEventListener('click', function(){ window.mmAuth.signOut(); });
+    });
+
+    ['google-signup-btn', 'google-signin-btn'].forEach(function(id){
+      var btn = document.getElementById(id);
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        btn.disabled = true;
+        window.mmAuth.signInWithGoogle().catch(function(err){
+          btn.disabled = false;
+          alert((err && err.message) || 'Could not start Google sign-in.');
+        });
+      });
     });
 
     // Re-sync now that every element in the document exists — catches up
