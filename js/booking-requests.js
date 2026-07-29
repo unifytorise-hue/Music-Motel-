@@ -347,16 +347,20 @@
   // invoice" the moment the client accepts it, and an "invoice" once the
   // gig is completed — same numbers throughout, just relabeled at each
   // step of the funnel.
+  // The client pays exactly the quoted amount — the platform fee comes out
+  // of the artist's side (matches the pricing footnote, the booking-
+  // honesty notes on both modals, and the tick-list terms: "the artist
+  // keeps 90%", never "the client pays 110%"). Previously this added the
+  // fee on top of what the client pays instead of deducting it from the
+  // artist's payout — fixed to match the site's actual, stated policy.
   function renderFeeBreakdown(r){
     if (!r.quote_amount) return '';
     var heading = r.status === 'quoted' ? 'Estimate' : (r.status === 'accepted' ? 'Proforma invoice' : 'Invoice');
     var fee = Number(r.quote_amount) * Number(r.platform_fee_rate);
-    var total = Number(r.quote_amount) + fee;
     var payout = Number(r.quote_amount) - fee;
     return '<div class="fee-breakdown">' +
-      '<div class="fee-row"><span>' + heading + '</span><span>' + money(r.quote_amount) + '</span></div>' +
-      '<div class="fee-row fee-row-fee"><span>Booking fee (10%, incl. transaction costs)</span><span>' + money(fee) + '</span></div>' +
-      '<div class="fee-row fee-row-total"><span>Client pays</span><span>' + money(total) + '</span></div>' +
+      '<div class="fee-row"><span>' + heading + ' (client pays)</span><span>' + money(r.quote_amount) + '</span></div>' +
+      '<div class="fee-row fee-row-fee"><span>Booking fee (10%, incl. transaction costs)</span><span>-' + money(fee) + '</span></div>' +
       '<div class="fee-row fee-row-payout"><span>Artist receives</span><span>' + money(payout) + '</span></div>' +
     '</div>';
   }
