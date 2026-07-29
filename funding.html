@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fund a Project — Music Motel</title>
+<meta name="description" content="Fund gear, a tour bus, a gig, recordings, a demo, or an album for a musician, band, or fan on Music Motel. Share your campaign and let people support you directly.">
+<meta property="og:title" content="Fund a Project — Music Motel">
+<meta property="og:description" content="Help fund gear, a gig, recordings, a demo, or an album — share your campaign and let people support you directly.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unifytorise-hue.github.io/Music-Motel-/img/logo.png">
+<meta name="theme-color" content="#0E0D12">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="toast" id="toast"><span class="tdot"></span><span id="toast-text">Added!</span></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo-mark"><a href="index.html"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></a></div>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#roles">Who's on it</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="profile.html">My profile</a>
+      <a href="profile.html#my-rate">My Rate</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="index.html" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta" id="open-signup-nav">Create profile</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <span class="nav-avatar" id="nav-avatar"></span>
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <a href="profile.html">My profile</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#roles">Who's on it</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="profile.html#my-rate">My Rate</a>
+    <a href="funding.html">Fund a project</a>
+    <a href="businesses.html">For businesses</a>
+    <a href="gear.html">Donate gear</a>
+    <a href="sponsor.html">Advertise</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
+    <a href="index.html" class="mobile-cta" id="open-signup-mobile">Create profile</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/focus-trap.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/nav.js"></script>
+
+<!-- ===== browse view (default) ===== -->
+<section class="section" id="funding-browse-view" style="padding-top:150px;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--purple);">/ Fund the music</span>
+        <h2 class="display">Help make it happen.</h2>
+      </div>
+      <p>Gear, a tour bus, a gig, recordings, a demo, an album — fund what a musician, band, or fan needs next.</p>
+    </div>
+
+    <div class="pledge-disclosure fan-dashboard-note">This is a pledge, not a processed payment yet — Music Motel's payment processor is still being connected. The campaign owner will follow up on how to complete payment. Progress bars update in real time as pledges come in.</div>
+
+    <div class="gear-controls">
+      <div class="gear-filter-tabs" id="funding-filter-tabs"></div>
+      <button class="gear-list-btn" id="funding-start-btn">+ Start a campaign</button>
+    </div>
+
+    <div class="gear-grid" id="funding-grid"></div>
+  </div>
+</section>
+
+<!-- ===== single-campaign view (?id=<uuid>) ===== -->
+<section class="section" id="funding-single-view" style="padding-top:150px; display:none;">
+  <div class="wrap">
+    <p class="rate-card-note" id="funding-single-loading">Loading campaign…</p>
+
+    <div id="funding-single-notfound" style="display:none;">
+      <div class="section-head">
+        <div>
+          <span class="tag" style="color:var(--pink);">/ Campaign</span>
+          <h2 class="display">We couldn't find that campaign.</h2>
+        </div>
+        <p>The link may be out of date, or the campaign may have been removed.</p>
+      </div>
+      <a href="funding.html" class="btn-secondary">See all campaigns</a>
+    </div>
+
+    <div id="funding-single-body" style="display:none;">
+      <div class="section-head">
+        <div>
+          <span class="tag" id="funding-single-tag" style="color:var(--orange);">/ Fund my gear</span>
+          <h2 class="display" id="funding-single-title">—</h2>
+        </div>
+        <p id="funding-single-item-label"></p>
+      </div>
+
+      <div class="campaign-owner-row">
+        <div class="campaign-owner-avatar" id="funding-single-owner-avatar"></div>
+        <div>
+          <div class="campaign-owner-name" id="funding-single-owner-name"></div>
+          <div class="campaign-owner-role" id="funding-single-owner-role"></div>
+        </div>
+      </div>
+
+      <div class="content-box" style="max-width:640px;">
+        <div class="campaign-progress-row">
+          <span class="campaign-progress-raised" id="funding-single-raised">$0</span>
+          <span class="campaign-progress-goal" id="funding-single-goal">of $0 goal</span>
+        </div>
+        <div class="xp-track"><div class="xp-fill" id="funding-single-fill" style="width:0%;"></div></div>
+        <div class="campaign-progress-pct" id="funding-single-pct">0% funded</div>
+
+        <p class="campaign-story" id="funding-single-story" style="margin-top:20px;"></p>
+
+        <button class="btn-primary" id="funding-single-support-btn" style="width:100%; text-align:center; margin-top:20px;">Support this campaign</button>
+        <button class="invite-copy-btn" id="funding-single-share-btn" style="width:100%; margin-top:10px;">Share</button>
+      </div>
+
+      <div class="content-box" id="funding-single-supporters-box" style="max-width:640px; margin-top:16px; display:none;">
+        <h3 style="margin-bottom:6px;">Recent support</h3>
+        <div id="funding-single-supporters-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="signup-overlay" id="funding-start-modal" role="dialog" aria-modal="true" aria-labelledby="funding-start-title">
+  <div class="signup-card" style="max-width:520px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--purple);">/ Fund the music</span>
+        <h2 class="display" id="funding-start-title" style="font-size:26px;">Start a campaign</h2>
+      </div>
+      <button class="modal-close" id="funding-start-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="funding-category">What are you funding?</label>
+        <select id="funding-category">
+          <option value="gear">Gear (drums, guitar, studio gear, mic…)</option>
+          <option value="bus">A tour bus</option>
+          <option value="gig">A gig</option>
+          <option value="recordings">Recordings</option>
+          <option value="demo">A demo</option>
+          <option value="album">An album</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+      <div class="form-field" id="funding-item-label-field">
+        <label for="funding-item-label">Which gear?</label>
+        <input type="text" id="funding-item-label" placeholder="e.g. Drum kit, guitar, studio mic">
+      </div>
+      <div class="form-field">
+        <label for="funding-title">Campaign title</label>
+        <input type="text" id="funding-title" placeholder="e.g. Fund my gear">
+      </div>
+      <div class="form-field">
+        <label for="funding-story">Tell your story</label>
+        <textarea id="funding-story" rows="4" placeholder="What's this for, and why does it matter? This is what people see when you share your link."></textarea>
+      </div>
+      <div class="form-field">
+        <label for="funding-goal">Goal amount (USD)</label>
+        <input type="text" id="funding-goal" inputmode="decimal" placeholder="e.g. 500">
+      </div>
+      <div class="loc-search-status" id="funding-start-status" role="status"></div>
+      <button class="signup-submit" id="funding-start-save-btn">Start campaign</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="funding-support-modal" role="dialog" aria-modal="true" aria-labelledby="funding-support-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Support</span>
+        <h2 class="display" id="funding-support-title" style="font-size:26px;">Support this campaign</h2>
+      </div>
+      <button class="modal-close" id="funding-support-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="pledge-disclosure fan-dashboard-note" style="margin-bottom:16px;">This records your pledge immediately — Music Motel's payment processor isn't connected yet, so no card is charged. The campaign owner will follow up on how to complete payment.</div>
+      <div class="form-field">
+        <label for="funding-support-amount">Amount (USD)</label>
+        <input type="text" id="funding-support-amount" inputmode="decimal" placeholder="e.g. 25">
+      </div>
+      <div class="form-field">
+        <label for="funding-support-name">Your name</label>
+        <input type="text" id="funding-support-name" placeholder="Shown next to your pledge">
+      </div>
+      <div class="form-field">
+        <label for="funding-support-message">Message (optional)</label>
+        <input type="text" id="funding-support-message" placeholder="e.g. Can't wait to hear the album!">
+      </div>
+      <div class="loc-search-status" id="funding-support-status" role="status"></div>
+      <button class="signup-submit" id="funding-support-save-btn">Pledge support</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
+        <p>The directory for the music industry.<br>Founded 2014, South Africa.<br>Search by instrument and location, then connect directly.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="index.html#about">About</a>
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#roles">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h5>Get involved</h5>
+          <a href="index.html#cta">Create profile</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
+      <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<script src="js/real-xp.js"></script>
+<script src="js/preferences.js"></script>
+<script src="js/funding.js"></script>
+
+<script>
+  // Same dead-button workaround as sponsor.html/gear.html/businesses.html:
+  // these share IDs with index.html so auth.js's signed-in/out reactivity
+  // still works, but their real modal targets don't exist here, so a
+  // second listener redirects to index.html instead of silently doing
+  // nothing.
+  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
+  });
+
+  // js/funding.js calls window.openSignin()/window.openSignup() when a
+  // signed-out visitor tries to start a campaign or pledge — auth.js
+  // defines those to open modals that don't exist on this page, so they'd
+  // otherwise silently no-op. Our own DOMContentLoaded listener fires
+  // after auth.js's and safely overrides both.
+  document.addEventListener('DOMContentLoaded', function(){
+    window.openSignin = function(){ window.location.href = 'index.html'; };
+    window.openSignup = function(){ window.location.href = 'index.html'; };
+  });
+</script>
+
+</body>
+</html>

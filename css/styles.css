@@ -1261,6 +1261,33 @@
   .gear-footnote p{ font-size:13px; line-height:1.7; color:var(--cream-dim); max-width:760px; }
   .gear-footnote strong{ color:var(--cream); }
 
+  /* ===== funding campaigns ===== */
+  .campaign-card{ border-top:3px solid var(--camp-color, var(--orange)); }
+  .campaign-card .gear-card-cat{ color:var(--camp-color, var(--orange)); }
+  .campaign-progress-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    margin-bottom:8px;
+  }
+  .campaign-progress-raised{ color:var(--cream); font-weight:700; }
+  .campaign-progress-goal{ color:var(--cream-dim); }
+  .campaign-progress-pct{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    color:var(--cream-dim); margin-top:8px;
+  }
+  .campaign-story{ font-size:14px; line-height:1.65; color:var(--cream-dim); white-space:pre-wrap; }
+  .campaign-owner-row{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .campaign-owner-avatar{ width:36px; height:36px; border-radius:8px; flex-shrink:0; }
+  .campaign-owner-name{ font-size:13.5px; font-weight:700; }
+  .campaign-owner-role{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--cream-dim); }
+  .campaign-supporter-item{
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .campaign-supporter-item:last-child{ border-bottom:none; }
+  .campaign-supporter-amount{ font-family:'JetBrains Mono', monospace; color:var(--green); font-weight:700; flex-shrink:0; }
+  .campaign-supporter-message{ color:var(--cream-dim); font-size:12.5px; margin-top:2px; }
+
   /* ===== real artist directory ===== */
   .real-artist-grid{
     display:grid;
