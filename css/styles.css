@@ -110,7 +110,16 @@
   }
   .nav-links a{ color:var(--cream-dim); transition:color 0.2s; }
   .nav-links a:hover{ color:var(--cream); }
-  .nav-right{ display:flex; align-items:center; gap:18px; }
+  .nav-right{ display:flex; align-items:center; gap:20px; }
+  #nav-account-email{
+    max-width:140px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  @media (max-width:480px){
+    #nav-account-email{ max-width:88px; }
+  }
   .nav-score{
     font-family:'JetBrains Mono', monospace;
     font-size:12px; font-weight:700;
@@ -376,10 +385,25 @@
   }
   .roster-slot button:hover{ color:var(--red); }
 
+  .hero-search-box{
+    position:relative; z-index:1;
+    margin-top:32px;
+  }
+  .hero-search-heading{
+    font-family:'Anton', sans-serif;
+    text-transform:uppercase;
+    font-size:clamp(22px,3.4vw,30px);
+    margin:6px 0 4px;
+  }
+  .hero-search-sub{
+    color:var(--cream-dim);
+    font-size:14px;
+    margin-bottom:20px;
+  }
   .hero-ctas{
     position:relative; z-index:1;
     display:flex; gap:16px; flex-wrap:wrap;
-    margin:64px 0 0;
+    margin:40px 0 0;
   }
   .btn-primary{
     font-family:'JetBrains Mono', monospace; font-size:14px;
@@ -1838,6 +1862,29 @@
   }
   .signup-submit:hover{ background:#ff5390; transform:translateY(-1px); }
   .signup-submit:disabled{ opacity:0.45; cursor:not-allowed; transform:none; }
+
+  .google-signin-btn{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13.5px; font-weight:700;
+    background:var(--cream);
+    color:#1a1a1a;
+    padding:14px;
+    border-radius:8px;
+    transition:transform 0.2s, opacity 0.2s;
+  }
+  .google-signin-btn:hover{ transform:translateY(-1px); opacity:0.92; }
+  .signup-divider{
+    display:flex; align-items:center; gap:12px;
+    margin:16px 0 4px;
+    color:var(--cream-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px; text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .signup-divider::before, .signup-divider::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
 
   /* ===== profile detail modal ===== */
   .profile-modal-card{ max-width:600px; }
