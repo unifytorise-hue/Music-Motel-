@@ -36,6 +36,20 @@
     signOut: function(){
       if (!configured) return Promise.resolve();
       return client.auth.signOut();
+    },
+    // Emails a link back to redirectTo (this same origin); clicking it
+    // signs the visitor in with a short-lived recovery session and fires
+    // onAuthStateChange with event "PASSWORD_RECOVERY" below, which is
+    // what actually opens the "set a new password" modal.
+    requestPasswordReset: function(email){
+      if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
+      return client.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    },
+    // Only meaningful during that recovery session — updateUser() applies
+    // to whoever the current session belongs to.
+    updatePassword: function(newPassword){
+      if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
+      return client.auth.updateUser({ password: newPassword });
     }
   };
 
@@ -117,8 +131,9 @@
       setCurrentUser(res.data && res.data.session ? res.data.session.user : null);
       readyResolve();
     }).catch(function(){ readyResolve(); });
-    client.auth.onAuthStateChange(function(_event, session){
+    client.auth.onAuthStateChange(function(event, session){
       setCurrentUser(session ? session.user : null);
+      if (event === 'PASSWORD_RECOVERY' && window.openSetNewPassword) window.openSetNewPassword();
     });
   } else {
     readyResolve();
