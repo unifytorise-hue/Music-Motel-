@@ -1208,9 +1208,55 @@
           <input type="password" id="signin-password" placeholder="Your password" autocomplete="current-password">
           <button type="button" class="password-toggle-btn" data-target="signin-password" aria-label="Show password"><span data-icon="eye"></span></button>
         </div>
+        <button type="button" class="forgot-password-link" id="open-forgot-password">Forgot password?</button>
       </div>
       <div class="loc-search-status" id="signin-status" role="status"></div>
       <button class="signup-submit" id="signin-submit-btn">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="forgot-password-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-password-title">
+  <div class="signup-card" style="max-width:440px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ Reset password</span>
+        <h2 class="display" id="forgot-password-title" style="font-size:26px;">Forgot password?</h2>
+      </div>
+      <button class="modal-close" id="forgot-password-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <p class="rate-card-note" style="margin-bottom:16px;">Enter your email and we'll send you a link to set a new password.</p>
+      <div class="form-field">
+        <label for="forgot-password-email">Email</label>
+        <input type="email" id="forgot-password-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="loc-search-status" id="forgot-password-status" role="status"></div>
+      <button class="signup-submit" id="forgot-password-send-btn">Send reset link</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="set-new-password-modal" role="dialog" aria-modal="true" aria-labelledby="set-new-password-title">
+  <div class="signup-card" style="max-width:440px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Reset password</span>
+        <h2 class="display" id="set-new-password-title" style="font-size:26px;">Set a new password</h2>
+      </div>
+      <button class="modal-close" id="set-new-password-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <p class="rate-card-note" style="margin-bottom:16px;">You followed a password reset link — choose a new password below.</p>
+      <div class="form-field">
+        <label for="new-password">New password</label>
+        <div class="password-field">
+          <input type="password" id="new-password" placeholder="At least 6 characters" autocomplete="new-password">
+          <button type="button" class="password-toggle-btn" data-target="new-password" aria-label="Show password"><span data-icon="eye"></span></button>
+        </div>
+      </div>
+      <div class="loc-search-status" id="set-new-password-status" role="status"></div>
+      <button class="signup-submit" id="set-new-password-btn">Save new password</button>
     </div>
   </div>
 </div>
@@ -1244,6 +1290,7 @@
 <script src="js/band-members.js"></script>
 <script src="js/nearby-players.js"></script>
 <script src="js/password-toggle.js"></script>
+<script src="js/password-reset.js"></script>
 
 </body>
 </html>
