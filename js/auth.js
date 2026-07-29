@@ -133,7 +133,16 @@
     }).catch(function(){ readyResolve(); });
     client.auth.onAuthStateChange(function(event, session){
       setCurrentUser(session ? session.user : null);
-      if (event === 'PASSWORD_RECOVERY' && window.openSetNewPassword) window.openSetNewPassword();
+      if (event === 'PASSWORD_RECOVERY'){
+        // js/auth.js loads near the top of the page, js/password-reset.js
+        // (which defines this) near the bottom — Supabase's redirect-driven
+        // session detection can resolve before the rest of the page has
+        // finished loading, so window.openSetNewPassword may not exist yet.
+        // Flag it instead of silently dropping the event; password-reset.js
+        // checks this flag itself once it's actually ready.
+        if (window.openSetNewPassword) window.openSetNewPassword();
+        else window.__mmPendingPasswordRecovery = true;
+      }
     });
   } else {
     readyResolve();

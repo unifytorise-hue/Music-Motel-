@@ -78,6 +78,13 @@
   }
   window.openSetNewPassword = openSetNewPassword;
 
+  // Catches a PASSWORD_RECOVERY event that fired in js/auth.js before this
+  // script had loaded (see the comment next to where that flag is set).
+  if (window.__mmPendingPasswordRecovery){
+    window.__mmPendingPasswordRecovery = false;
+    openSetNewPassword();
+  }
+
   function closeSetNewPassword(){
     var modal = document.getElementById('set-new-password-modal');
     modal.classList.remove('open');
