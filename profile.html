@@ -77,6 +77,58 @@
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
 
+<section class="section" id="public-profile-view" style="padding-top:150px; display:none;">
+  <div class="wrap">
+    <p class="rate-card-note" id="public-profile-loading">Loading profile…</p>
+
+    <div id="public-profile-notfound" style="display:none;">
+      <div class="section-head">
+        <div>
+          <span class="tag" style="color:var(--pink);">/ Profile</span>
+          <h2 class="display">We couldn't find that profile.</h2>
+        </div>
+        <p>The link may be out of date, or the profile may have been removed.</p>
+      </div>
+      <a href="index.html" class="btn-secondary">Back to Music Motel</a>
+    </div>
+
+    <div id="public-profile-body" style="display:none;">
+      <div class="section-head">
+        <div>
+          <span class="tag" style="color:var(--cyan);" id="public-profile-tag">/ Profile</span>
+          <h2 class="display" id="public-profile-heading">Book this artist now</h2>
+        </div>
+        <p id="public-profile-sub">Real profile on Music Motel — connect directly, no agency markup.</p>
+      </div>
+
+      <div class="content-box" style="max-width:560px;">
+        <div class="profile-modal-header">
+          <div class="profile-modal-avatar" id="public-profile-avatar"></div>
+          <div class="profile-modal-meta">
+            <div class="profile-modal-name" id="public-profile-name"></div>
+            <div class="profile-modal-role" id="public-profile-role"></div>
+            <div class="profile-modal-loc" id="public-profile-loc" style="display:none;"><span class="pindot"></span><span id="public-profile-loc-text"></span></div>
+          </div>
+        </div>
+        <p class="profile-bio" id="public-profile-bio" style="display:none;"></p>
+        <div class="profile-badge-row" id="public-profile-instruments"></div>
+
+        <div id="public-profile-own-note" class="rate-card-note" style="display:none; margin-bottom:14px;">This is how your profile looks to everyone else.</div>
+        <div id="public-profile-actions" style="display:none;">
+          <button class="follow-btn-profile" id="public-profile-follow-btn" style="display:block; margin-bottom:12px;">+ Follow</button>
+          <button class="profile-book-btn" id="public-profile-book-btn" style="display:none;">Request a quote</button>
+          <button class="profile-unify-btn" id="public-profile-unify-btn" style="display:none;">Unify with this band</button>
+        </div>
+      </div>
+
+      <div class="content-box" id="public-profile-rate-box" style="display:none; max-width:560px; margin-top:16px;">
+        <h3 style="margin-bottom:10px;">Standard rate</h3>
+        <div id="public-profile-rate-preview"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section fan-dashboard-section" id="fan-dashboard" style="padding-top:150px;">
   <div class="wrap">
     <div class="section-head">
@@ -108,6 +160,18 @@
         </div>
         <div class="rate-card-note" id="avatar-status" role="status"></div>
         <div class="rate-card-note" id="avatar-signed-out-note">Sign in to add a profile photo — it'll show up next to your name and on your profile.</div>
+      </div>
+
+      <div class="fan-card" id="share-profile-card">
+        <div class="fan-card-head">
+          <h3>Share your profile</h3>
+        </div>
+        <p class="invite-desc">Post your link on social media so people can book you directly.</p>
+        <div class="invite-link-row">
+          <input type="text" id="share-profile-link" readonly value="Sign in to generate your link…">
+          <button class="invite-copy-btn" id="share-profile-btn">Share</button>
+        </div>
+        <div class="invite-status" id="share-profile-status"></div>
       </div>
 
       <div class="fan-card">
@@ -301,6 +365,11 @@
     <div class="content-box" id="rate-card-preview" style="display:none;">
       <h3 style="margin-bottom:10px;">How clients see this</h3>
       <div id="rate-preview-box"></div>
+      <div class="invite-link-row" style="margin-top:16px;">
+        <input type="text" id="share-rate-link" readonly value="">
+        <button class="invite-copy-btn" id="share-rate-btn">Share my rate</button>
+      </div>
+      <div class="invite-status" id="share-rate-status"></div>
     </div>
   </div>
 </section>
@@ -548,6 +617,7 @@
 <script src="js/booking-requests.js"></script>
 <script src="js/band-members.js"></script>
 <script src="js/nearby-players.js"></script>
+<script src="js/share-profile.js"></script>
 
 <script>
   // Same dead-button workaround as sponsor.html/gear.html/businesses.html:
