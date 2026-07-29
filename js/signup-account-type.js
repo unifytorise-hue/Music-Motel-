@@ -15,25 +15,25 @@
       submitLabel: 'Create free profile'
     },
     educator: {
-      note: '$12/mo — post lessons, manage students, accept bookings. Subscription starts after signup.',
+      note: 'Free forever — post lessons, manage students, and accept bookings.',
       roleLabel: 'What do you teach?',
       rolePlaceholder: 'e.g. Vocal coaching, Guitar, Music theory',
       roleRequired: true,
-      submitLabel: 'Continue to educator subscription'
+      submitLabel: 'Create free educator profile'
     },
     venue: {
-      note: '$29/mo — post gigs, manage bookings, get priority placement. Subscription starts after signup.',
+      note: 'Free forever — post gigs and manage bookings.',
       roleLabel: 'Business type',
       rolePlaceholder: 'e.g. Live music venue, Recording studio, Label',
       roleRequired: true,
-      submitLabel: 'Continue to booker subscription'
+      submitLabel: 'Create free profile'
     },
     publicspace: {
-      note: '$39/mo — book live music directly for your space. Subscription starts after signup.',
+      note: 'Free forever — book live music directly for your space.',
       roleLabel: 'What kind of space is this?',
       rolePlaceholder: 'e.g. Café, Gym, Hotel lobby, Retail store',
       roleRequired: true,
-      submitLabel: 'Continue to Public Space subscription'
+      submitLabel: 'Create free profile'
     }
   };
   var currentAccountType = 'fan';

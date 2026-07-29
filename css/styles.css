@@ -1265,34 +1265,6 @@
   }
 
   /* ===== pricing ===== */
-  .billing-toggle{
-    display:inline-flex;
-    border:1.5px solid var(--line);
-    border-radius:999px;
-    padding:4px;
-    margin-bottom:40px;
-    gap:4px;
-  }
-  .billing-toggle-btn{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12.5px; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.03em;
-    padding:9px 18px;
-    border-radius:999px;
-    color:var(--cream-dim);
-    display:flex; align-items:center; gap:8px;
-    transition:all 0.2s;
-  }
-  .billing-toggle-btn.active{ background:var(--cream); color:var(--black); }
-  .save-badge{
-    background:var(--green);
-    color:var(--black);
-    font-size:9.5px;
-    padding:2px 7px;
-    border-radius:999px;
-  }
-  .billing-toggle-btn.active .save-badge{ background:var(--black); color:var(--green); }
-
   .pricing-grid{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -1300,8 +1272,10 @@
     margin-bottom:40px;
     align-items:start;
   }
-  .pricing-grid-4{ grid-template-columns:repeat(4, 1fr); }
-  @media (max-width:1080px){ .pricing-grid-4{ grid-template-columns:repeat(2, 1fr); } }
+  /* Single free tier — no other plans to compare it against, so it's
+     centered and width-capped instead of stretched across a multi-column
+     grid built for comparing several cards side by side. */
+  .pricing-grid-1{ grid-template-columns:1fr; max-width:440px; margin-left:auto; margin-right:auto; }
   @media (max-width:880px){ .pricing-grid{ grid-template-columns:1fr; } }
   .price-card{
     background:var(--black-2);
@@ -1311,29 +1285,13 @@
     overflow:hidden;
     transition:border-color 0.2s;
   }
-  /* The card's own overflow:hidden (for clipping the accordion body's
-     rounded corners) was also clipping this badge, since it sits above
-     the card's top edge. The accordion still clips correctly via
-     .price-card-body's own overflow:hidden below. */
-  .price-card.featured{ position:relative; overflow:visible; }
-  .price-card.featured::before{
-    content:"MOST POPULAR";
-    position:absolute; top:-13px; right:24px;
-    background:var(--pink); color:var(--cream);
-    font-family:'JetBrains Mono', monospace; font-size:10px;
-    letter-spacing:0.08em; padding:5px 10px; border-radius:999px; font-weight:700;
-    z-index:2;
-  }
   .price-card-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:12px;
     padding:28px 32px;
-    cursor:pointer;
-    transition:background 0.2s;
   }
-  .price-card-header:hover{ background:rgba(255,255,255,0.02); }
   .price-card.open .price-card-header{ padding-bottom:18px; }
   .price-card-header-left{ min-width:0; }
   .price-tier-name{
@@ -1346,13 +1304,6 @@
   }
   .price-num{ font-family:'Anton', sans-serif; font-size:34px; color:var(--cream); }
   .price-period{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--cream-dim); }
-  .price-card-chevron{
-    font-size:18px;
-    color:var(--cream-dim);
-    flex-shrink:0;
-    transition:transform 0.3s;
-  }
-  .price-card.open .price-card-chevron{ transform:rotate(180deg); color:var(--pc-color, var(--cream)); }
   .price-card-body{
     max-height:0;
     overflow:hidden;
@@ -1360,10 +1311,6 @@
   }
   .price-card.open .price-card-body{ max-height:600px; }
   .price-card-body-inner{ padding:0 32px 32px; }
-  .price-yearly-note{
-    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--cream-dim);
-    margin:6px 0 0;
-  }
   .price-desc{ font-size:14px; line-height:1.6; color:var(--cream-dim); margin:14px 0 20px; }
   .price-features{
     list-style:none;
@@ -1394,6 +1341,8 @@
     font-size:13px; line-height:1.7; color:var(--cream-dim); max-width:760px;
   }
   .pricing-footnote strong{ color:var(--cream); }
+  .pricing-footnote a{ color:var(--cyan); text-decoration:underline; text-underline-offset:2px; }
+  .pricing-footnote a:hover{ color:var(--cream); }
 
   /* ===== CTA ===== */
   .cta-section{ text-align:center; padding:120px 0; scroll-margin-top:88px; }

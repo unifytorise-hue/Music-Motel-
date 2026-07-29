@@ -181,7 +181,7 @@
       <div class="about-text">
         <p>A vocalist in New York doesn't know the sound engineer two boroughs over. A bassist in Midrand can't find the touring band that needs exactly her skill set.</p>
         <p><strong>Music Motel closes that gap.</strong> Search by instrument, skill, or location, view a real profile, and connect directly — no agency, no guesswork.</p>
-        <p>Free for every musician and fan. Paid tools for the venues, educators, and businesses that book them.</p>
+        <p>Free for everyone — musicians, fans, educators, and venues. No subscriptions, ever.</p>
       </div>
       <div>
         <div class="stat-card" style="--stat-color:var(--pink);">
@@ -351,118 +351,38 @@
     <div class="section-head">
       <div>
         <span class="tag" style="color:var(--yellow);">/ Pricing</span>
-        <h2 class="display">Free for musicians and fans. Paid for the businesses that book them.</h2>
+        <h2 class="display">Free for everyone. No subscriptions.</h2>
       </div>
-      <p>A free profile, always. Educators and venues subscribe to unlock business tools.</p>
+      <p>Musicians, fans, educators, and venues all get a full profile, free.</p>
     </div>
 
-    <div class="billing-toggle" id="billing-toggle">
-      <button class="billing-toggle-btn active" data-cycle="monthly">Monthly</button>
-      <button class="billing-toggle-btn" data-cycle="yearly">Yearly <span class="save-badge">save ~20%</span></button>
-    </div>
-
-    <div class="pricing-grid pricing-grid-4" id="pricing-grid">
+    <div class="pricing-grid pricing-grid-1" id="pricing-grid">
       <div class="price-card open" style="--pc-color:var(--green);" data-tier="fan">
-        <div class="price-card-header" tabindex="0" role="button" aria-expanded="true">
+        <div class="price-card-header">
           <div class="price-card-header-left">
-            <div class="price-tier-name">Fan &amp; Musician</div>
+            <div class="price-tier-name">Every profile</div>
             <div class="price-amount"><span class="price-num">$0</span><span class="price-period">forever</span></div>
           </div>
-          <span class="price-card-chevron">⌄</span>
         </div>
         <div class="price-card-body">
           <div class="price-card-body-inner">
-            <p class="price-desc">Every musician and every fan gets a full profile, free, always.</p>
+            <p class="price-desc">One free tier for everyone — musicians, fans, educators, venues, and businesses.</p>
             <ul class="price-features">
               <li>Full profile with gig history</li>
               <li>Search &amp; connect with anyone on the platform</li>
               <li>Fan gig log &amp; following</li>
               <li>List instruments/gear in the donation board</li>
-              <li>Apply to be booked for paid gigs</li>
+              <li>Post lessons, gigs, or a space to book live music</li>
+              <li>Apply to be booked, or book talent directly</li>
             </ul>
-            <button class="price-cta" id="pricing-fan-btn">Create free profile</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="price-card" style="--pc-color:var(--pink);" data-tier="educator">
-        <div class="price-card-header" tabindex="0" role="button" aria-expanded="false">
-          <div class="price-card-header-left">
-            <div class="price-tier-name">Educator</div>
-            <div class="price-amount">
-              <span class="price-num" data-monthly="12" data-yearly="115">$12</span><span class="price-period">/mo</span>
-            </div>
-            <p class="price-yearly-note" style="display:none;">billed $115/year</p>
-          </div>
-          <span class="price-card-chevron">⌄</span>
-        </div>
-        <div class="price-card-body">
-          <div class="price-card-body-inner">
-            <p class="price-desc">For music teachers, vocal coaches, and workshop leaders building a teaching practice.</p>
-            <ul class="price-features">
-              <li>Everything in Fan &amp; Musician</li>
-              <li>Post lessons, courses &amp; workshops</li>
-              <li>Student roster &amp; booking calendar</li>
-              <li>Accept lesson payments (10% platform fee applies)</li>
-              <li>Educator badge on profile</li>
-            </ul>
-            <button class="price-cta" id="pricing-educator-btn">Start educator trial</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="price-card" style="--pc-color:var(--cyan);" data-tier="venue">
-        <div class="price-card-header" tabindex="0" role="button" aria-expanded="false">
-          <div class="price-card-header-left">
-            <div class="price-tier-name">Talent Booker</div>
-            <div class="price-amount">
-              <span class="price-num" data-monthly="29" data-yearly="278">$29</span><span class="price-period">/mo</span>
-            </div>
-            <p class="price-yearly-note" style="display:none;">billed $278/year</p>
-          </div>
-          <span class="price-card-chevron">⌄</span>
-        </div>
-        <div class="price-card-body">
-          <div class="price-card-body-inner">
-            <p class="price-desc">For venues, studios, labels, and agencies booking live talent regularly.</p>
-            <ul class="price-features">
-              <li>Everything in Fan &amp; Musician</li>
-              <li>Post gigs &amp; manage a booking calendar</li>
-              <li>Priority placement in patch-bay search</li>
-              <li>Booking analytics dashboard</li>
-              <li>Verified business badge</li>
-            </ul>
-            <button class="price-cta" id="pricing-venue-btn">Start booker trial</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="price-card featured" style="--pc-color:var(--orange);" data-tier="publicspace">
-        <div class="price-card-header" tabindex="0" role="button" aria-expanded="false">
-          <div class="price-card-header-left">
-            <div class="price-tier-name">Public Space</div>
-            <div class="price-amount">
-              <span class="price-num" data-monthly="39" data-yearly="372">$39</span><span class="price-period">/mo</span>
-            </div>
-            <p class="price-yearly-note" style="display:none;">billed $372/year</p>
-          </div>
-          <span class="price-card-chevron">⌄</span>
-        </div>
-        <div class="price-card-body">
-          <div class="price-card-body-inner">
-            <p class="price-desc">For cafes, gyms, hotels, retail, and any business that wants to book live music directly.</p>
-            <ul class="price-features">
-              <li>Everything in Fan &amp; Musician</li>
-              <li>Direct booking line to live musicians</li>
-            </ul>
-            <button class="price-cta" id="pricing-publicspace-btn">Start Public Space trial</button>
+            <button class="price-cta" id="pricing-fan-btn">Create your free profile</button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="pricing-footnote">
-      <p>Bookings carry a <strong>10% fee</strong>, deducted once the gig is confirmed complete — it covers payment processing and our booking agent fee. The artist keeps 90%.</p>
+      <p>We make money two ways, never subscriptions: a <strong>10% booking fee</strong>, deducted once a gig is confirmed complete — the artist keeps 90% — and <a href="sponsor.html">sponsorships</a> from brands backing the platform.</p>
     </div>
   </div>
 </section>
@@ -885,7 +805,7 @@
 
     <div class="pubspace-cta-row">
       <a href="#" class="btn-primary" id="pubspace-cta-btn">Set up your Public Space profile</a>
-      <a href="#pricing" class="btn-secondary">See Public Space pricing</a>
+      <a href="#pricing" class="btn-secondary">It's free — see pricing</a>
     </div>
 
     <div class="pubspace-types">
@@ -1230,9 +1150,7 @@
 
 <script src="js/anchor-scroll.js"></script>
 
-<script src="js/pricing-accordion.js"></script>
-
-<script src="js/pricing-billing-toggle.js"></script>
+<script src="js/pricing-cta.js"></script>
 
 <script src="js/invite-gig-follow.js"></script>
 

@@ -329,21 +329,11 @@
   }
 
   // ===== submit =====
-  var PAID_TIERS = {
-    educator: { label: 'Educator', price: '$12/mo' },
-    venue: { label: 'Talent Booker', price: '$29/mo' },
-    publicspace: { label: 'Public Space', price: '$39/mo' }
-  };
-
   // No backend configured yet: keep the original preview-only flow exactly
   // as it was, so the demo experience is unchanged until a real anon key
   // is wired up in js/supabase-client.js.
   function submitPreviewOnly(name, loc, type, role){
-    if (PAID_TIERS[type]){
-      var tier = PAID_TIERS[type];
-      alert('Account draft ready:\n\n' + name + ' (' + tier.label + ')\n' + loc + (role ? '\n' + role : '') +
-        '\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar — everything above this point is already captured.)');
-    } else if (type === 'fan'){
+    if (type === 'fan'){
       alert('Fan profile ready:\n\n' + name + '\n' + loc + (role ? '\nInterests: ' + role : '') +
         '\n\n(Hook this up to your backend next — fans get a gig log and a following feed once that exists.)');
     } else {
@@ -378,10 +368,6 @@
       document.getElementById('signup-email').value = '';
       document.getElementById('signup-password').value = '';
       closeSignup();
-      if (PAID_TIERS[type]){
-        var tier = PAID_TIERS[type];
-        alert('Profile created for ' + name + ' (' + tier.label + ').\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar.)');
-      }
     });
   }
 
