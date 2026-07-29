@@ -123,8 +123,8 @@
     if (accountMobile) accountMobile.style.display = signedIn ? 'block' : 'none';
     if (accountMobileEmail) accountMobileEmail.textContent = signedIn ? displayName : '';
     if (signedIn && window.mmRenderAvatar){
-      window.mmRenderAvatar(navAvatar, currentAvatarUrl, currentAvatarColor);
-      window.mmRenderAvatar(mobileAvatar, currentAvatarUrl, currentAvatarColor);
+      window.mmRenderAvatar(navAvatar, currentAvatarUrl, currentAvatarColor, displayName);
+      window.mmRenderAvatar(mobileAvatar, currentAvatarUrl, currentAvatarColor, displayName);
     }
   }
 

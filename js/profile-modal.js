@@ -126,7 +126,7 @@
     // profile.avatar_color/avatar_url are remote, other-user-controlled data
     // — mmRenderAvatar assigns them via img.src / a regex-validated color
     // rather than interpolating into the innerHTML string above.
-    if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('profile-modal-avatar-el'), profile.avatar_url, profile.avatar_color);
+    if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('profile-modal-avatar-el'), profile.avatar_url, profile.avatar_color, profile.name);
 
     var followBtn = document.getElementById('profile-follow-btn');
     refreshFollowButton(followBtn, profile.id);

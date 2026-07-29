@@ -14,7 +14,7 @@
   function render(){
     var preview = document.getElementById('avatar-preview');
     var removeBtn = document.getElementById('avatar-remove-btn');
-    if (window.mmRenderAvatar) window.mmRenderAvatar(preview, myAvatarUrl, myAvatarColor);
+    if (window.mmRenderAvatar) window.mmRenderAvatar(preview, myAvatarUrl, myAvatarColor, 'your photo');
     if (removeBtn) removeBtn.style.display = myAvatarUrl ? '' : 'none';
   }
 

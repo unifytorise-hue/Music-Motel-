@@ -50,7 +50,9 @@
   // is remote, other-user-controlled data, so it's only ever assigned via
   // the img.src DOM property (never string-concatenated into innerHTML/CSS),
   // which the browser treats strictly as a URL, not markup or a style value.
-  window.mmRenderAvatar = function(container, avatarUrl, colorHex){
+  // "Plain" = no click-to-enlarge wiring, used by the lightbox itself to
+  // render the enlarged photo without recursively wiring another lightbox.
+  window.mmRenderAvatarPlain = function(container, avatarUrl, colorHex){
     if (!container) return;
     var safeColor = /^#[0-9a-f]{3,8}$/i.test(colorHex || '') ? colorHex : '#2BE8D9';
     container.style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
@@ -62,6 +64,29 @@
       img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
       container.appendChild(img);
     }
+  };
+
+  // Every avatar rendered this way is tappable to view larger — assigning
+  // .onclick/.onkeydown (rather than addEventListener) means a re-render
+  // safely replaces the previous handler instead of stacking duplicates.
+  window.mmRenderAvatar = function(container, avatarUrl, colorHex, label){
+    if (!container) return;
+    window.mmRenderAvatarPlain(container, avatarUrl, colorHex);
+    container.style.cursor = 'pointer';
+    container.setAttribute('role', 'button');
+    container.setAttribute('tabindex', '0');
+    container.setAttribute('aria-label', label ? ('View larger photo of ' + label) : 'View larger photo');
+    container.onclick = function(e){
+      // Several call sites (e.g. the nearby-players row) put the avatar
+      // inside a larger element that's itself clickable to open a full
+      // profile — without this, tapping the avatar would open the
+      // lightbox AND that other click handler underneath it.
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (window.openAvatarLightbox) window.openAvatarLightbox(avatarUrl, colorHex, label);
+    };
+    container.onkeydown = function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); container.click(); }
+    };
   };
 
   // Static markup can't call mmIcon() directly, so a `<span data-icon="name">`

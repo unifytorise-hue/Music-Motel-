@@ -120,7 +120,7 @@
         '<div style="flex:1;"><h5>' + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
         '<p>' + escapeHtml(subBits.join(' · ')) + '</p></div>' +
         '<span class="gig-log-chevron">→</span>';
-      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), p.avatar_url, p.avatar_color);
+      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), p.avatar_url, p.avatar_color, p.name);
       function activate(){
         if (window.openRealProfile) window.openRealProfile(p, p._distanceKm);
       }

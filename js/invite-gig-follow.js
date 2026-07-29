@@ -315,7 +315,7 @@
       // (resolvePersonMeta), which is remote, other-user-controlled data —
       // mmRenderAvatar only ever assigns it via img.src / a regex-validated
       // color, never string-concatenates it into innerHTML or a CSS value.
-      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.follow-avatar'), person.avatarUrl, person.color);
+      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.follow-avatar'), person.avatarUrl, person.color, person.name);
       item.querySelector('.unfollow-btn').addEventListener('click', function(){
         window.toggleFollow(id, person);
       });
