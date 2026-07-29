@@ -46,7 +46,7 @@
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="profile.html">My profile</a>
-      <a href="#my-rate">My Rate</a>
+      <a href="profile.html#my-rate">My Rate</a>
     </nav>
     <div class="nav-right">
       <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
@@ -71,7 +71,7 @@
     <a href="#roles">Who's on it</a>
     <a href="#how">How it works</a>
     <a href="#pricing">Pricing</a>
-    <a href="#my-rate">My Rate</a>
+    <a href="profile.html#my-rate">My Rate</a>
     <a href="businesses.html">For businesses</a>
     <a href="gear.html">Donate gear</a>
     <a href="sponsor.html">Advertise</a>
@@ -434,68 +434,6 @@
     </div>
   </div>
 </div>
-
-<section class="section" id="my-rate">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <span class="tag" style="color:var(--green);">/ Your standard rate</span>
-        <h2 class="display">Set your price. Skip the back-and-forth.</h2>
-      </div>
-      <p>Set your rate once. It's what clients see the moment they ask about booking you.</p>
-    </div>
-
-    <div class="rate-card-note" id="rate-card-signed-out" style="display:none;">Sign in to set your rate — it'll show up instantly when someone requests a quote from you.</div>
-
-    <div class="content-box" id="rate-card-terms" style="display:none;">
-      <h3 style="margin-bottom:10px;">Become a Music Motel booking agent client</h3>
-      <p class="rate-card-note" style="margin-bottom:18px;">Before you can publish a rate, agree to how booking requests work on Music Motel:</p>
-      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="0"><span>I want Music Motel to act as my booking agent for requests that come through the platform.</span></label>
-      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="1"><span>I understand Music Motel charges a <strong>10% booking fee</strong>, deducted from my payout for any gig booked through the platform — this covers being found and booked here, and <strong>includes payment transaction processing costs</strong>.</span></label>
-      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="2"><span>I understand I receive <strong>90% of the agreed price</strong> once a gig is marked complete and paid.</span></label>
-      <label class="terms-check"><input type="checkbox" class="terms-checkbox" data-terms-idx="3"><span>I'll keep my rate and equipment details accurate, and I'll honor quotes I send through the platform.</span></label>
-      <div class="loc-search-status" id="terms-status" role="status"></div>
-      <button class="signup-submit" id="terms-agree-btn" disabled>Agree and continue</button>
-    </div>
-
-    <div class="content-box" id="rate-card-form" style="display:none;">
-      <div class="rate-card-grid">
-        <div class="form-field">
-          <label for="rate-basis">Priced per</label>
-          <select id="rate-basis">
-            <option value="gig">Gig (flat rate)</option>
-            <option value="hour">Hour</option>
-            <option value="set_45min">45-min set</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label for="rate-card-amount">Estimate (USD)</label>
-          <input type="text" id="rate-card-amount" inputmode="decimal" placeholder="e.g. 350">
-        </div>
-      </div>
-      <div class="form-field">
-        <label for="rate-travel-note">Travel — apart from the estimate above</label>
-        <input type="text" id="rate-travel-note" placeholder="e.g. Quoted separately based on distance, or Included within 30km">
-      </div>
-      <div class="rate-toggle-list">
-        <label class="terms-check"><input type="checkbox" id="rate-accommodation"><span>Accommodation required for gigs that need travel</span></label>
-        <label class="terms-check"><input type="checkbox" id="rate-food-drink"><span>Food &amp; drink (hospitality) required</span></label>
-        <label class="terms-check"><input type="checkbox" id="rate-own-equipment" checked><span>I bring my own sound/equipment — price is without/excluding gear if unchecked</span></label>
-      </div>
-      <div class="form-field" id="rate-equipment-note-field" style="display:none;">
-        <label for="rate-equipment-note">Equipment notes</label>
-        <input type="text" id="rate-equipment-note" placeholder="e.g. Price excludes PA rental — client to provide a sound system">
-      </div>
-      <div class="loc-search-status" id="rate-card-status" role="status"></div>
-      <button class="signup-submit" id="rate-card-save-btn">Save my rate</button>
-    </div>
-
-    <div class="content-box" id="rate-card-preview" style="display:none;">
-      <h3 style="margin-bottom:10px;">How clients see this</h3>
-      <div id="rate-preview-box"></div>
-    </div>
-  </div>
-</section>
 
 <section class="cta-section" id="cta">
   <div class="wrap">
