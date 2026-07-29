@@ -19,9 +19,15 @@
   window.mmAuth = {
     isConfigured: function(){ return configured; },
     getUser: function(){ return currentUser; },
+    // emailRedirectTo matters only when the Supabase project has "Confirm
+    // email" turned on (Authentication -> Providers -> Email, dashboard-
+    // only setting, same category as Site URL/Redirect URLs) — that's what
+    // the confirmation link in the verification email points back to.
+    // Without it, Supabase falls back to its default Site URL instead of
+    // this app.
     signUp: function(email, password){
       if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
-      return client.auth.signUp({ email: email, password: password });
+      return client.auth.signUp({ email: email, password: password, options: { emailRedirectTo: window.location.origin } });
     },
     signIn: function(email, password){
       if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
@@ -55,11 +61,14 @@
     }
   };
 
-  // Google sign-in skips the multi-step signup form entirely (no
-  // account_type/location/etc. ever gets collected), so a user can land
-  // back here signed in with zero rows in public.profiles. Detected once
-  // per sign-in transition and handled by prompting the same signup form,
-  // just without the now-irrelevant email/password fields — see
+  // A user can land here signed in with zero rows in public.profiles two
+  // ways: Google sign-in (skips the multi-step signup form entirely — no
+  // account_type/location/etc. ever gets collected), or email/password
+  // signup with "Confirm email" on (the profiles insert can't happen
+  // before a session exists, so it's deferred until they click the
+  // emailed link and land back here already authenticated). Detected
+  // once per sign-in transition and handled by prompting the same signup
+  // form, just without the now-irrelevant email/password fields — see
   // window.openProfileCompletion in js/signup-location.js. Also picks up
   // profiles.name for the nav display while it's already fetching the row.
   function refreshOwnProfile(user){
@@ -67,7 +76,14 @@
     client.from('profiles').select('id,name,avatar_url,avatar_color').eq('id', user.id).maybeSingle().then(function(res){
       if (res.error) return;
       if (!res.data){
+        // js/auth.js loads near the top of the page, js/signup-location.js
+        // (which defines this) near the bottom — this callback can resolve
+        // before that script has run, same race already fixed for
+        // PASSWORD_RECOVERY in js/password-reset.js. Flag it instead of
+        // silently dropping it; signup-location.js checks this itself
+        // once it's actually ready.
         if (window.openProfileCompletion) window.openProfileCompletion(user);
+        else window.__mmPendingProfileCompletion = user;
         return;
       }
       currentProfileName = res.data.name || null;
