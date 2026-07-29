@@ -38,14 +38,17 @@
     openBookingModal();
   };
 
+  // The client pays exactly their offer — Music Motel's 10% comes out of
+  // the artist's side, same model stated everywhere else on the site
+  // (pricing footnote, booking-honesty notes, the tick-list terms). It
+  // never gets added on top of what the client pays.
   function updateFeeBreakdown(amount){
     var offer = isNaN(amount) ? 0 : amount;
     var fee = offer * FEE_RATE;
-    var total = offer + fee;
+    var payout = offer - fee;
     document.getElementById('fee-offer').textContent = '$' + offer.toFixed(2);
-    document.getElementById('fee-platform').textContent = '$' + fee.toFixed(2);
-    document.getElementById('fee-total').textContent = '$' + total.toFixed(2);
-    document.getElementById('fee-payout').textContent = '$' + offer.toFixed(2);
+    document.getElementById('fee-platform').textContent = '-$' + fee.toFixed(2);
+    document.getElementById('fee-payout').textContent = '$' + payout.toFixed(2);
   }
 
   document.getElementById('booking-amount').addEventListener('input', function(e){
@@ -95,12 +98,12 @@
     }).join('');
 
     var fee = amount * FEE_RATE;
-    var total = amount + fee;
+    var payout = amount - fee;
 
     document.getElementById('booking-status-detail').innerHTML =
       '<strong>Request sent to ' + escapeHtmlBooking(artist.name) + '.</strong><br><br>' +
       escapeHtmlBooking(date) + ' — ' + escapeHtmlBooking(details) + '<br><br>' +
-      'Total held: <strong>$' + total.toFixed(2) + '</strong> (artist receives $' + amount.toFixed(2) + ' once the gig is confirmed complete by both sides)<br><br>' +
+      'Total held: <strong>$' + amount.toFixed(2) + '</strong> (artist receives $' + payout.toFixed(2) + ' once the gig is confirmed complete by both sides)<br><br>' +
       '<span style="color:var(--cream-dim); font-size:12px;">This is the booking-flow UI — no real payment is captured here yet. Connecting Stripe Connect (or similar) would let this actually hold and release funds at this exact step.</span>';
   }
 
