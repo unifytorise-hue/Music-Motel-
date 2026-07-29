@@ -501,7 +501,10 @@
         ? '<span class="jack-distance">' + formatDistance(jack._distance) + '</span>'
         : '<span class="jcount">' + jack.loc + '</span>';
       var displayName = jack.person ? jack.person.name : jack.name;
-      var roleSubtitle = jack.person ? '<span class="jack-role-sub">' + jack.name + '</span>' : '';
+      // jack.name is the plural search-category label ("Artist Managers")
+      // — right for a category tile, wrong as one specific person's own
+      // role, which should read as a singular job title.
+      var roleSubtitle = jack.person ? '<span class="jack-role-sub">' + jack.person.role + '</span>' : '';
       el.setAttribute('aria-label', jack.person ? 'View profile for ' + jack.person.name : 'Search for ' + jack.name);
       // No profile-photo upload exists yet, so person.photoUrl is always
       // unset today — this just means every avatar falls back to the
