@@ -481,6 +481,27 @@
   .sponsor-card li{ font-size:13.5px; color:var(--cream-dim); display:flex; gap:10px; }
   .sponsor-card li::before{ content:"→"; color:var(--sp-color, var(--cyan)); flex-shrink:0; font-weight:700; }
 
+  /* ===== about — sliding neon instrument icons ===== */
+  .icon-marquee{ overflow:hidden; margin:48px 0; }
+  .icon-marquee-track{ display:flex; gap:28px; width:max-content; animation:icon-scroll 26s linear infinite; }
+  @keyframes icon-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .imarq-icon{
+    width:64px; height:64px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    border:1.5px solid currentColor;
+    background:rgba(255,255,255,0.02);
+    font-size:26px;
+  }
+  .imarq-icon svg{ filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 0 10px currentColor); }
+  .imarq-icon.c1{ color:var(--pink); }
+  .imarq-icon.c2{ color:var(--cyan); }
+  .imarq-icon.c3{ color:var(--yellow); }
+  .imarq-icon.c4{ color:var(--green); }
+  @media (max-width:640px){
+    .imarq-icon{ width:52px; height:52px; font-size:21px; }
+    .icon-marquee{ margin:32px 0; }
+  }
+
   /* ===== about ===== */
   .about-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:start; }
   .about-text p{ font-size:17px; line-height:1.75; color:var(--cream-dim); margin-bottom:20px; }

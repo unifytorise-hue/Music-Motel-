@@ -126,23 +126,44 @@
     if (currentUser && wasSignedOut) refreshOwnProfile(currentUser);
   }
 
+  // Guards against opening the "set a new password" modal twice — both
+  // call sites below (the initial getSession() and onAuthStateChange) can
+  // independently decide this is a recovery landing.
+  var recoveryModalTriggered = false;
+  function maybeTriggerRecoveryModal(event, session){
+    if (!session || recoveryModalTriggered) return;
+    // event === 'PASSWORD_RECOVERY' is the documented signal, but Supabase's
+    // JS client is known to sometimes fire a plain SIGNED_IN/INITIAL_SESSION
+    // instead when landing from a recovery link (supabase-js#836, supabase
+    // discussion #18059) — window.__mmUrlIsPasswordRecovery (set by the
+    // inline script at the very top of <head>, before this client could
+    // touch the URL) is the reliable fallback signal.
+    if (event !== 'PASSWORD_RECOVERY' && !window.__mmUrlIsPasswordRecovery) return;
+    recoveryModalTriggered = true;
+    // js/auth.js loads near the top of the page, js/password-reset.js
+    // (which defines this) near the bottom — Supabase's redirect-driven
+    // session detection can resolve before the rest of the page has
+    // finished loading, so window.openSetNewPassword may not exist yet.
+    // Flag it instead of silently dropping the event; password-reset.js
+    // checks this flag itself once it's actually ready.
+    if (window.openSetNewPassword) window.openSetNewPassword();
+    else window.__mmPendingPasswordRecovery = true;
+  }
+
   if (configured){
     client.auth.getSession().then(function(res){
-      setCurrentUser(res.data && res.data.session ? res.data.session.user : null);
+      var session = res.data && res.data.session;
+      setCurrentUser(session ? session.user : null);
+      // Covers the case where onAuthStateChange's listener (registered
+      // just below) subscribed a beat too late to catch the client's own
+      // internal initial event — getSession() always reflects the real
+      // session regardless of that timing.
+      maybeTriggerRecoveryModal('INITIAL_LOAD', session);
       readyResolve();
     }).catch(function(){ readyResolve(); });
     client.auth.onAuthStateChange(function(event, session){
       setCurrentUser(session ? session.user : null);
-      if (event === 'PASSWORD_RECOVERY'){
-        // js/auth.js loads near the top of the page, js/password-reset.js
-        // (which defines this) near the bottom — Supabase's redirect-driven
-        // session detection can resolve before the rest of the page has
-        // finished loading, so window.openSetNewPassword may not exist yet.
-        // Flag it instead of silently dropping the event; password-reset.js
-        // checks this flag itself once it's actually ready.
-        if (window.openSetNewPassword) window.openSetNewPassword();
-        else window.__mmPendingPasswordRecovery = true;
-      }
+      maybeTriggerRecoveryModal(event, session);
     });
   } else {
     readyResolve();

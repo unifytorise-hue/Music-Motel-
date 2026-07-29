@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Captured before the Supabase client library (loaded further down) gets
+  // a chance to touch the URL. Supabase's own PASSWORD_RECOVERY event is
+  // known to be unreliable — it can fire as a plain SIGNED_IN instead, or
+  // get missed entirely by a listener that subscribes a beat too late
+  // (https://github.com/supabase/supabase-js/issues/836,
+  // https://github.com/orgs/supabase/discussions/18059). The one thing
+  // that's actually reliable is the redirect URL itself, which Supabase
+  // guarantees contains type=recovery — see js/auth.js for how this flag
+  // is used instead of trusting the event name.
+  window.__mmUrlIsPasswordRecovery = /type=recovery/.test(window.location.hash) || /type=recovery/.test(window.location.search);
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Music Motel — Unify the Music Industry</title>
@@ -143,6 +155,26 @@
         <h2 class="display">A universal language deserves a place to gather.</h2>
       </div>
       <p>For years, music has brought people from every background together. Music Motel exists to close the gap between everyone who makes that happen.</p>
+    </div>
+    <div class="icon-marquee">
+      <div class="icon-marquee-track">
+        <span class="imarq-icon c1" data-icon="guitar"></span>
+        <span class="imarq-icon c2" data-icon="drum"></span>
+        <span class="imarq-icon c3" data-icon="piano"></span>
+        <span class="imarq-icon c4" data-icon="mic"></span>
+        <span class="imarq-icon c1" data-icon="saxophone"></span>
+        <span class="imarq-icon c2" data-icon="trumpet"></span>
+        <span class="imarq-icon c3" data-icon="flute"></span>
+        <span class="imarq-icon c4" data-icon="headphones"></span>
+        <span class="imarq-icon c1" data-icon="guitar"></span>
+        <span class="imarq-icon c2" data-icon="drum"></span>
+        <span class="imarq-icon c3" data-icon="piano"></span>
+        <span class="imarq-icon c4" data-icon="mic"></span>
+        <span class="imarq-icon c1" data-icon="saxophone"></span>
+        <span class="imarq-icon c2" data-icon="trumpet"></span>
+        <span class="imarq-icon c3" data-icon="flute"></span>
+        <span class="imarq-icon c4" data-icon="headphones"></span>
+      </div>
     </div>
     <div class="about-grid">
       <div class="about-text">

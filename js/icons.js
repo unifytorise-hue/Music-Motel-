@@ -31,7 +31,12 @@
     book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
     'eye-off': '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 4.22-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
-    user: '<circle cx="12" cy="7.5" r="4"/><path d="M20 21v-1.5a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6V21"/>'
+    user: '<circle cx="12" cy="7.5" r="4"/><path d="M20 21v-1.5a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6V21"/>',
+    drum: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v11a8 3 0 0 0 16 0V6"/><line x1="4" y1="6" x2="4" y2="17"/><line x1="20" y1="6" x2="20" y2="17"/>',
+    piano: '<rect x="2" y="6" width="20" height="12" rx="1"/><line x1="6.5" y1="6" x2="6.5" y2="14"/><line x1="11" y1="6" x2="11" y2="14"/><line x1="15.5" y1="6" x2="15.5" y2="14"/><line x1="20" y1="6" x2="20" y2="14"/>',
+    saxophone: '<path d="M8 3c2 0 3 1 3 3v7.5c0 2.2 1.3 3.5 3.5 3.5S18 15.7 18 13.5s-1.3-3.5-3.5-3.5"/><circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="14.5" cy="17" r="2"/>',
+    trumpet: '<path d="M1 9.5h6l3-2.3 3.5 2.3v4l-3.5 2.3-3-2.3H1z"/><rect x="10.5" y="8" width="2" height="5" rx="0.6"/><rect x="13.3" y="8" width="2" height="5" rx="0.6"/><rect x="16.1" y="8" width="2" height="5" rx="0.6"/><path d="M19 8.5l4 2-4 2z"/>',
+    flute: '<path d="M3 21L20 4"/><path d="M17 3.5l3.5 3.5"/><circle cx="13.5" cy="9" r="0.75" fill="currentColor" stroke="none"/><circle cx="11" cy="11.5" r="0.75" fill="currentColor" stroke="none"/><circle cx="8.5" cy="14" r="0.75" fill="currentColor" stroke="none"/>'
   };
 
   window.mmIcon = function(name, cls){
