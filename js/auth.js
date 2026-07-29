@@ -111,7 +111,7 @@
     var displayName = (currentProfileName || (currentUser && currentUser.email) || '');
     if (signinNav) signinNav.style.display = signedIn ? 'none' : '';
     if (signupNav) signupNav.style.display = signedIn ? 'none' : '';
-    // Two more "Create your profile" CTAs live further down the page (hero,
+    // Two more "Create your free profile" CTAs live further down the page (hero,
     // bottom cta-section) — pointless to show someone who already has a
     // profile, same reasoning as hiding the nav version above.
     if (signupHero) signupHero.style.display = signedIn ? 'none' : '';
