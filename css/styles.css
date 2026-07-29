@@ -1341,8 +1341,6 @@
     font-size:13px; line-height:1.7; color:var(--cream-dim); max-width:760px;
   }
   .pricing-footnote strong{ color:var(--cream); }
-  .pricing-footnote a{ color:var(--cyan); text-decoration:underline; text-underline-offset:2px; }
-  .pricing-footnote a:hover{ color:var(--cream); }
 
   /* ===== CTA ===== */
   .cta-section{ text-align:center; padding:120px 0; scroll-margin-top:88px; }

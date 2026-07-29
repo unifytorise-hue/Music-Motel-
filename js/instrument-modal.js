@@ -171,7 +171,11 @@
           pill.className = 'instr-pill';
           pill.textContent = item;
           pill.setAttribute('data-name', item);
-          pill.setAttribute('data-search', item.toLowerCase());
+          // Includes the category/subgroup names, not just the item itself
+          // — otherwise searching "keyboard" finds nothing, since no
+          // individual instrument in the Keyboard Instruments category is
+          // literally named "Keyboard" (Piano, Organ, Synthesizer, etc.).
+          pill.setAttribute('data-search', (cat.name + ' ' + group.label + ' ' + item).toLowerCase());
           pill.setAttribute('role', 'button');
           pill.setAttribute('tabindex', '0');
           pills.appendChild(pill);
