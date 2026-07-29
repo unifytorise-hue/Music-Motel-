@@ -117,7 +117,9 @@
       }
       statusEl.textContent = '';
       closeSetNewPassword();
-      alert('Password updated — you\'re signed in with your new password.');
+      // A native alert() here shows the full deploy-preview domain in its
+      // "site says" chrome on mobile — jarring for something this routine.
+      if (window.showToast) window.showToast('Password updated — you\'re signed in with your new password.');
     }).catch(function(err){
       btn.disabled = false;
       statusEl.textContent = (err && err.message) || 'Something went wrong saving the new password.';

@@ -396,6 +396,10 @@
     var duration = Math.max(1800, Math.min(4200, text.length * 55));
     toast._t = setTimeout(function(){ toast.classList.remove('show'); }, duration);
   }
+  // Other modules (password-reset.js) reuse this instead of a native
+  // alert() — alert()'s full-domain "site says" chrome on mobile browsers
+  // is jarring, and this toast already exists on every page that needs it.
+  window.showToast = showToast;
 
   function burstConfetti(x, y){
     var canvas = document.getElementById('confetti-canvas');
