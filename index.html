@@ -45,7 +45,7 @@
       <a href="#roles">Who's on it</a>
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="#fan-dashboard">My profile</a>
+      <a href="profile.html">My profile</a>
       <a href="#my-rate">My Rate</a>
     </nav>
     <div class="nav-right">
@@ -66,7 +66,7 @@
 
 <div class="mobile-menu" id="mobile-menu">
   <div class="mobile-menu-inner">
-    <a href="#fan-dashboard">My profile</a>
+    <a href="profile.html">My profile</a>
     <a href="#about">About</a>
     <a href="#roles">Who's on it</a>
     <a href="#how">How it works</a>
@@ -383,196 +383,6 @@
     </div>
   </div>
 </section>
-<section class="section fan-dashboard-section" id="fan-dashboard">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <span class="tag" style="color:var(--purple);">/ 04 — Your profile</span>
-        <h2 class="display">Everything about your music life, in one place.</h2>
-      </div>
-      <p>Your photo, your gigs, who you follow, and what you play.</p>
-    </div>
-
-    <div class="fan-dashboard-note" id="fan-dashboard-note">Saved on this device/browser only — sign in to make this follow you across devices.</div>
-    <div class="fan-rank-row" id="fan-rank-row" style="display:none;">
-      <span class="game-rank" id="fan-rank-badge">SOLO ACT</span>
-      <span class="fan-rank-xp"><span id="fan-rank-xp-num">0</span> XP earned from real activity — logging gigs, successful referrals, and gear donations.</span>
-    </div>
-
-    <div class="fan-dashboard-grid fan-dashboard-grid-3">
-      <div class="fan-card" id="avatar-card">
-        <div class="fan-card-head">
-          <h3>Your profile photo</h3>
-        </div>
-        <div class="avatar-upload-row">
-          <div class="avatar-upload-preview" id="avatar-preview"></div>
-          <div class="avatar-upload-actions">
-            <input type="file" id="avatar-file-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
-            <button class="fan-add-btn" id="avatar-upload-btn" type="button">Upload photo</button>
-            <button class="avatar-remove-btn" id="avatar-remove-btn" type="button" style="display:none;">Remove photo</button>
-          </div>
-        </div>
-        <div class="rate-card-note" id="avatar-status" role="status"></div>
-        <div class="rate-card-note" id="avatar-signed-out-note">Sign in to add a profile photo — it'll show up next to your name and on your profile.</div>
-      </div>
-
-      <div class="fan-card">
-        <div class="fan-card-head">
-          <h3>Your gig log</h3>
-          <button class="fan-add-btn" id="fan-add-gig-btn">+ Add a show</button>
-        </div>
-        <div class="gig-log-list" id="gig-log-list">
-          <div class="gig-log-empty" id="gig-log-empty">No shows logged yet. Add the first one you remember.</div>
-        </div>
-      </div>
-
-      <div class="fan-card">
-        <div class="fan-card-head">
-          <h3>Following</h3>
-          <span class="fan-follow-count" id="fan-follow-count">0 artists</span>
-        </div>
-        <div class="follow-list" id="follow-list">
-          <div class="gig-log-empty" id="follow-empty">You're not following anyone yet — open a profile from the patch bay and tap Follow.</div>
-        </div>
-      </div>
-
-      <div class="fan-card">
-        <div class="fan-card-head">
-          <h3>Your instruments</h3>
-          <button class="fan-add-btn" id="edit-instruments-btn">+ Edit</button>
-        </div>
-        <p class="invite-desc">What you play shows up on your profile so the right people can find you.</p>
-        <div class="instr-tag-list" id="my-instruments-list">
-          <div class="gig-log-empty" id="my-instruments-empty">No instruments added yet — tap Edit to add what you play.</div>
-        </div>
-      </div>
-
-      <div class="fan-card" id="prefs-card">
-        <div class="fan-card-head">
-          <h3>Preferences</h3>
-        </div>
-        <div class="rate-card-grid">
-          <div class="form-field">
-            <label for="pref-distance-unit">Distance</label>
-            <select id="pref-distance-unit">
-              <option value="km">Kilometers (km)</option>
-              <option value="mi">Miles (mi)</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label for="pref-currency">Currency</label>
-            <select id="pref-currency"></select>
-          </div>
-        </div>
-        <div class="loc-search-status" id="prefs-status" role="status"></div>
-        <div class="rate-card-note" id="prefs-signed-out-note" style="display:none;">Sign in to save these — for now they only affect what you see on this device.</div>
-      </div>
-
-      <div class="fan-card invite-card">
-        <div class="fan-card-head">
-          <h3>Invite &amp; earn XP</h3>
-          <span class="fan-follow-count">★ <span id="invite-xp-earned">0</span> XP earned</span>
-        </div>
-        <p class="invite-desc">Share your link. When someone signs up after clicking it, you both get a welcome bonus.</p>
-        <div class="invite-link-row">
-          <input type="text" id="invite-link-input" readonly value="Generating your link…">
-          <button class="invite-copy-btn" id="invite-copy-btn">Copy</button>
-        </div>
-        <div class="invite-status" id="invite-status"></div>
-        <div class="invite-honesty-note" id="invite-honesty-note">This works when the link is opened in the <em>same browser</em> you're using now — sign in to get credit for a friend's signup even from a different phone or browser.</div>
-      </div>
-
-      <div class="fan-card" id="rates-card" style="display:none;">
-        <div class="fan-card-head">
-          <h3>Your rates</h3>
-          <button class="fan-add-btn" id="rates-add-btn">+ Add a rate</button>
-        </div>
-        <p class="invite-desc">Save a price so you can reply to a quote request with one tap instead of typing an amount every time.</p>
-        <div class="gig-log-list" id="rates-list">
-          <div class="gig-log-empty" id="rates-empty">No rates saved yet — add one to enable quick replies.</div>
-        </div>
-      </div>
-
-      <div class="fan-card" id="requests-card" style="display:none;">
-        <div class="fan-card-head">
-          <h3>Booking requests</h3>
-        </div>
-        <div class="requests-subhead">Requests for you</div>
-        <div class="gig-log-list" id="incoming-requests-list">
-          <div class="gig-log-empty" id="incoming-requests-empty">No one's requested a quote yet.</div>
-        </div>
-        <div class="requests-subhead">Your sent requests</div>
-        <div class="gig-log-list" id="sent-requests-list">
-          <div class="gig-log-empty" id="sent-requests-empty">You haven't requested a quote from anyone yet — try the real artist directory.</div>
-        </div>
-      </div>
-
-      <div class="fan-card" id="my-memberships-card" style="display:none;">
-        <div class="fan-card-head">
-          <h3>Bands you're in</h3>
-        </div>
-        <p class="invite-desc">Requests you've sent to unify with a band, and bands you're already an approved member of.</p>
-        <div class="gig-log-list" id="my-memberships-list">
-          <div class="gig-log-empty" id="my-memberships-empty">Not part of any band yet — find one in the directory and tap Unify.</div>
-        </div>
-      </div>
-
-      <div class="fan-card" id="nearby-players-card" style="display:none;">
-        <div class="fan-card-head">
-          <h3>Registered players near you</h3>
-        </div>
-        <div class="form-field">
-          <label for="nearby-radius-filter">Distance filter</label>
-          <select id="nearby-radius-filter"></select>
-        </div>
-        <div class="rate-card-note" id="nearby-no-location-note" style="display:none;">Set a location on your profile to sort this list by distance — showing everyone alphabetically for now.</div>
-        <div class="gig-log-list" id="nearby-players-list">
-          <div class="gig-log-empty" id="nearby-players-empty">No other registered profiles yet — invite people to unify with you.</div>
-        </div>
-      </div>
-
-      <div class="fan-card" id="band-manage-card" style="display:none;">
-        <div class="fan-card-head">
-          <h3>Manage band members</h3>
-        </div>
-        <p class="invite-desc">People who've asked to unify with this band. Approving picks their access level — they can edit the page once approved.</p>
-        <div class="requests-subhead">Pending requests</div>
-        <div class="gig-log-list" id="band-pending-list">
-          <div class="gig-log-empty" id="band-pending-empty">No pending requests.</div>
-        </div>
-        <div class="requests-subhead">Approved members</div>
-        <div class="gig-log-list" id="band-approved-list">
-          <div class="gig-log-empty" id="band-approved-empty">No approved members yet.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="signup-overlay" id="add-rate-modal" role="dialog" aria-modal="true" aria-labelledby="add-rate-title">
-  <div class="signup-card" style="max-width:480px;">
-    <div class="signup-head">
-      <div>
-        <span class="tag" style="color:var(--green);">/ Your rates</span>
-        <h2 class="display" id="add-rate-title" style="font-size:26px;">Add a rate</h2>
-      </div>
-      <button class="modal-close" id="add-rate-close-btn" aria-label="Close">✕</button>
-    </div>
-    <div class="signup-body">
-      <div class="form-field">
-        <label for="rate-label">What's included</label>
-        <input type="text" id="rate-label" placeholder="e.g. 2hr acoustic set">
-      </div>
-      <div class="form-field">
-        <label for="rate-amount">Price (USD)</label>
-        <input type="text" id="rate-amount" placeholder="e.g. 250" inputmode="decimal">
-      </div>
-      <div class="loc-search-status" id="rate-status" role="status"></div>
-      <button class="signup-submit" id="rate-save-btn">Save rate</button>
-    </div>
-  </div>
-</div>
-
 <div class="signup-overlay" id="quote-modal" role="dialog" aria-modal="true" aria-labelledby="quote-modal-title">
   <div class="signup-card">
     <div class="signup-head">
@@ -621,90 +431,6 @@
       <div class="booking-honesty-note">They'll confirm availability and reply with a quote — you won't be charged anything by sending this request. If you accept their quote, it becomes a formal proforma invoice. Music Motel takes a 10% booking fee once a quote is accepted and the gig is paid for, which includes payment transaction processing costs — the artist keeps 90%.</div>
       <div class="loc-search-status" id="quote-status" role="status"></div>
       <button class="signup-submit" id="quote-submit-btn">Send request</button>
-    </div>
-  </div>
-</div>
-
-<div class="signup-overlay" id="respond-quote-modal" role="dialog" aria-modal="true" aria-labelledby="respond-quote-title">
-  <div class="signup-card">
-    <div class="signup-head">
-      <div>
-        <span class="tag" style="color:var(--green);">/ Send a quote</span>
-        <h2 class="display" id="respond-quote-title" style="font-size:clamp(24px,4vw,30px);">Quote —</h2>
-      </div>
-      <button class="modal-close" id="respond-quote-close-btn" aria-label="Close">✕</button>
-    </div>
-    <div class="signup-body">
-      <div class="booking-artist-row" id="respond-quote-detail"></div>
-      <div class="form-field" id="respond-quote-rates-field" style="display:none;">
-        <label>Quick reply with a saved rate</label>
-        <div class="patch-tabs" id="respond-quote-rates"></div>
-      </div>
-      <div class="form-field">
-        <label for="respond-quote-amount">Or enter a custom price (USD)</label>
-        <input type="text" id="respond-quote-amount" placeholder="e.g. 250" inputmode="decimal">
-      </div>
-      <div class="booking-honesty-note">If they accept, this becomes a formal proforma invoice. Music Motel deducts a 10% booking fee (which includes payment transaction processing costs) once the gig is marked complete and paid — you receive 90%.</div>
-      <div class="loc-search-status" id="respond-quote-status" role="status"></div>
-      <button class="signup-submit" id="respond-quote-submit-btn">Send quote</button>
-    </div>
-  </div>
-</div>
-
-<div class="signup-overlay" id="review-modal" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
-  <div class="signup-card" style="max-width:480px;">
-    <div class="signup-head">
-      <div>
-        <span class="tag" style="color:var(--yellow);">/ Leave a review</span>
-        <h2 class="display" id="review-modal-title" style="font-size:26px;">Rate the gig</h2>
-      </div>
-      <button class="modal-close" id="review-close-btn" aria-label="Close">✕</button>
-    </div>
-    <div class="signup-body">
-      <div class="form-field">
-        <label for="review-rating">Rating</label>
-        <select id="review-rating">
-          <option value="5">★★★★★ Excellent</option>
-          <option value="4">★★★★ Good</option>
-          <option value="3">★★★ Okay</option>
-          <option value="2">★★ Not great</option>
-          <option value="1">★ Poor</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label for="review-comment">Comment (optional)</label>
-        <input type="text" id="review-comment" placeholder="How did it go?">
-      </div>
-      <div class="loc-search-status" id="review-status" role="status"></div>
-      <button class="signup-submit" id="review-submit-btn">Submit review</button>
-    </div>
-  </div>
-</div>
-
-<div class="signup-overlay" id="add-gig-modal" role="dialog" aria-modal="true" aria-labelledby="add-gig-title">
-  <div class="signup-card" style="max-width:480px;">
-    <div class="signup-head">
-      <div>
-        <span class="tag" style="color:var(--purple);">/ Gig log</span>
-        <h2 class="display" id="add-gig-title" style="font-size:26px;">Add a show</h2>
-      </div>
-      <button class="modal-close" id="add-gig-close-btn" aria-label="Close">✕</button>
-    </div>
-    <div class="signup-body">
-      <div class="form-field">
-        <label for="gig-artist">Artist or band</label>
-        <input type="text" id="gig-artist" placeholder="e.g. Maya Ellison">
-      </div>
-      <div class="form-field">
-        <label for="gig-venue">Venue</label>
-        <input type="text" id="gig-venue" placeholder="e.g. Brooklyn Steel">
-      </div>
-      <div class="form-field">
-        <label for="gig-date">Date</label>
-        <input type="text" id="gig-date" placeholder="e.g. March 2025">
-      </div>
-      <div class="loc-search-status" id="gig-log-status" role="status"></div>
-      <button class="signup-submit" id="gig-save-btn">Save to gig log</button>
     </div>
   </div>
 </div>
@@ -810,29 +536,9 @@
 </footer>
 <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 
+<script src="js/referral.js"></script>
+
 <script src="js/hero-game.js"></script>
-
-<div class="modal-overlay" id="instrument-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-  <div class="modal-card">
-    <div class="modal-head">
-      <div>
-        <span class="tag" style="color:var(--yellow);">/ Full directory</span>
-        <h2 class="display" id="modal-title">Every instrument on Music Motel</h2>
-      </div>
-      <button class="modal-close" id="modal-close-btn" aria-label="Close">✕</button>
-    </div>
-    <div class="modal-search">
-      <input type="text" id="instrument-search" placeholder="Search an instrument — try 'sitar' or 'drum'..." autocomplete="off">
-    </div>
-    <div class="modal-count"><strong id="instrument-count">0</strong> instruments across <strong>6</strong> categories — tap an instrument to add it to your profile</div>
-    <div class="modal-body" id="instrument-body">
-      <!-- injected by JS -->
-    </div>
-    <div class="modal-empty" id="modal-empty">No instruments match that search. Try a different term.</div>
-  </div>
-</div>
-
-<script src="js/instrument-modal.js"></script>
 
 <div class="signup-overlay" id="booking-modal" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
   <div class="signup-card booking-modal-card">
@@ -1108,14 +814,11 @@
 
 <script src="js/preferences.js"></script>
 
-<script src="js/avatar-upload.js"></script>
-
 <script src="js/rate-card.js"></script>
 
 <script src="js/booking-requests.js"></script>
 
 <script src="js/band-members.js"></script>
-<script src="js/nearby-players.js"></script>
 <script src="js/password-toggle.js"></script>
 <script src="js/password-reset.js"></script>
 

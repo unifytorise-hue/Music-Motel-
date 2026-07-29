@@ -92,13 +92,16 @@
   }
 
   function applyPrefsToForm(){
-    document.getElementById('pref-distance-unit').value = myPrefs.distance_unit;
-    document.getElementById('pref-currency').value = myPrefs.currency;
+    var distEl = document.getElementById('pref-distance-unit');
+    if (distEl) distEl.value = myPrefs.distance_unit;
+    var curEl = document.getElementById('pref-currency');
+    if (curEl) curEl.value = myPrefs.currency;
   }
 
   function initPrefs(){
     populateCurrencySelects();
-    document.getElementById('prefs-signed-out-note').style.display = isSignedIn() ? 'none' : 'block';
+    var signedOutNote = document.getElementById('prefs-signed-out-note');
+    if (signedOutNote) signedOutNote.style.display = isSignedIn() ? 'none' : 'block';
     var loader = isSignedIn() ? loadPrefsRemote() : loadPrefsLocal();
     loader.then(function(saved){
       if (saved) myPrefs = { distance_unit: saved.distance_unit || 'km', currency: saved.currency || 'USD' };
@@ -123,8 +126,10 @@
     }
     if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
   };
-  document.getElementById('pref-distance-unit').addEventListener('change', savePrefs);
-  document.getElementById('pref-currency').addEventListener('change', savePrefs);
+  var prefDistanceEl = document.getElementById('pref-distance-unit');
+  if (prefDistanceEl) prefDistanceEl.addEventListener('change', savePrefs);
+  var prefCurrencyEl = document.getElementById('pref-currency');
+  if (prefCurrencyEl) prefCurrencyEl.addEventListener('change', savePrefs);
 
   authReady.then(initPrefs);
   if (configured()){

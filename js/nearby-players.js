@@ -9,6 +9,20 @@
   function isSignedIn(){ return !!(configured() && currentUser()); }
   var authReady = window.mmAuthReady || Promise.resolve();
 
+  // Same formula as window.mmHaversineKm in js/hero-game.js — duplicated
+  // rather than shared, since hero-game.js (the hero "build your band" map
+  // game) only loads on index.html, not here.
+  function haversineKm(lat1, lng1, lat2, lng2){
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
   // Captured once, before any render clears #nearby-players-list via
   // innerHTML — that placeholder is a child of the list, so re-querying it
   // by id after the first non-empty render would return null (same bug
@@ -62,8 +76,8 @@
 
       allProfiles = rows.filter(function(r){ return r.id !== myId; });
       allProfiles.forEach(function(p){
-        p._distanceKm = (myLocation && p.lat != null && p.lng != null && window.mmHaversineKm)
-          ? window.mmHaversineKm(myLocation.lat, myLocation.lng, p.lat, p.lng)
+        p._distanceKm = (myLocation && p.lat != null && p.lng != null)
+          ? haversineKm(myLocation.lat, myLocation.lng, p.lat, p.lng)
           : null;
       });
       if (myLocation){

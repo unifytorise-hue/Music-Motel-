@@ -131,6 +131,7 @@
 
   function renderGigLog(gigs){
     var list = document.getElementById('gig-log-list');
+    if (!list) return;
     var empty = gigLogEmptyEl;
     if (!gigs || gigs.length === 0){
       list.innerHTML = '';
@@ -176,66 +177,72 @@
     });
   });
 
-  document.getElementById('fan-add-gig-btn').addEventListener('click', function(){
-    document.getElementById('add-gig-modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    if (window.trapFocus) window.trapFocus(document.getElementById('add-gig-modal'));
-  });
-  function closeAddGig(){
-    document.getElementById('add-gig-modal').classList.remove('open');
-    document.body.style.overflow = '';
-    if (window.releaseFocusTrap) window.releaseFocusTrap();
-  }
-  document.getElementById('add-gig-close-btn').addEventListener('click', closeAddGig);
-  document.getElementById('add-gig-modal').addEventListener('click', function(e){
-    if (e.target.id === 'add-gig-modal') closeAddGig();
-  });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && document.getElementById('add-gig-modal').classList.contains('open')) closeAddGig();
-  });
-  document.getElementById('gig-save-btn').addEventListener('click', function(){
-    var artist = document.getElementById('gig-artist').value.trim();
-    var venue = document.getElementById('gig-venue').value.trim();
-    var date = document.getElementById('gig-date').value.trim();
-    var statusEl = document.getElementById('gig-log-status');
-    var saveBtn = document.getElementById('gig-save-btn');
-    if (!artist){
-      document.getElementById('gig-artist').focus();
-      return;
-    }
+  // The gig-log card (and its "+ Add a show" modal) only exists in the fan
+  // dashboard, which now lives on profile.html only — guarded so this file
+  // can still load on index.html (for the follow-state logic below, which
+  // IS needed there) without crashing on missing elements.
+  if (document.getElementById('fan-add-gig-btn')){
+    document.getElementById('fan-add-gig-btn').addEventListener('click', function(){
+      document.getElementById('add-gig-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if (window.trapFocus) window.trapFocus(document.getElementById('add-gig-modal'));
+    });
+    var closeAddGig = function(){
+      document.getElementById('add-gig-modal').classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.releaseFocusTrap) window.releaseFocusTrap();
+    };
+    document.getElementById('add-gig-close-btn').addEventListener('click', closeAddGig);
+    document.getElementById('add-gig-modal').addEventListener('click', function(e){
+      if (e.target.id === 'add-gig-modal') closeAddGig();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.getElementById('add-gig-modal').classList.contains('open')) closeAddGig();
+    });
+    document.getElementById('gig-save-btn').addEventListener('click', function(){
+      var artist = document.getElementById('gig-artist').value.trim();
+      var venue = document.getElementById('gig-venue').value.trim();
+      var date = document.getElementById('gig-date').value.trim();
+      var statusEl = document.getElementById('gig-log-status');
+      var saveBtn = document.getElementById('gig-save-btn');
+      if (!artist){
+        document.getElementById('gig-artist').focus();
+        return;
+      }
 
-    function resetForm(){
-      document.getElementById('gig-artist').value = '';
-      document.getElementById('gig-venue').value = '';
-      document.getElementById('gig-date').value = '';
-      if (statusEl) statusEl.textContent = '';
-      closeAddGig();
-    }
+      function resetForm(){
+        document.getElementById('gig-artist').value = '';
+        document.getElementById('gig-venue').value = '';
+        document.getElementById('gig-date').value = '';
+        if (statusEl) statusEl.textContent = '';
+        closeAddGig();
+      }
 
-    if (isSignedIn()){
-      saveBtn.disabled = true;
-      if (statusEl) statusEl.textContent = 'Saving…';
-      window.mmSupabase.from('gig_log').insert({
-        user_id: window.mmAuth.getUser().id,
-        artist: artist, venue: venue, date_text: date
-      }).select().single().then(function(res){
-        saveBtn.disabled = false;
-        if (res.error){
-          if (statusEl) statusEl.textContent = res.error.message;
-          return;
-        }
-        currentGigs.push({ id: res.data.id, artist: res.data.artist, venue: res.data.venue, date: res.data.date_text });
+      if (isSignedIn()){
+        saveBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Saving…';
+        window.mmSupabase.from('gig_log').insert({
+          user_id: window.mmAuth.getUser().id,
+          artist: artist, venue: venue, date_text: date
+        }).select().single().then(function(res){
+          saveBtn.disabled = false;
+          if (res.error){
+            if (statusEl) statusEl.textContent = res.error.message;
+            return;
+          }
+          currentGigs.push({ id: res.data.id, artist: res.data.artist, venue: res.data.venue, date: res.data.date_text });
+          renderGigLog(currentGigs);
+          resetForm();
+          if (window.refreshRealXP) window.refreshRealXP();
+        });
+      } else {
+        currentGigs.push({ artist: artist, venue: venue, date: date });
+        saveGigLogLocal(currentGigs);
         renderGigLog(currentGigs);
         resetForm();
-        if (window.refreshRealXP) window.refreshRealXP();
-      });
-    } else {
-      currentGigs.push({ artist: artist, venue: venue, date: date });
-      saveGigLogLocal(currentGigs);
-      renderGigLog(currentGigs);
-      resetForm();
-    }
-  });
+      }
+    });
+  }
 
   // ===== following =====
   var FOLLOW_KEY = 'fan-following';
@@ -294,6 +301,7 @@
 
   function renderFollowList(){
     var list = document.getElementById('follow-list');
+    if (!list) return;
     var empty = followEmptyEl;
     var ids = Object.keys(followingMap);
     document.getElementById('fan-follow-count').textContent = ids.length + (ids.length === 1 ? ' artist' : ' artists');

@@ -269,45 +269,51 @@
     });
   }
 
-  document.getElementById('rates-add-btn').addEventListener('click', function(){
-    document.getElementById('rate-label').value = '';
-    document.getElementById('rate-amount').value = '';
-    document.getElementById('rate-status').textContent = '';
-    var modal = document.getElementById('add-rate-modal');
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    if (window.trapFocus) window.trapFocus(modal);
-  });
-  function closeAddRate(){
-    var modal = document.getElementById('add-rate-modal');
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    if (window.releaseFocusTrap) window.releaseFocusTrap();
-  }
-  document.getElementById('add-rate-close-btn').addEventListener('click', closeAddRate);
-  document.getElementById('add-rate-modal').addEventListener('click', function(e){
-    if (e.target.id === 'add-rate-modal') closeAddRate();
-  });
-  document.getElementById('rate-save-btn').addEventListener('click', function(){
-    var label = document.getElementById('rate-label').value.trim();
-    var amount = parseFloat(document.getElementById('rate-amount').value);
-    var statusEl = document.getElementById('rate-status');
-    if (!label || isNaN(amount) || amount <= 0){
-      statusEl.textContent = 'Add a label and a price greater than 0.';
-      return;
-    }
-    window.mmSupabase.from('artist_rates').insert({
-      user_id: currentUser().id, label: label, amount: amount
-    }).select().single().then(function(res){
-      if (res.error){
-        statusEl.textContent = res.error.message;
+  // The rates-card ("Your rates" quick-reply presets) only exists in the
+  // fan dashboard, which lives on profile.html only — guarded so this file
+  // can still load on index.html (for the real-artist directory / quote
+  // request flow above, which IS needed there) without crashing.
+  if (document.getElementById('rates-add-btn')){
+    document.getElementById('rates-add-btn').addEventListener('click', function(){
+      document.getElementById('rate-label').value = '';
+      document.getElementById('rate-amount').value = '';
+      document.getElementById('rate-status').textContent = '';
+      var modal = document.getElementById('add-rate-modal');
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if (window.trapFocus) window.trapFocus(modal);
+    });
+    var closeAddRate = function(){
+      var modal = document.getElementById('add-rate-modal');
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.releaseFocusTrap) window.releaseFocusTrap();
+    };
+    document.getElementById('add-rate-close-btn').addEventListener('click', closeAddRate);
+    document.getElementById('add-rate-modal').addEventListener('click', function(e){
+      if (e.target.id === 'add-rate-modal') closeAddRate();
+    });
+    document.getElementById('rate-save-btn').addEventListener('click', function(){
+      var label = document.getElementById('rate-label').value.trim();
+      var amount = parseFloat(document.getElementById('rate-amount').value);
+      var statusEl = document.getElementById('rate-status');
+      if (!label || isNaN(amount) || amount <= 0){
+        statusEl.textContent = 'Add a label and a price greater than 0.';
         return;
       }
-      myRates.push(res.data);
-      renderRates();
-      closeAddRate();
+      window.mmSupabase.from('artist_rates').insert({
+        user_id: currentUser().id, label: label, amount: amount
+      }).select().single().then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        myRates.push(res.data);
+        renderRates();
+        closeAddRate();
+      });
     });
-  });
+  }
 
   // ===== booking requests: incoming (artist) + sent (client) =====
   var incomingRequests = [];
@@ -538,10 +544,15 @@
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
-  document.getElementById('respond-quote-close-btn').addEventListener('click', closeRespondQuote);
-  document.getElementById('respond-quote-modal').addEventListener('click', function(e){
-    if (e.target.id === 'respond-quote-modal') closeRespondQuote();
-  });
+  // respond-quote-modal only exists alongside the requests-card, which is
+  // fan-dashboard-only (now profile.html) — guarded so this file can still
+  // load on index.html for the real-artist directory above.
+  if (document.getElementById('respond-quote-close-btn')){
+    document.getElementById('respond-quote-close-btn').addEventListener('click', closeRespondQuote);
+    document.getElementById('respond-quote-modal').addEventListener('click', function(e){
+      if (e.target.id === 'respond-quote-modal') closeRespondQuote();
+    });
+  }
 
   function submitQuote(amount){
     if (!respondingTo) return;
@@ -559,14 +570,16 @@
       });
   }
 
-  document.getElementById('respond-quote-submit-btn').addEventListener('click', function(){
-    var amount = parseFloat(document.getElementById('respond-quote-amount').value);
-    if (isNaN(amount) || amount <= 0){
-      document.getElementById('respond-quote-status').textContent = 'Enter a price greater than 0.';
-      return;
-    }
-    submitQuote(amount);
-  });
+  if (document.getElementById('respond-quote-submit-btn')){
+    document.getElementById('respond-quote-submit-btn').addEventListener('click', function(){
+      var amount = parseFloat(document.getElementById('respond-quote-amount').value);
+      if (isNaN(amount) || amount <= 0){
+        document.getElementById('respond-quote-status').textContent = 'Enter a price greater than 0.';
+        return;
+      }
+      submitQuote(amount);
+    });
+  }
 
   // ===== leave a review (client, on a completed booking) =====
   var reviewingBooking = null;
@@ -587,35 +600,40 @@
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
-  document.getElementById('review-close-btn').addEventListener('click', closeReviewModal);
-  document.getElementById('review-modal').addEventListener('click', function(e){
-    if (e.target.id === 'review-modal') closeReviewModal();
-  });
-
-  document.getElementById('review-submit-btn').addEventListener('click', function(){
-    if (!reviewingBooking) return;
-    var rating = parseInt(document.getElementById('review-rating').value, 10);
-    var comment = document.getElementById('review-comment').value.trim();
-    var statusEl = document.getElementById('review-status');
-    statusEl.textContent = 'Submitting…';
-    window.mmSupabase.from('booking_reviews').insert({
-      booking_request_id: reviewingBooking.id,
-      reviewer_id: currentUser().id,
-      reviewee_id: reviewingBooking.artist_id,
-      rating: rating,
-      comment: comment
-    }).then(function(res){
-      if (res.error){
-        statusEl.textContent = res.error.message;
-        return;
-      }
-      statusEl.textContent = '';
-      reviewedBookingIds[reviewingBooking.id] = true;
-      closeReviewModal();
-      renderSent();
-      initRealArtists();
+  // review-modal is only reachable from the requests-card's sent-requests
+  // list, which is fan-dashboard-only (now profile.html) — guarded so this
+  // file can still load on index.html for the real-artist directory above.
+  if (document.getElementById('review-close-btn')){
+    document.getElementById('review-close-btn').addEventListener('click', closeReviewModal);
+    document.getElementById('review-modal').addEventListener('click', function(e){
+      if (e.target.id === 'review-modal') closeReviewModal();
     });
-  });
+
+    document.getElementById('review-submit-btn').addEventListener('click', function(){
+      if (!reviewingBooking) return;
+      var rating = parseInt(document.getElementById('review-rating').value, 10);
+      var comment = document.getElementById('review-comment').value.trim();
+      var statusEl = document.getElementById('review-status');
+      statusEl.textContent = 'Submitting…';
+      window.mmSupabase.from('booking_reviews').insert({
+        booking_request_id: reviewingBooking.id,
+        reviewer_id: currentUser().id,
+        reviewee_id: reviewingBooking.artist_id,
+        rating: rating,
+        comment: comment
+      }).then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        statusEl.textContent = '';
+        reviewedBookingIds[reviewingBooking.id] = true;
+        closeReviewModal();
+        renderSent();
+        initRealArtists();
+      });
+    });
+  }
 
   // ===== boot =====
   authReady.then(function(){
