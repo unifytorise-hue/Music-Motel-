@@ -575,6 +575,22 @@
     flex-wrap:wrap;
     margin-bottom:14px;
   }
+  @media (max-width:640px){
+    /* Wrapping 5 tabs onto 3 ragged rows above a boxed "sort by distance"
+       button read as cluttered on a narrow screen — a single horizontally
+       scrollable strip (the same pattern as a native app's filter bar)
+       reads cleaner than the wrap, and stacking the button below full-
+       width gives it equal visual weight instead of shrink-wrapping. */
+    .patch-controls{ flex-direction:column; align-items:stretch; }
+    #patch-tabs{
+      flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; -ms-overflow-style:none;
+      margin:0 -20px; padding:0 20px 4px;
+    }
+    #patch-tabs::-webkit-scrollbar{ display:none; }
+    #patch-tabs .patch-tab{ flex-shrink:0; }
+    .patch-nearme-btn{ justify-content:center; }
+  }
   .patch-nearme-btn{
     display:flex; align-items:center; gap:8px;
     font-family:'JetBrains Mono', monospace;
@@ -619,7 +635,7 @@
     font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.04em;
     padding:9px 16px; border-radius:999px;
-    border:1.5px solid var(--line); color:var(--cream-dim);
+    border:1.5px solid var(--tab-color, var(--line)); color:var(--tab-color, var(--cream-dim));
     transition:all 0.2s;
   }
   .patch-tab:hover{ border-color:var(--cream); color:var(--cream); }
