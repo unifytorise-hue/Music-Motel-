@@ -1598,6 +1598,20 @@
     cursor:pointer;
   }
 
+  .password-field{ position:relative; }
+  .password-field input{ padding-right:44px; }
+  .password-toggle-btn{
+    position:absolute;
+    right:6px; top:50%; transform:translateY(-50%);
+    display:flex; align-items:center; justify-content:center;
+    width:32px; height:32px;
+    color:#6b6b6b;
+    border-radius:6px;
+    transition:color 0.2s;
+  }
+  .password-toggle-btn:hover{ color:#1a1a1a; }
+  .password-toggle-btn:focus-visible{ color:#1a1a1a; }
+
   .rate-card-grid{
     display:grid; grid-template-columns:1fr 1fr; gap:16px;
   }
