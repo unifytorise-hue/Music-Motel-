@@ -45,6 +45,25 @@
     return '<svg class="icon' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + body + '</svg>';
   };
 
+  // Shared by every place that shows a profile picture (nav, nearby-players
+  // list, follow list, profile modal, the upload preview itself) — avatarUrl
+  // is remote, other-user-controlled data, so it's only ever assigned via
+  // the img.src DOM property (never string-concatenated into innerHTML/CSS),
+  // which the browser treats strictly as a URL, not markup or a style value.
+  window.mmRenderAvatar = function(container, avatarUrl, colorHex){
+    if (!container) return;
+    var safeColor = /^#[0-9a-f]{3,8}$/i.test(colorHex || '') ? colorHex : '#2BE8D9';
+    container.style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
+    container.innerHTML = '';
+    if (avatarUrl && /^https:\/\//i.test(avatarUrl)){
+      var img = document.createElement('img');
+      img.src = avatarUrl;
+      img.alt = '';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
+      container.appendChild(img);
+    }
+  };
+
   // Static markup can't call mmIcon() directly, so a `<span data-icon="name">`
   // placeholder is hydrated here once the rest of the page exists — same
   // "defer DOM work to DOMContentLoaded" reasoning as js/auth.js.

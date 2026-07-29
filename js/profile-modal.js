@@ -108,11 +108,9 @@
         }).join('') + '</div>'
       : '';
 
-    var avatarGradient = 'linear-gradient(135deg, ' + (profile.avatar_color || '#2BE8D9') + ', var(--yellow))';
-
     document.getElementById('profile-modal-body').innerHTML =
       '<div class="profile-modal-header">' +
-        '<div class="profile-modal-avatar" style="background:' + avatarGradient + ';"></div>' +
+        '<div class="profile-modal-avatar" id="profile-modal-avatar-el"></div>' +
         '<div class="profile-modal-meta">' +
           '<div class="profile-modal-name">' + escapeHtmlProfile(profile.name) + (isBand ? ' · BAND' : '') + '</div>' +
           '<div class="profile-modal-role">' + escapeHtmlProfile(profile.role_label || profile.account_type || '') + '</div>' +
@@ -125,10 +123,15 @@
       (profile.account_type !== 'fan' ? '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Request a quote</button>' : '') +
       (isBand ? '<button class="profile-unify-btn" id="profile-unify-btn">Unify with ' + escapeHtmlProfile(profile.name || 'this band') + '</button>' : '');
 
+    // profile.avatar_color/avatar_url are remote, other-user-controlled data
+    // — mmRenderAvatar assigns them via img.src / a regex-validated color
+    // rather than interpolating into the innerHTML string above.
+    if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('profile-modal-avatar-el'), profile.avatar_url, profile.avatar_color);
+
     var followBtn = document.getElementById('profile-follow-btn');
     refreshFollowButton(followBtn, profile.id);
     followBtn.addEventListener('click', function(){
-      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.location_label, color: profile.avatar_color });
+      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.location_label, color: profile.avatar_color, avatarUrl: profile.avatar_url });
       refreshFollowButton(followBtn, profile.id);
     });
 

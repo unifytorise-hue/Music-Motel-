@@ -137,6 +137,14 @@
     display:inline-block;
   }
   .nav-cta:hover{ background:var(--yellow); transform:translateY(-1px); }
+  .nav-avatar{
+    width:24px; height:24px; border-radius:7px; flex-shrink:0;
+    display:inline-block; border:1px solid var(--line);
+  }
+  .mobile-avatar{
+    width:44px; height:44px; border-radius:10px;
+    margin-bottom:10px; border:1px solid var(--line);
+  }
 
   @media (max-width:900px){
     .nav-links{ display:none; }
@@ -801,6 +809,19 @@
     transition:all 0.2s;
   }
   .fan-add-btn:hover{ background:rgba(166,107,255,0.12); }
+  .avatar-upload-row{ display:flex; align-items:center; gap:16px; }
+  .avatar-upload-preview{
+    width:72px; height:72px; border-radius:14px; flex-shrink:0;
+    border:1px solid var(--line);
+    background:linear-gradient(135deg, var(--cyan), var(--yellow));
+  }
+  .avatar-upload-actions{ display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+  .avatar-remove-btn{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--cream-dim); transition:color 0.2s;
+  }
+  .avatar-remove-btn:hover{ color:var(--red); }
   .requests-subhead{
     font-family:'JetBrains Mono', monospace;
     font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
@@ -866,6 +887,10 @@
     width:8px; height:8px; border-radius:50%;
     background:var(--purple);
     margin-top:6px; flex-shrink:0;
+  }
+  .player-avatar{
+    width:36px; height:36px; border-radius:9px; flex-shrink:0;
+    display:block; border:1px solid var(--line);
   }
   .gig-log-item h5{ font-size:14.5px; font-weight:700; margin-bottom:3px; }
   .gig-log-item p{ font-size:12.5px; color:var(--cream-dim); }

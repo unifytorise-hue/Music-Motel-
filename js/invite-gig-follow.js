@@ -256,12 +256,12 @@
   function resolvePersonMeta(id){
     var sample = window.getSamplePersonBySlug && window.getSamplePersonBySlug(id);
     if (sample) return Promise.resolve(sample);
-    return window.mmSupabase.from('profiles').select('name,role_label,avatar_color').eq('id', id).maybeSingle()
+    return window.mmSupabase.from('profiles').select('name,role_label,avatar_color,avatar_url').eq('id', id).maybeSingle()
       .then(function(res){
-        if (res.error || !res.data) return { name: id, role: '', loc: '', color: '#2BE8D9' };
-        return { name: res.data.name, role: res.data.role_label, loc: '', color: res.data.avatar_color };
+        if (res.error || !res.data) return { name: id, role: '', loc: '', color: '#2BE8D9', avatarUrl: null };
+        return { name: res.data.name, role: res.data.role_label, loc: '', color: res.data.avatar_color, avatarUrl: res.data.avatar_url };
       })
-      .catch(function(){ return { name: id, role: '', loc: '', color: '#2BE8D9' }; });
+      .catch(function(){ return { name: id, role: '', loc: '', color: '#2BE8D9', avatarUrl: null }; });
   }
 
   function loadFollowingRemote(){
@@ -311,13 +311,11 @@
         '<div class="follow-avatar"></div>' +
         '<div class="follow-meta"><h5>' + escapeHtml(person.name) + '</h5><p>' + escapeHtml(person.role) + '</p></div>' +
         '<button class="unfollow-btn">Unfollow</button>';
-      // person.color can come from a real profiles row (resolvePersonMeta),
-      // which is remote, other-user-controlled data — set it via the style
-      // API instead of interpolating into innerHTML, and validate the
-      // shape so a malicious value can't do anything but fall back to a
-      // default color.
-      var safeColor = /^#[0-9a-f]{3,8}$/i.test(person.color) ? person.color : '#2BE8D9';
-      item.querySelector('.follow-avatar').style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
+      // person.color/avatarUrl can come from a real profiles row
+      // (resolvePersonMeta), which is remote, other-user-controlled data —
+      // mmRenderAvatar only ever assigns it via img.src / a regex-validated
+      // color, never string-concatenates it into innerHTML or a CSS value.
+      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.follow-avatar'), person.avatarUrl, person.color);
       item.querySelector('.unfollow-btn').addEventListener('click', function(){
         window.toggleFollow(id, person);
       });

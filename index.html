@@ -54,6 +54,7 @@
       <a href="#" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
       <a href="#" class="nav-cta" id="open-signup-nav">Create profile</a>
       <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <span class="nav-avatar" id="nav-avatar"></span>
         <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
         <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
       </div>
@@ -66,11 +67,11 @@
 
 <div class="mobile-menu" id="mobile-menu">
   <div class="mobile-menu-inner">
+    <a href="#fan-dashboard">My profile</a>
     <a href="#about">About</a>
     <a href="#roles">Who's on it</a>
     <a href="#how">How it works</a>
     <a href="#pricing">Pricing</a>
-    <a href="#fan-dashboard">My profile</a>
     <a href="#my-rate">My Rate</a>
     <a href="#gear">Donate gear</a>
     <a href="#public-spaces">For businesses</a>
@@ -78,6 +79,7 @@
     <a href="#" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
     <a href="#" class="mobile-cta" id="open-signup-mobile">Create profile</a>
     <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
       <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
       <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
     </div>
@@ -482,6 +484,22 @@
     </div>
 
     <div class="fan-dashboard-grid fan-dashboard-grid-3">
+      <div class="fan-card" id="avatar-card">
+        <div class="fan-card-head">
+          <h3>Your profile photo</h3>
+        </div>
+        <div class="avatar-upload-row">
+          <div class="avatar-upload-preview" id="avatar-preview"></div>
+          <div class="avatar-upload-actions">
+            <input type="file" id="avatar-file-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+            <button class="fan-add-btn" id="avatar-upload-btn" type="button">Upload photo</button>
+            <button class="avatar-remove-btn" id="avatar-remove-btn" type="button" style="display:none;">Remove photo</button>
+          </div>
+        </div>
+        <div class="rate-card-note" id="avatar-status" role="status"></div>
+        <div class="rate-card-note" id="avatar-signed-out-note">Sign in to add a profile photo — it'll show up next to your name and on your profile.</div>
+      </div>
+
       <div class="fan-card">
         <div class="fan-card-head">
           <h3>Your gig log</h3>
@@ -1268,6 +1286,8 @@
 <script src="js/real-xp.js"></script>
 
 <script src="js/preferences.js"></script>
+
+<script src="js/avatar-upload.js"></script>
 
 <script src="js/rate-card.js"></script>
 

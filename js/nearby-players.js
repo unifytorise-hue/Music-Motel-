@@ -48,7 +48,7 @@
   function loadProfiles(){
     if (!currentUser()) return Promise.resolve([]);
     return window.mmSupabase.from('profiles')
-      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,profile_kind,instruments')
+      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments')
       .then(function(res){ return res.data || []; })
       .catch(function(){ return []; });
   }
@@ -116,10 +116,11 @@
       item.setAttribute('role', 'button');
       item.setAttribute('aria-label', 'View profile for ' + p.name);
       item.innerHTML =
-        '<span class="gig-log-dot"></span>' +
+        '<span class="player-avatar"></span>' +
         '<div style="flex:1;"><h5>' + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
         '<p>' + escapeHtml(subBits.join(' · ')) + '</p></div>' +
         '<span class="gig-log-chevron">→</span>';
+      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), p.avatar_url, p.avatar_color);
       function activate(){
         if (window.openRealProfile) window.openRealProfile(p, p._distanceKm);
       }

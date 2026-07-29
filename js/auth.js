@@ -3,6 +3,8 @@
   var client = window.mmSupabase;
   var currentUser = null;
   var currentProfileName = null; // profiles.name — shown in the nav instead of the raw email
+  var currentAvatarUrl = null;
+  var currentAvatarColor = null;
   var readyResolve;
 
   // Other modules (gig log, following, referrals) need to know whether a
@@ -62,13 +64,15 @@
   // profiles.name for the nav display while it's already fetching the row.
   function refreshOwnProfile(user){
     if (!user || !configured) return;
-    client.from('profiles').select('id,name').eq('id', user.id).maybeSingle().then(function(res){
+    client.from('profiles').select('id,name,avatar_url,avatar_color').eq('id', user.id).maybeSingle().then(function(res){
       if (res.error) return;
       if (!res.data){
         if (window.openProfileCompletion) window.openProfileCompletion(user);
         return;
       }
       currentProfileName = res.data.name || null;
+      currentAvatarUrl = res.data.avatar_url || null;
+      currentAvatarColor = res.data.avatar_color || null;
       renderAuthUI();
     }).catch(function(){});
   }
@@ -84,10 +88,12 @@
     var signupNav = document.getElementById('open-signup-nav');
     var accountEl = document.getElementById('nav-account');
     var accountEmail = document.getElementById('nav-account-email');
+    var navAvatar = document.getElementById('nav-avatar');
     var signinMobile = document.getElementById('open-signin-mobile');
     var signupMobile = document.getElementById('open-signup-mobile');
     var accountMobile = document.getElementById('mobile-account');
     var accountMobileEmail = document.getElementById('mobile-account-email');
+    var mobileAvatar = document.getElementById('mobile-avatar');
     var authFields = document.getElementById('signup-auth-fields');
     var signupHero = document.getElementById('open-signup-hero');
     var signupFinal = document.getElementById('open-signup-final');
@@ -116,12 +122,16 @@
     if (signupMobile) signupMobile.style.display = signedIn ? 'none' : '';
     if (accountMobile) accountMobile.style.display = signedIn ? 'block' : 'none';
     if (accountMobileEmail) accountMobileEmail.textContent = signedIn ? displayName : '';
+    if (signedIn && window.mmRenderAvatar){
+      window.mmRenderAvatar(navAvatar, currentAvatarUrl, currentAvatarColor);
+      window.mmRenderAvatar(mobileAvatar, currentAvatarUrl, currentAvatarColor);
+    }
   }
 
   function setCurrentUser(user){
     var wasSignedOut = !currentUser;
     currentUser = user || null;
-    if (!currentUser) currentProfileName = null;
+    if (!currentUser){ currentProfileName = null; currentAvatarUrl = null; currentAvatarColor = null; }
     renderAuthUI();
     if (currentUser && wasSignedOut) refreshOwnProfile(currentUser);
   }
