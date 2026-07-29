@@ -130,11 +130,9 @@
           return;
         }
 
-        var fee = '5%';
         var confirmed = confirm(
           'Claim "' + g.name + '"?\n\n' +
-          'This item is free — Music Motel applies a ' + fee + ' facilitation fee on claimed items to cover payment processing and platform costs.\n\n' +
-          '(No real payment happens here yet — this is the claim flow UI, ready to connect to a real payment provider.)'
+          'This is free — no fee, ever. You\'ll need to collect it yourself; items aren\'t shipped. Kids get preference if more than one person wants the same item.'
         );
         if (!confirmed) return;
         claimedIds[g.id] = true;

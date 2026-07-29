@@ -291,9 +291,22 @@
         <div class="fan-card-head">
           <h3>Registered players near you</h3>
         </div>
-        <div class="form-field">
-          <label for="nearby-radius-filter">Distance filter</label>
-          <select id="nearby-radius-filter"></select>
+        <div class="rate-card-grid">
+          <div class="form-field">
+            <label for="nearby-radius-filter">Distance filter</label>
+            <select id="nearby-radius-filter"></select>
+          </div>
+          <div class="form-field">
+            <label for="nearby-distance-unit">Units</label>
+            <select id="nearby-distance-unit">
+              <option value="km">Kilometers (km)</option>
+              <option value="mi">Miles (mi)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="nearby-currency">Currency</label>
+            <select id="nearby-currency"></select>
+          </div>
         </div>
         <div class="rate-card-note" id="nearby-no-location-note" style="display:none;">Set a location on your profile to sort this list by distance — showing everyone alphabetically for now.</div>
         <div class="gig-log-list" id="nearby-players-list">

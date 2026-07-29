@@ -12,6 +12,51 @@
     return window.mmFormatMoney ? window.mmFormatMoney(amount) : '$' + Number(amount).toFixed(0);
   }
 
+  // Wires an amount input + currency select pair so people can enter a
+  // pledge/goal in whatever currency they think in, not just USD — the
+  // value is still converted and stored in USD (the one canonical unit
+  // used everywhere else on the site), with a live "≈ $X USD" hint so
+  // it's never a surprise what actually gets recorded.
+  function wireCurrencyAmountField(amountId, currencyId, hintId){
+    var amountEl = document.getElementById(amountId);
+    var currencyEl = document.getElementById(currencyId);
+    var hintEl = document.getElementById(hintId);
+    if (!amountEl || !currencyEl) return { getUsdAmount: function(){ return NaN; }, reset: function(){} };
+
+    if (window.mmCurrencyCodes && !currencyEl.children.length){
+      window.mmCurrencyCodes.forEach(function(code){
+        var opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = window.mmCurrencyLabel(code);
+        currencyEl.appendChild(opt);
+      });
+    }
+    currencyEl.value = window.mmGetPreferredCurrency ? window.mmGetPreferredCurrency() : 'USD';
+
+    function updateHint(){
+      if (!hintEl) return;
+      var raw = parseFloat(amountEl.value);
+      if (isNaN(raw) || raw <= 0 || currencyEl.value === 'USD'){ hintEl.textContent = ''; return; }
+      var usd = window.mmConvertToUsd ? window.mmConvertToUsd(raw, currencyEl.value) : raw;
+      hintEl.textContent = '≈ $' + usd.toFixed(2) + ' USD';
+    }
+    amountEl.addEventListener('input', updateHint);
+    currencyEl.addEventListener('change', updateHint);
+
+    return {
+      getUsdAmount: function(){
+        var raw = parseFloat(amountEl.value);
+        if (isNaN(raw)) return NaN;
+        return window.mmConvertToUsd ? window.mmConvertToUsd(raw, currencyEl.value) : raw;
+      },
+      reset: function(){
+        amountEl.value = '';
+        currencyEl.value = window.mmGetPreferredCurrency ? window.mmGetPreferredCurrency() : 'USD';
+        if (hintEl) hintEl.textContent = '';
+      }
+    };
+  }
+
   // This page doesn't load js/hero-game.js (index.html-only), which is
   // where window.showToast normally comes from — same implementation,
   // reused here so pledge/share confirmations have the same feedback as
@@ -29,13 +74,17 @@
   }
 
   var CATEGORIES = {
-    gear:       { label: 'Gear',        heading: 'Fund my gear',        color: 'var(--orange)' },
-    bus:        { label: 'Tour Bus',    heading: 'Fund my tour bus',    color: 'var(--cyan)' },
-    gig:        { label: 'A Gig',       heading: 'Fund my gig',         color: 'var(--green)' },
-    recordings: { label: 'Recordings',  heading: 'Fund my recordings',  color: 'var(--purple)' },
-    demo:       { label: 'A Demo',      heading: 'Fund my demo',        color: 'var(--pink)' },
-    album:      { label: 'An Album',    heading: 'Fund my album',       color: 'var(--yellow)' },
-    other:      { label: 'Something Else', heading: 'Fund this',        color: 'var(--cream-dim)' }
+    gear:          { label: 'Gear',            heading: 'Fund my gear',            color: 'var(--orange)', itemLabel: 'Which gear?', itemPlaceholder: 'e.g. Drum kit, guitar, studio mic' },
+    bus:           { label: 'Tour Bus',        heading: 'Fund my tour bus',        color: 'var(--cyan)' },
+    gig:           { label: 'A Gig',           heading: 'Fund my gig',             color: 'var(--green)' },
+    recordings:    { label: 'Recordings',      heading: 'Fund my recordings',      color: 'var(--purple)' },
+    demo:          { label: 'A Demo',          heading: 'Fund my demo',            color: 'var(--pink)' },
+    album:         { label: 'An Album',        heading: 'Fund my album',           color: 'var(--yellow)' },
+    tickets:       { label: 'Tickets',         heading: 'Fund my tickets',         color: 'var(--red)', itemLabel: 'Which show?', itemPlaceholder: 'e.g. Artist name, venue, date' },
+    flight:        { label: 'A Flight',        heading: 'Fund my flight',          color: 'var(--cyan)', itemLabel: 'Which show?', itemPlaceholder: 'e.g. Artist name, venue, date' },
+    accommodation: { label: 'Accommodation',   heading: 'Fund my accommodation',   color: 'var(--yellow)', itemLabel: 'Which show?', itemPlaceholder: 'e.g. Artist name, venue, date' },
+    transfers:     { label: 'Transfers',       heading: 'Fund my transfers',       color: 'var(--cyan)', itemLabel: 'Which show?', itemPlaceholder: 'e.g. Artist name, venue, date' },
+    other:         { label: 'Something Else', heading: 'Fund this',               color: 'var(--cream-dim)' }
   };
   function catMeta(cat){ return CATEGORIES[cat] || CATEGORIES.other; }
 
@@ -135,6 +184,17 @@
             '<button class="request-quote-btn" data-action="share">Share</button>' +
           '</div>' +
         '</div>';
+      // c.photo_url is remote, owner-controlled data — set via the img
+      // element's own .src property (not string-concatenated into the
+      // innerHTML above), matching the pattern already used for avatar
+      // images everywhere else on the site.
+      if (c.photo_url){
+        var photoImg = document.createElement('img');
+        photoImg.className = 'campaign-card-photo';
+        photoImg.alt = '';
+        photoImg.src = c.photo_url;
+        card.insertBefore(photoImg, card.firstChild);
+      }
       card.querySelector('[data-action="view"]').addEventListener('click', function(){
         window.location.href = 'funding.html?id=' + c.id;
       });
@@ -223,11 +283,81 @@
     var titleInput = document.getElementById('funding-title');
     function syncCategoryFields(){
       var cat = categorySelect.value;
-      itemLabelField.style.display = cat === 'gear' ? 'block' : 'none';
-      titleInput.placeholder = catMeta(cat).heading;
+      var meta = catMeta(cat);
+      if (meta.itemLabel){
+        itemLabelField.style.display = 'block';
+        document.getElementById('funding-item-label-label').textContent = meta.itemLabel;
+        document.getElementById('funding-item-label').placeholder = meta.itemPlaceholder || '';
+      } else {
+        itemLabelField.style.display = 'none';
+      }
+      titleInput.placeholder = meta.heading;
     }
     categorySelect.addEventListener('change', syncCategoryFields);
     syncCategoryFields();
+
+    var goalField = wireCurrencyAmountField('funding-goal', 'funding-goal-currency', 'funding-goal-usd-hint');
+
+    // ===== photo picker =====
+    var MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+    var PHOTO_EXT_BY_TYPE = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' };
+    var selectedPhotoFile = null;
+    var photoPreview = document.getElementById('funding-photo-preview');
+    var photoInput = document.getElementById('funding-photo-input');
+    document.getElementById('funding-photo-btn').addEventListener('click', function(){ photoInput.click(); });
+    photoInput.addEventListener('change', function(){
+      var file = photoInput.files && photoInput.files[0];
+      photoInput.value = '';
+      if (!file) return;
+      var statusEl = document.getElementById('funding-start-status');
+      if (Object.keys(PHOTO_EXT_BY_TYPE).indexOf(file.type) === -1){
+        statusEl.textContent = 'Please choose a PNG, JPEG, WEBP, or GIF image.';
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES){
+        statusEl.textContent = 'That image is too large — please choose one under 5MB.';
+        return;
+      }
+      statusEl.textContent = '';
+      selectedPhotoFile = file;
+      // Not routed through window.mmRenderAvatarPlain — it deliberately
+      // only accepts https:// URLs (that helper is for remote, other-
+      // user-controlled avatar/photo URLs). This is a local-only preview
+      // of a file the browser's own picker just returned, so building the
+      // blob: URL preview directly here is safe and is the right tool for
+      // that different case.
+      photoPreview.innerHTML = '';
+      var previewImg = document.createElement('img');
+      previewImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
+      previewImg.src = URL.createObjectURL(file);
+      photoPreview.appendChild(previewImg);
+    });
+
+    function resetStartForm(){
+      document.getElementById('funding-category').value = 'gear';
+      document.getElementById('funding-item-label').value = '';
+      titleInput.value = '';
+      document.getElementById('funding-why').value = '';
+      document.getElementById('funding-how').value = '';
+      goalField.reset();
+      selectedPhotoFile = null;
+      photoPreview.innerHTML = '';
+      photoPreview.style.background = '';
+      syncCategoryFields();
+    }
+
+    function uploadCampaignPhoto(campaignId, file){
+      var user = currentUser();
+      var ext = PHOTO_EXT_BY_TYPE[file.type] || 'jpg';
+      var path = user.id + '/' + campaignId + '.' + ext;
+      return window.mmSupabase.storage.from('campaign-photos').upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' })
+        .then(function(res){
+          if (res.error) throw res.error;
+          var pub = window.mmSupabase.storage.from('campaign-photos').getPublicUrl(path);
+          var url = pub.data.publicUrl + '?t=' + Date.now();
+          return window.mmSupabase.from('funding_campaigns').update({ photo_url: url }).eq('id', campaignId);
+        });
+    }
 
     document.getElementById('funding-start-save-btn').addEventListener('click', function(){
       var user = currentUser();
@@ -235,11 +365,20 @@
       var category = categorySelect.value;
       var itemLabel = document.getElementById('funding-item-label').value.trim();
       var title = titleInput.value.trim() || catMeta(category).heading;
-      var story = document.getElementById('funding-story').value.trim();
-      var goal = parseFloat(document.getElementById('funding-goal').value);
+      var whyText = document.getElementById('funding-why').value.trim();
+      var howItHelps = document.getElementById('funding-how').value.trim();
+      var goal = goalField.getUsdAmount();
       var statusEl = document.getElementById('funding-start-status');
       var saveBtn = document.getElementById('funding-start-save-btn');
 
+      if (!whyText){
+        statusEl.textContent = 'Tell people why you need this.';
+        return;
+      }
+      if (!howItHelps){
+        statusEl.textContent = 'Tell people how this will help you.';
+        return;
+      }
       if (isNaN(goal) || goal <= 0){
         statusEl.textContent = 'Enter a goal amount greater than 0.';
         return;
@@ -250,31 +389,33 @@
       window.mmSupabase.from('funding_campaigns').insert({
         user_id: user.id,
         category: category,
-        item_label: category === 'gear' ? itemLabel : '',
+        item_label: catMeta(category).itemLabel ? itemLabel : '',
         title: title,
-        story: story,
+        why_text: whyText,
+        how_it_helps: howItHelps,
         goal_amount: goal
       }).select().single().then(function(res){
-        saveBtn.disabled = false;
         if (res.error){
+          saveBtn.disabled = false;
           statusEl.textContent = res.error.message;
           return;
         }
-        statusEl.textContent = '';
-        closeStartModal();
-        document.getElementById('funding-category').value = 'gear';
-        document.getElementById('funding-item-label').value = '';
-        titleInput.value = '';
-        document.getElementById('funding-story').value = '';
-        document.getElementById('funding-goal').value = '';
-        syncCategoryFields();
-        window.location.href = 'funding.html?id=' + res.data.id;
+        var newCampaignId = res.data.id;
+        var photoStep = selectedPhotoFile ? uploadCampaignPhoto(newCampaignId, selectedPhotoFile).catch(function(){}) : Promise.resolve();
+        photoStep.then(function(){
+          saveBtn.disabled = false;
+          statusEl.textContent = '';
+          closeStartModal();
+          resetStartForm();
+          window.location.href = 'funding.html?id=' + newCampaignId;
+        });
       });
     });
   }
 
   // ===== support / pledge modal =====
   var supportTarget = null;
+  var supportField = null;
 
   function openSupportModal(campaign){
     if (!configured() || !currentUser()){
@@ -283,7 +424,7 @@
     }
     supportTarget = campaign;
     document.getElementById('funding-support-title').textContent = 'Support ' + (campaign.title || catMeta(campaign.category).heading);
-    document.getElementById('funding-support-amount').value = '';
+    if (supportField) supportField.reset();
     var user = currentUser();
     var ownProfile = profilesById[user.id];
     document.getElementById('funding-support-name').value = (ownProfile && ownProfile.name) || '';
@@ -311,10 +452,12 @@
       if (e.key === 'Escape' && document.getElementById('funding-support-modal').classList.contains('open')) closeSupportModal();
     });
 
+    supportField = wireCurrencyAmountField('funding-support-amount', 'funding-support-currency', 'funding-support-usd-hint');
+
     document.getElementById('funding-support-save-btn').addEventListener('click', function(){
       if (!supportTarget) return;
       var user = currentUser();
-      var amount = parseFloat(document.getElementById('funding-support-amount').value);
+      var amount = supportField.getUsdAmount();
       var name = document.getElementById('funding-support-name').value.trim() || 'Someone';
       var message = document.getElementById('funding-support-message').value.trim();
       var statusEl = document.getElementById('funding-support-status');
@@ -413,7 +556,23 @@
     document.getElementById('funding-single-tag').style.color = meta.color;
     document.getElementById('funding-single-title').textContent = campaign.title || meta.heading;
     document.getElementById('funding-single-item-label').textContent = campaign.item_label || '';
-    document.getElementById('funding-single-story').textContent = campaign.story || '';
+    document.getElementById('funding-single-why').textContent = campaign.why_text || '';
+    document.getElementById('funding-single-how').textContent = campaign.how_it_helps || '';
+
+    var photoBox = document.getElementById('funding-single-photo');
+    photoBox.innerHTML = '';
+    if (campaign.photo_url){
+      // campaign.photo_url is remote, owner-controlled data — set via the
+      // img element's own .src property, not string-concatenated into
+      // innerHTML, matching the pattern used for avatar images site-wide.
+      var img = document.createElement('img');
+      img.alt = '';
+      img.src = campaign.photo_url;
+      photoBox.appendChild(img);
+      photoBox.style.display = 'block';
+    } else {
+      photoBox.style.display = 'none';
+    }
 
     document.getElementById('funding-single-owner-name').textContent = owner ? owner.name : 'Someone on Music Motel';
     document.getElementById('funding-single-owner-role').textContent = owner ? (owner.role_label || owner.account_type || '') : '';

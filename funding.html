@@ -133,6 +133,8 @@
         </div>
       </div>
 
+      <div class="campaign-photo" id="funding-single-photo" style="display:none; max-width:640px;"></div>
+
       <div class="content-box" style="max-width:640px;">
         <div class="campaign-progress-row">
           <span class="campaign-progress-raised" id="funding-single-raised">$0</span>
@@ -141,7 +143,14 @@
         <div class="xp-track"><div class="xp-fill" id="funding-single-fill" style="width:0%;"></div></div>
         <div class="campaign-progress-pct" id="funding-single-pct">0% funded</div>
 
-        <p class="campaign-story" id="funding-single-story" style="margin-top:20px;"></p>
+        <div style="margin-top:20px;">
+          <h3 class="campaign-story-label">Why they need this</h3>
+          <p class="campaign-story" id="funding-single-why"></p>
+        </div>
+        <div style="margin-top:16px;">
+          <h3 class="campaign-story-label">How this helps</h3>
+          <p class="campaign-story" id="funding-single-how"></p>
+        </div>
 
         <button class="btn-primary" id="funding-single-support-btn" style="width:100%; text-align:center; margin-top:20px;">Support this campaign</button>
         <button class="invite-copy-btn" id="funding-single-share-btn" style="width:100%; margin-top:10px;">Share</button>
@@ -174,11 +183,15 @@
           <option value="recordings">Recordings</option>
           <option value="demo">A demo</option>
           <option value="album">An album</option>
+          <option value="tickets">Tickets to a show</option>
+          <option value="flight">A flight to a show</option>
+          <option value="accommodation">Accommodation for a show</option>
+          <option value="transfers">Transfers/local transport to a show</option>
           <option value="other">Something else</option>
         </select>
       </div>
       <div class="form-field" id="funding-item-label-field">
-        <label for="funding-item-label">Which gear?</label>
+        <label for="funding-item-label" id="funding-item-label-label">Which gear?</label>
         <input type="text" id="funding-item-label" placeholder="e.g. Drum kit, guitar, studio mic">
       </div>
       <div class="form-field">
@@ -186,13 +199,35 @@
         <input type="text" id="funding-title" placeholder="e.g. Fund my gear">
       </div>
       <div class="form-field">
-        <label for="funding-story">Tell your story</label>
-        <textarea id="funding-story" rows="4" placeholder="What's this for, and why does it matter? This is what people see when you share your link."></textarea>
+        <label for="funding-photo-input">A photo (optional)</label>
+        <div class="avatar-upload-row">
+          <div class="avatar-upload-preview" id="funding-photo-preview" style="border-radius:10px;"></div>
+          <div class="avatar-upload-actions">
+            <input type="file" id="funding-photo-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+            <button class="fan-add-btn" id="funding-photo-btn" type="button">Add a photo</button>
+          </div>
+        </div>
+        <p class="invite-desc" style="margin-top:8px;">A real photo of the gear, the gig, or you/your band — campaigns with a photo get more support.</p>
       </div>
       <div class="form-field">
-        <label for="funding-goal">Goal amount (USD)</label>
-        <input type="text" id="funding-goal" inputmode="decimal" placeholder="e.g. 500">
+        <label for="funding-why">Why do you need this?</label>
+        <textarea id="funding-why" rows="3" placeholder="e.g. My amp died mid-set last month and I can't gig without one."></textarea>
       </div>
+      <div class="form-field">
+        <label for="funding-how">How will this help you?</label>
+        <textarea id="funding-how" rows="3" placeholder="e.g. A working amp means I can take the gigs I've already got booked this summer."></textarea>
+      </div>
+      <div class="rate-card-grid">
+        <div class="form-field">
+          <label for="funding-goal">Goal amount</label>
+          <input type="text" id="funding-goal" inputmode="decimal" placeholder="e.g. 500">
+        </div>
+        <div class="form-field">
+          <label for="funding-goal-currency">Currency</label>
+          <select id="funding-goal-currency"></select>
+        </div>
+      </div>
+      <p class="invite-desc" id="funding-goal-usd-hint" style="margin-top:-8px; margin-bottom:16px;"></p>
       <div class="loc-search-status" id="funding-start-status" role="status"></div>
       <button class="signup-submit" id="funding-start-save-btn">Start campaign</button>
     </div>
@@ -210,10 +245,17 @@
     </div>
     <div class="signup-body">
       <div class="pledge-disclosure fan-dashboard-note" style="margin-bottom:16px;">This records your pledge immediately — Music Motel's payment processor isn't connected yet, so no card is charged. The campaign owner will follow up on how to complete payment.</div>
-      <div class="form-field">
-        <label for="funding-support-amount">Amount (USD)</label>
-        <input type="text" id="funding-support-amount" inputmode="decimal" placeholder="e.g. 25">
+      <div class="rate-card-grid">
+        <div class="form-field">
+          <label for="funding-support-amount">Amount</label>
+          <input type="text" id="funding-support-amount" inputmode="decimal" placeholder="e.g. 25">
+        </div>
+        <div class="form-field">
+          <label for="funding-support-currency">Currency</label>
+          <select id="funding-support-currency"></select>
+        </div>
       </div>
+      <p class="invite-desc" id="funding-support-usd-hint" style="margin-top:-8px; margin-bottom:16px;"></p>
       <div class="form-field">
         <label for="funding-support-name">Your name</label>
         <input type="text" id="funding-support-name" placeholder="Shown next to your pledge">
