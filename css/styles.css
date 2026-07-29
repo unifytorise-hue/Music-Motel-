@@ -694,7 +694,6 @@
   .role-cell ul{ list-style:none; display:flex; flex-direction:column; gap:5px; }
   .role-cell li{ font-size:12.5px; color:var(--cream-dim); }
 
-  /* ===== sponsorship ===== */
   /* ===== fan dashboard ===== */
   .fan-dashboard-note{
     font-family:'JetBrains Mono', monospace;
@@ -1309,27 +1308,6 @@
     font-size:13px; line-height:1.7; color:var(--cream-dim); max-width:760px;
   }
   .pricing-footnote strong{ color:var(--cream); }
-
-  .sponsor-band{ background:linear-gradient(135deg, rgba(255,45,120,0.1), rgba(43,232,217,0.07)); }
-  .sponsor-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
-  @media (max-width:880px){ .sponsor-grid{ grid-template-columns:1fr; } }
-  .sponsor-card{
-    background:var(--black-2); border:1px solid var(--line);
-    border-radius:14px; padding:32px;
-    border-top:4px solid var(--sp-color, var(--cyan));
-  }
-  .sponsor-card .tier-name{ font-family:'Anton', sans-serif; font-size:25px; text-transform:uppercase; margin-bottom:6px; color:var(--sp-color, var(--cream)); }
-  .sponsor-card.feat{ position:relative; }
-  .sponsor-card.feat::before{
-    content:"MOST IMPACT"; position:absolute; top:-13px; right:24px;
-    background:var(--pink); color:var(--cream);
-    font-family:'JetBrains Mono', monospace; font-size:10px;
-    letter-spacing:0.08em; padding:5px 10px; border-radius:999px; font-weight:700;
-  }
-  .sponsor-card p.desc{ color:var(--cream-dim); font-size:14px; line-height:1.6; margin:14px 0 20px; }
-  .sponsor-card ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
-  .sponsor-card li{ font-size:13.5px; color:var(--cream-dim); display:flex; gap:10px; }
-  .sponsor-card li::before{ content:"→"; color:var(--sp-color, var(--cyan)); flex-shrink:0; font-weight:700; }
 
   /* ===== CTA ===== */
   .cta-section{ text-align:center; padding:120px 0; scroll-margin-top:88px; }
