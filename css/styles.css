@@ -581,11 +581,18 @@
        scrollable strip (the same pattern as a native app's filter bar)
        reads cleaner than the wrap, and stacking the button below full-
        width gives it equal visual weight instead of shrink-wrapping. */
-    .patch-controls{ flex-direction:column; align-items:stretch; }
+    .patch-controls{ flex-direction:column; align-items:stretch; flex-wrap:nowrap; }
     #patch-tabs{
       flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
       scrollbar-width:none; -ms-overflow-style:none;
       margin:0 -20px; padding:0 20px 4px;
+      /* align-items:stretch alone wasn't reliably constraining this to the
+         parent's width (a flex item's cross-size can still end up sized
+         to its content in edge cases), so it's pinned explicitly — without
+         it, the nowrap tabs just grew the box wider than its container and
+         spilled the last tab out past the edge instead of scrolling. */
+      width:100%;
+      min-width:0;
     }
     #patch-tabs::-webkit-scrollbar{ display:none; }
     #patch-tabs .patch-tab{ flex-shrink:0; }
