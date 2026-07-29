@@ -79,7 +79,7 @@
   }
 
   function populateCurrencySelects(){
-    ['pref-currency', 'converter-from', 'converter-to'].forEach(function(id){
+    ['pref-currency'].forEach(function(id){
       var sel = document.getElementById(id);
       if (!sel || sel.children.length) return;
       CURRENCY_CODES.forEach(function(code){
@@ -94,8 +94,6 @@
   function applyPrefsToForm(){
     document.getElementById('pref-distance-unit').value = myPrefs.distance_unit;
     document.getElementById('pref-currency').value = myPrefs.currency;
-    document.getElementById('converter-from').value = 'USD';
-    document.getElementById('converter-to').value = myPrefs.currency === 'USD' ? 'ZAR' : myPrefs.currency;
   }
 
   function initPrefs(){
@@ -105,7 +103,6 @@
     loader.then(function(saved){
       if (saved) myPrefs = { distance_unit: saved.distance_unit || 'km', currency: saved.currency || 'USD' };
       applyPrefsToForm();
-      runConverter();
       if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
       if (window.refreshNearbyPlayers) window.refreshNearbyPlayers();
     });
@@ -124,30 +121,10 @@
       savePrefsLocal(myPrefs);
       statusEl.textContent = 'Saved on this device.';
     }
-    runConverter();
     if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
   };
   document.getElementById('pref-distance-unit').addEventListener('change', savePrefs);
   document.getElementById('pref-currency').addEventListener('change', savePrefs);
-
-  // ===== standalone converter (independent of the saved preference —
-  // convert between any two of the listed currencies) =====
-  function runConverter(){
-    var amount = parseFloat(document.getElementById('converter-amount').value);
-    var from = document.getElementById('converter-from').value;
-    var to = document.getElementById('converter-to').value;
-    var resultEl = document.getElementById('converter-result');
-    if (isNaN(amount)){
-      resultEl.textContent = '';
-      return;
-    }
-    var usd = amount / (CURRENCIES[from] || CURRENCIES.USD).rate;
-    var result = convert(usd, to);
-    resultEl.textContent = formatCurrency(amount, from) + ' ≈ ' + formatCurrency(result, to);
-  }
-  ['converter-amount', 'converter-from', 'converter-to'].forEach(function(id){
-    document.getElementById(id).addEventListener('input', runConverter);
-  });
 
   authReady.then(initPrefs);
   if (configured()){

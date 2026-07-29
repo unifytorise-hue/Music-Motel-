@@ -1685,31 +1685,6 @@
   .rate-toggle-list{ margin:18px 0; }
   .rate-toggle-list .terms-check{ margin-bottom:12px; }
 
-  .converter-box{
-    margin-top:20px; padding-top:20px;
-    border-top:1px solid var(--line);
-  }
-  .converter-row{
-    display:flex; align-items:center; gap:8px;
-    flex-wrap:wrap;
-  }
-  .converter-row input{
-    flex:1 1 90px; min-width:0;
-    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
-    padding:11px 12px; color:var(--cream);
-    font-family:'Space Grotesk', sans-serif; font-size:14px;
-  }
-  .converter-row select{
-    flex:1 1 100px; min-width:0;
-    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
-    padding:11px 8px; color:var(--cream);
-    font-family:'Space Grotesk', sans-serif; font-size:13px;
-  }
-  .converter-arrow{ color:var(--cream-dim); flex-shrink:0; }
-  .converter-result{
-    margin-top:12px; font-size:17px; font-weight:700; color:var(--cream);
-  }
-
   .account-type-grid{
     display:grid;
     grid-template-columns:repeat(3, 1fr);

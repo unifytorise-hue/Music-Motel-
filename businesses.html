@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Donate Gear — Music Motel</title>
-<meta name="description" content="List an instrument or piece of gear you're not using — Music Motel matches it to a musician who needs it. Free to list, always.">
-<meta property="og:title" content="Donate Gear — Music Motel">
-<meta property="og:description" content="List gear you're not using. We'll match it to a musician who needs it.">
+<title>For Businesses — Music Motel</title>
+<meta name="description" content="Book real musicians directly for your restaurant, cafe, bar, hotel, gym, or retail space — no agency markup, no cold emails. Free to set up.">
+<meta property="og:title" content="For Businesses — Music Motel">
+<meta property="og:description" content="Find and book working musicians for your space — no agency markup, no cold emails.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://unifytorise-hue.github.io/Music-Motel-/img/logo.png">
 <meta name="theme-color" content="#0E0D12">
@@ -20,7 +20,6 @@
 <body>
 
 <div class="grain"></div>
-<div class="toast" id="toast"><span class="tdot"></span><span id="toast-text">Added!</span></div>
 
 <header>
   <div class="wrap nav">
@@ -77,60 +76,42 @@
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
 
-<section class="section gear-section" id="gear" style="padding-top:150px;">
+<section class="section public-spaces-section" id="public-spaces" style="padding-top:150px;">
   <div class="wrap">
     <div class="section-head">
       <div>
-        <span class="tag" style="color:var(--orange);">/ Donate gear</span>
-        <h2 class="display">Someone's old amp is someone else's first gig.</h2>
+        <span class="tag" style="color:var(--orange);">/ For businesses that play music</span>
+        <h2 class="display">Book real musicians, directly.</h2>
       </div>
-      <p>List gear you're not using. We'll match it to a musician who needs it.</p>
+      <p>Find and book working musicians for your space — no agency markup, no cold emails.</p>
     </div>
 
-    <div class="gear-controls">
-      <div class="gear-filter-tabs" id="gear-filter-tabs"></div>
-      <button class="gear-list-btn" id="gear-list-btn">+ List an item</button>
+    <div class="pubspace-grid single">
+      <div class="pubspace-card" style="--ps-color:var(--green);">
+        <div class="pubspace-icon" data-icon="mic"></div>
+        <h3>Sunday brunch. Friday nights. Anytime.</h3>
+        <p>Want a live duo or a DJ on rotation? Search the same directory everyone else uses — real musicians, direct contact, no markup.</p>
+      </div>
     </div>
 
-    <div class="gear-grid" id="gear-grid"></div>
+    <div class="pubspace-cta-row">
+      <a href="index.html?signup=publicspace" class="btn-primary" id="pubspace-cta-btn">Set up your Public Space profile</a>
+      <a href="index.html#pricing" class="btn-secondary">It's free — see pricing</a>
+    </div>
 
-    <div class="gear-footnote">
-      <p>Listing is always free. Claimed items carry a small <strong>5% facilitation fee</strong> — lower than the booking fee, since this is goodwill, not a paid gig.</p>
+    <div class="pubspace-types">
+      <span class="pubspace-types-label">Built for:</span>
+      <span class="pubspace-type-pill">Restaurants &amp; Cafes</span>
+      <span class="pubspace-type-pill">Bars &amp; Nightclubs</span>
+      <span class="pubspace-type-pill">Hotels &amp; Resorts</span>
+      <span class="pubspace-type-pill">Gyms &amp; Studios</span>
+      <span class="pubspace-type-pill">Retail &amp; Salons</span>
+      <span class="pubspace-type-pill">Offices</span>
+      <span class="pubspace-type-pill">Museums &amp; Galleries</span>
+      <span class="pubspace-type-pill">Event Venues</span>
     </div>
   </div>
 </section>
-
-<div class="signup-overlay" id="gear-list-modal" role="dialog" aria-modal="true" aria-labelledby="gear-list-title">
-  <div class="signup-card" style="max-width:480px;">
-    <div class="signup-head">
-      <div>
-        <span class="tag" style="color:var(--orange);">/ Donate gear</span>
-        <h2 class="display" id="gear-list-title" style="font-size:26px;">List an item</h2>
-      </div>
-      <button class="modal-close" id="gear-list-close-btn" aria-label="Close">✕</button>
-    </div>
-    <div class="signup-body">
-      <div class="form-field">
-        <label for="gear-item-name">Item</label>
-        <input type="text" id="gear-item-name" placeholder="e.g. Fender Squier Stratocaster">
-      </div>
-      <div class="form-field">
-        <label for="gear-item-category">Category</label>
-        <input type="text" id="gear-item-category" placeholder="e.g. Guitar, Amp, Drum kit, Mic">
-      </div>
-      <div class="form-field">
-        <label for="gear-item-condition">Condition</label>
-        <input type="text" id="gear-item-condition" placeholder="e.g. Good — minor wear, fully working">
-      </div>
-      <div class="form-field">
-        <label for="gear-item-loc">Your city</label>
-        <input type="text" id="gear-item-loc" placeholder="e.g. Austin, US">
-      </div>
-      <div class="loc-search-status" id="gear-list-status" role="status"></div>
-      <button class="signup-submit" id="gear-list-save-btn">List for donation</button>
-    </div>
-  </div>
-</div>
 
 <footer>
   <div class="wrap">
@@ -161,26 +142,15 @@
 <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 
 <script src="js/real-xp.js"></script>
-<script src="js/gear-board.js"></script>
 
 <script>
-  // Same dead-button workaround as sponsor.html: these share IDs with
-  // index.html so auth.js's signed-in/out reactivity still works, but
+  // Same dead-button workaround as sponsor.html/gear.html: these share IDs
+  // with index.html so auth.js's signed-in/out reactivity still works, but
   // their real modal targets don't exist here, so a second listener
   // redirects to index.html instead of silently doing nothing.
   ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
-  });
-
-  // gear-board.js calls window.openSignin() when a signed-out visitor tries
-  // to claim or list a real item — auth.js defines that function (once its
-  // own DOMContentLoaded handler runs) to open #signin-modal, which doesn't
-  // exist on this page, so it would otherwise silently no-op. Registering
-  // our own DOMContentLoaded listener after auth.js's script tag means ours
-  // fires after auth.js's and safely overrides it, well before any click.
-  document.addEventListener('DOMContentLoaded', function(){
-    window.openSignin = function(){ window.location.href = 'index.html'; };
   });
 </script>
 
