@@ -1211,6 +1211,13 @@
     color:var(--orange);
     margin-bottom:10px;
   }
+  .real-artist-card-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+  }
+  .real-artist-avatar{
+    width:44px; height:44px; border-radius:10px; flex-shrink:0;
+    border:1px solid var(--line);
+  }
   .gear-card h4{ font-size:16px; font-weight:700; margin-bottom:6px; }
   .gear-card-condition{ font-size:13px; color:var(--cream-dim); margin-bottom:12px; line-height:1.5; }
   .gear-card-foot{

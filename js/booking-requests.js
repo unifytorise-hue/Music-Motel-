@@ -20,7 +20,7 @@
 
   // ===== real artist directory =====
   function loadRealArtists(){
-    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind')
+    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color')
       .then(function(res){
         if (res.error || !res.data) return [];
         return res.data.filter(function(p){ return p.account_type !== 'fan'; });
@@ -85,8 +85,13 @@
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
-        '<div class="gear-card-cat">' + escapeHtml(p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
-        '<h4>' + escapeHtml(p.name) + '</h4>' +
+        '<div class="real-artist-card-head">' +
+          '<div>' +
+            '<div class="gear-card-cat">' + escapeHtml(p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
+            '<h4>' + escapeHtml(p.name) + '</h4>' +
+          '</div>' +
+          '<span class="real-artist-avatar"></span>' +
+        '</div>' +
         '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
         (instrumentsText ? '<p class="gear-card-condition">' + escapeHtml(instrumentsText) + '</p>' : '') +
         (rateShort ? '<p class="gear-card-condition">From ' + escapeHtml(rateShort) + ', apart from travel</p>' : '') +
@@ -105,6 +110,7 @@
       if (unifyBtn) unifyBtn.addEventListener('click', function(){
         if (window.requestJoinBand) window.requestJoinBand(p);
       });
+      if (window.mmRenderAvatar) window.mmRenderAvatar(card.querySelector('.real-artist-avatar'), p.avatar_url, p.avatar_color, p.name);
       grid.appendChild(card);
     });
   }
