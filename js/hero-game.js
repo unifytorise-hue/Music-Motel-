@@ -499,7 +499,15 @@
       var displayName = jack.person ? jack.person.name : jack.name;
       var roleSubtitle = jack.person ? '<span class="jack-role-sub">' + jack.name + '</span>' : '';
       el.setAttribute('aria-label', jack.person ? 'View profile for ' + jack.person.name : 'Search for ' + jack.name);
-      el.innerHTML = '<div class="jhead"><span class="jplug"></span><div><span class="jname">' + displayName + '</span>' + roleSubtitle + '</div></div>' + distHtml;
+      // No profile-photo upload exists yet, so person.photoUrl is always
+      // unset today — this just means every avatar falls back to the
+      // silhouette icon for now, without needing a follow-up change once
+      // photo uploads do exist.
+      var avatarInner = (jack.person && jack.person.photoUrl)
+        ? '<img src="' + jack.person.photoUrl + '" alt="">'
+        : (window.mmIcon ? window.mmIcon('user') : '');
+      el.innerHTML = '<div class="jack-main"><div class="jhead"><span class="jplug"></span><div><span class="jname">' + displayName + '</span>' + roleSubtitle + '</div></div>' + distHtml + '</div>' +
+        '<div class="jack-avatar">' + avatarInner + '</div>';
       function activateJack(){
         if (jack.person && typeof window.openProfile === 'function'){
           window.openProfile(jack);
