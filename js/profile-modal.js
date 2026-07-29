@@ -81,6 +81,12 @@
 
     document.getElementById('profile-unify-btn').addEventListener('click', function(){
       closeProfileModal();
+      // This card is sample/preview data (see .profile-fake-note above) —
+      // there's no real person here to send a request to, so the button
+      // instead starts a profile in the same role. Without this toast that
+      // reads as a silent, unexplained redirect away from "unify with
+      // this person" into an unrelated signup form.
+      if (window.showToast) window.showToast(p.name.split(' ')[0] + ' is a preview profile — let\'s set up your own ' + p.role + ' profile instead.');
       if (typeof window.openSignupWithRole === 'function'){
         window.openSignupWithRole(p.role);
       }
