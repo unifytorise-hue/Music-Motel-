@@ -1154,26 +1154,18 @@
   .pubspace-card p{ font-size:13.5px; line-height:1.65; color:var(--cream-dim); }
   .pubspace-cta-row{
     display:flex; gap:16px; flex-wrap:wrap;
-    margin-bottom:40px;
   }
-  .pubspace-types{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    border-top:1px solid var(--line);
-    padding-top:24px;
-  }
-  .pubspace-types-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em;
-    color:var(--cream-dim);
-    margin-right:4px;
-  }
-  .pubspace-type-pill{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11.5px;
-    padding:7px 14px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    color:var(--cream-dim);
+  @media (max-width:640px){
+    /* On narrow screens this button's text wraps to two lines — inline-block
+       sizing left it hugging the wrapped text off-center with cramped
+       leading, so give it room to breathe and center both lines. */
+    .pubspace-cta-row .btn-primary{
+      display:block;
+      width:100%;
+      text-align:center;
+      line-height:1.5;
+      padding:18px 24px;
+    }
   }
 
   /* ===== gear donation board ===== */
