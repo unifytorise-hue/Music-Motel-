@@ -227,7 +227,12 @@
 
   renderInstruments();
 
-  document.getElementById('open-instruments-btn').addEventListener('click', openModal);
+  // The roles/categories section used to have its own "see all 100+
+  // instruments" entry point into this same modal — removed since it read
+  // as an unrelated reference tool out there, when this has always
+  // actually been the personal "pick what you play" picker (see
+  // toggleInstrument below). #edit-instruments-btn, in the fan dashboard's
+  // own "Your instruments" card, is the one real entry point now.
   var editBtn = document.getElementById('edit-instruments-btn');
   if (editBtn) editBtn.addEventListener('click', openModal);
   document.getElementById('modal-close-btn').addEventListener('click', closeModal);
