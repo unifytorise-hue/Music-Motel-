@@ -82,10 +82,18 @@
   if (myRateSection) myRateSection.style.display = 'none';
   view.style.display = '';
 
-  function bookingNoun(profile){
-    if (profile.profile_kind === 'band') return 'band';
-    if (profile.account_type === 'musician' || profile.account_type === 'educator') return 'artist';
-    return 'person';
+  // Reorders the already-rendered content-boxes below the main profile card
+  // to match what this template leads with — producer/engineer profiles
+  // lead with proof of work (skills + credits) rather than media, since
+  // "here's what I've built" matters more to a hiring client than a demo
+  // reel. Every other template keeps the default Featured work → Portfolio
+  // → Rate → Skills → Credits → Taste order already in the HTML.
+  function reorderForTemplate(template){
+    if (template !== 'producer_engineer') return;
+    var featuredBox = document.getElementById('public-profile-featured-box');
+    var wrap = featuredBox.parentNode;
+    wrap.insertBefore(document.getElementById('public-profile-skills-box'), featuredBox);
+    wrap.insertBefore(document.getElementById('public-profile-credits-box'), featuredBox);
   }
 
   function renderNotFound(){
@@ -98,14 +106,16 @@
     document.getElementById('public-profile-body').style.display = 'block';
     document.title = profile.name + ' — Music Motel';
 
-    var noun = bookingNoun(profile);
-    var isFanProfile = profile.account_type === 'fan';
-    document.getElementById('public-profile-tag').textContent = '/ ' + (noun === 'band' ? 'Band' : noun === 'artist' ? 'Artist' : 'Profile');
+    var template = window.mmResolveTemplate ? window.mmResolveTemplate(profile) : 'performing_artist';
+    var isFanProfile = template === 'fan';
+    var isBand = profile.profile_kind === 'band';
+    reorderForTemplate(template);
+    document.getElementById('public-profile-tag').textContent = '/ ' + (isBand ? 'Band' : (window.mmTemplateTag ? window.mmTemplateTag(template) : 'Profile'));
     // A fan has nothing to book — same condition already used below to hide
     // the "Request a quote" button — so the heading shouldn't imply they do.
     document.getElementById('public-profile-heading').textContent = isFanProfile
       ? (profile.name || 'This profile') + ' on Music Motel'
-      : 'Book this ' + noun + ' now';
+      : isBand ? 'Book this band now' : (window.mmTemplateHeading ? window.mmTemplateHeading(template) : 'Book this profile now');
     document.getElementById('public-profile-sub').textContent = isFanProfile
       ? 'A fan on Music Motel — follow to keep up with them.'
       : 'Real profile on Music Motel — connect directly, no agency markup.';
@@ -279,7 +289,7 @@
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }

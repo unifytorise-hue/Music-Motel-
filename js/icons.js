@@ -98,6 +98,42 @@
     return TOURING_LEVEL_LABELS[level] || '';
   };
 
+  // A profile's "template" is what the public profile page leads with.
+  // musician and venue each split into two distinct templates (chosen via
+  // js/profile-template.js, stored in profiles.profile_template); every
+  // other account_type maps straight to its own template — there's nothing
+  // to choose. A band profile is always presented as a band regardless of
+  // template, handled by the caller checking profile_kind separately.
+  window.mmResolveTemplate = function(profile){
+    if (!profile) return 'fan';
+    switch (profile.account_type){
+      case 'fan': return 'fan';
+      case 'musician': return profile.profile_template === 'producer_engineer' ? 'producer_engineer' : 'performing_artist';
+      case 'educator': return 'educator';
+      case 'venue': return profile.profile_template === 'manager_agent' ? 'manager_agent' : 'venue_space';
+      case 'publicspace': return 'public_space';
+      case 'shop': return 'shop';
+      default: return 'fan';
+    }
+  };
+
+  var TEMPLATE_TAG = {
+    performing_artist: 'Artist', producer_engineer: 'Producer', educator: 'Educator',
+    venue_space: 'Venue', manager_agent: 'Manager', public_space: 'Space', shop: 'Shop'
+  };
+  window.mmTemplateTag = function(template){ return TEMPLATE_TAG[template] || 'Profile'; };
+
+  var TEMPLATE_HEADING = {
+    performing_artist: 'Book this artist now',
+    producer_engineer: 'Hire this producer/engineer',
+    educator: 'Book a lesson now',
+    venue_space: 'Book this space now',
+    manager_agent: 'Connect with this manager/agent',
+    public_space: 'Book this space now',
+    shop: 'Get a quote'
+  };
+  window.mmTemplateHeading = function(template){ return TEMPLATE_HEADING[template] || 'Book this profile now'; };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via
