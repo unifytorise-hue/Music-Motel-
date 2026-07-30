@@ -1420,13 +1420,14 @@
   .policy-box p + p{ margin-top:8px; }
 
   .verification-badge{
-    display:inline-block; margin-left:10px;
+    display:inline-block; margin:0 0 14px;
     font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.04em;
     padding:3px 9px; border-radius:999px;
     border:1px solid var(--line); color:var(--cream-dim);
     vertical-align:middle;
   }
+  .verification-badge:empty{ display:none; }
   .verification-badge.verified{ border-color:var(--green); color:var(--green); }
 
   .item-link-bar{
@@ -1815,6 +1816,11 @@
   .form-field input[type="text"],
   .form-field input[type="date"],
   .form-field input[type="time"],
+  .form-field input[type="email"],
+  .form-field input[type="url"],
+  .form-field input[type="password"],
+  .form-field input[type="number"],
+  .form-field textarea,
   .form-field select{
     width:100%;
     background:var(--black-3);
@@ -1829,8 +1835,14 @@
   .form-field input[type="text"]:focus,
   .form-field input[type="date"]:focus,
   .form-field input[type="time"]:focus,
+  .form-field input[type="email"]:focus,
+  .form-field input[type="url"]:focus,
+  .form-field input[type="password"]:focus,
+  .form-field input[type="number"]:focus,
+  .form-field textarea:focus,
   .form-field select:focus{ border-color:var(--cyan); outline:none; }
-  .form-field input::placeholder{ color:var(--cream-dim); opacity:0.7; }
+  .form-field input::placeholder,
+  .form-field textarea::placeholder{ color:var(--cream-dim); opacity:0.7; }
   /* Date/time inputs render their calendar/clock picker icon in a fixed
      dark glyph that's unreadable against this dark theme by default. */
   .form-field input[type="date"]::-webkit-calendar-picker-indicator,
