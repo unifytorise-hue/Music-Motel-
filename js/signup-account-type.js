@@ -57,9 +57,10 @@
       document.getElementById('signup-role-label').textContent = cfg.roleLabel;
       document.getElementById('signup-role').placeholder = cfg.rolePlaceholder;
       document.getElementById('signup-role-field').style.display = currentAccountType === 'fan' ? 'block' : 'block';
-      // A fan is always a personal profile — the Personal/Band choice only
-      // makes sense for the roles that can actually be a group act.
-      document.getElementById('profile-kind-field').style.display = currentAccountType === 'fan' ? 'none' : 'block';
+      // Only a musician can be a "band" — a venue, shop, public space, or
+      // educator is a single business/institution, not a group act that
+      // other members unify with.
+      document.getElementById('profile-kind-field').style.display = currentAccountType === 'musician' ? 'block' : 'none';
       updateSubmitLabel();
     });
   });
@@ -86,9 +87,9 @@
     var btn = document.querySelector('.account-type-btn[data-type="' + type + '"]');
     if (btn) btn.click();
   };
-  // A fan can never be a band profile, regardless of what was selected
-  // before switching account type back to fan.
-  window.getCurrentProfileKind = function(){ return currentAccountType === 'fan' ? 'personal' : currentProfileKind; };
+  // Only a musician can be a band profile, regardless of what was selected
+  // before switching to a different account type.
+  window.getCurrentProfileKind = function(){ return currentAccountType === 'musician' ? currentProfileKind : 'personal'; };
 
   // Sync the role field to the default (Fan) state on load, since the HTML
   // ships with musician-oriented copy as a static fallback.
