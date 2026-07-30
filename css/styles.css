@@ -137,6 +137,19 @@
     display:inline-block;
   }
   .nav-cta:hover{ background:var(--yellow); transform:translateY(-1px); }
+  .nav-switch-link{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    color:var(--cream-dim); text-decoration:underline; text-underline-offset:2px;
+    background:none; padding:0; white-space:nowrap;
+  }
+  .nav-switch-link:hover{ color:var(--cream); }
+  .mobile-switch-link{
+    display:block; width:100%; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    color:var(--cream-dim); text-decoration:underline; text-underline-offset:2px;
+    background:none; padding:8px 0; margin-top:2px;
+  }
+  .mobile-switch-link:hover{ color:var(--cream); }
   .nav-avatar{
     width:24px; height:24px; border-radius:7px; flex-shrink:0;
     display:inline-block; border:1px solid var(--line);

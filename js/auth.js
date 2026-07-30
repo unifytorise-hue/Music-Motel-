@@ -276,6 +276,20 @@
       if (btn) btn.addEventListener('click', function(){ window.mmAuth.signOut(); });
     });
 
+    // "Switch account" — for a band admin/editor who also has their own
+    // personal login (or anyone juggling more than one account): signs out
+    // of the current one and goes straight into the sign-in flow, instead
+    // of leaving them on a signed-out page to find "Sign in" themselves.
+    ['nav-switch-account-btn', 'mobile-switch-account-btn'].forEach(function(id){
+      var btn = document.getElementById(id);
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        window.mmAuth.signOut().then(function(){
+          if (typeof window.openSignin === 'function') window.openSignin();
+        });
+      });
+    });
+
     ['google-signup-btn', 'google-signin-btn'].forEach(function(id){
       var btn = document.getElementById(id);
       if (!btn) return;

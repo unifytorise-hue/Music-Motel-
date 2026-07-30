@@ -21,4 +21,21 @@
       if (window.setSignupAccountType) window.setSignupAccountType(requestedType);
     }
   }
+
+  // Same handoff pattern as ?signup= above — subpages redirect "Switch
+  // account"/"Sign in" here as index.html?signin=1 (they don't have a
+  // sign-in modal of their own), and this picks the intent back up on
+  // arrival so it opens immediately instead of landing on a signed-out
+  // homepage with no visible next step. Unlike window.openSignup (assigned
+  // synchronously by signup-location.js, earlier in the document),
+  // window.openSignin is only assigned inside auth.js's DOMContentLoaded
+  // listener — which fires *after* this script has already run during
+  // parsing — so it isn't defined yet at this point. Deferring to our own
+  // DOMContentLoaded listener runs this after auth.js's (registered
+  // earlier in the document, so it fires first).
+  document.addEventListener('DOMContentLoaded', function(){
+    if (new URLSearchParams(window.location.search).get('signin') && typeof window.openSignin === 'function'){
+      window.openSignin();
+    }
+  });
 })();

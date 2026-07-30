@@ -39,6 +39,7 @@
       <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
         <span class="nav-avatar" id="nav-avatar"></span>
         <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
         <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
       </div>
       <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
@@ -65,6 +66,7 @@
     <div class="mobile-account" id="mobile-account" style="display:none;">
       <div class="mobile-avatar" id="mobile-avatar"></div>
       <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
       <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
     </div>
   </div>
@@ -139,6 +141,15 @@
   ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
+  });
+
+  // "Switch account" (in the signed-in nav-account/mobile-account block)
+  // calls window.openSignin() directly rather than clicking a link — same
+  // reasoning as the dead-button workaround above, just for a function
+  // call instead of a click target.
+  document.addEventListener('DOMContentLoaded', function(){
+    window.openSignin = function(){ window.location.href = 'index.html?signin=1'; };
+    window.openSignup = function(){ window.location.href = 'index.html'; };
   });
 </script>
 
