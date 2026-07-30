@@ -136,42 +136,22 @@
     return window.mmSupabase.from('profiles').update(prefs).eq('id', currentUser().id).then(function(){});
   }
 
-  // Distance/currency pickers appear in more than one place now — the
-  // Preferences card, and again next to the nearby-players radius filter
-  // (the "search bar where location radius is") since that's where
-  // someone is most likely to want to flip units mid-search. All of them
-  // mirror the same myPrefs state rather than being independent settings.
-  var DISTANCE_UNIT_IDS = ['pref-distance-unit', 'nearby-distance-unit'];
-  var CURRENCY_SELECT_IDS = ['pref-currency', 'nearby-currency'];
-
-  function populateCurrencySelects(){
-    CURRENCY_SELECT_IDS.forEach(function(id){
-      var sel = document.getElementById(id);
-      if (!sel || sel.children.length) return;
-      CURRENCY_CODES.forEach(function(code){
-        var opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = window.mmCurrencyLabel(code);
-        sel.appendChild(opt);
-      });
-    });
-  }
+  // Distance unit lives only next to the nearby-players radius filter (the
+  // "band member search radius" control) — that's the one place a unit
+  // toggle is actually relevant to what's on screen. Currency has no
+  // standalone picker at all: it's chosen right where it's spent, in each
+  // payment-related field (campaign goal/pledge/quote amounts), via
+  // window.mmCurrencyCodes/mmCurrencyLabel directly — not mirrored here.
+  var DISTANCE_UNIT_IDS = ['nearby-distance-unit'];
 
   function applyPrefsToForm(){
     DISTANCE_UNIT_IDS.forEach(function(id){
       var el = document.getElementById(id);
       if (el) el.value = myPrefs.distance_unit;
     });
-    CURRENCY_SELECT_IDS.forEach(function(id){
-      var el = document.getElementById(id);
-      if (el) el.value = myPrefs.currency;
-    });
   }
 
   function initPrefs(){
-    populateCurrencySelects();
-    var signedOutNote = document.getElementById('prefs-signed-out-note');
-    if (signedOutNote) signedOutNote.style.display = isSignedIn() ? 'none' : 'block';
     var loader = isSignedIn() ? loadPrefsRemote() : loadPrefsLocal();
     loader.then(function(saved){
       if (saved) myPrefs = { distance_unit: saved.distance_unit || 'km', currency: saved.currency || 'USD' };
@@ -184,22 +164,16 @@
   function savePrefs(e){
     var target = e && e.target;
     if (target && DISTANCE_UNIT_IDS.indexOf(target.id) > -1) myPrefs.distance_unit = target.value;
-    else if (target && CURRENCY_SELECT_IDS.indexOf(target.id) > -1) myPrefs.currency = target.value;
-    applyPrefsToForm(); // mirror the change across every copy of these selects
-    var statusEl = document.getElementById('prefs-status');
+    applyPrefsToForm(); // mirror the change across every copy of this select
     if (isSignedIn()){
-      if (statusEl) statusEl.textContent = 'Saving…';
-      savePrefsRemote({ distance_unit: myPrefs.distance_unit, currency: myPrefs.currency }).then(function(){
-        if (statusEl) statusEl.textContent = 'Saved.';
-      });
+      savePrefsRemote({ distance_unit: myPrefs.distance_unit, currency: myPrefs.currency });
     } else {
       savePrefsLocal(myPrefs);
-      if (statusEl) statusEl.textContent = 'Saved on this device.';
     }
     if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
     if (window.refreshNearbyPlayers) window.refreshNearbyPlayers();
   };
-  DISTANCE_UNIT_IDS.concat(CURRENCY_SELECT_IDS).forEach(function(id){
+  DISTANCE_UNIT_IDS.forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('change', savePrefs);
   });
