@@ -76,6 +76,13 @@
     var c = CURRENCIES[fromCode] || CURRENCIES.USD;
     return amount / c.rate;
   };
+
+  // Forward direction of the same conversion — for quick-amount presets
+  // that are defined in USD (e.g. "$10") but need to be dropped into an
+  // input field that's currently in some other currency.
+  window.mmConvertFromUsd = function(amountUsd, toCode){
+    return convert(amountUsd, toCode);
+  };
   window.mmGetPreferredCurrency = function(){
     return (myPrefs && myPrefs.currency) || 'USD';
   };

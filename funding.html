@@ -122,6 +122,7 @@
       <div class="section-head">
         <div>
           <span class="tag" id="funding-single-tag" style="color:var(--orange);">/ Fund my gear</span>
+          <span class="verification-badge" id="funding-single-verification"></span>
           <h2 class="display" id="funding-single-title">—</h2>
         </div>
         <p id="funding-single-item-label"></p>
@@ -136,6 +137,8 @@
       </div>
 
       <div class="campaign-photo" id="funding-single-photo" style="display:none; max-width:640px;"></div>
+
+      <a class="item-link-bar" id="funding-single-item-link" href="#" target="_blank" rel="noopener noreferrer" style="display:none; max-width:640px;">View the item to buy or sponsor →</a>
 
       <div class="content-box" style="max-width:640px;">
         <div class="campaign-progress-row">
@@ -161,6 +164,14 @@
       <div class="content-box" id="funding-single-supporters-box" style="max-width:640px; margin-top:16px; display:none;">
         <h3 style="margin-bottom:6px;">Recent support</h3>
         <div id="funding-single-supporters-list"></div>
+      </div>
+
+      <div class="content-box" style="max-width:640px; margin-top:16px;">
+        <h3 style="margin-bottom:6px;">Shop &amp; seller quotes</h3>
+        <p class="rate-card-note" style="margin-bottom:14px;">A shop or seller can post a priced, photographed quote for the exact item — the campaign owner accepting one verifies the campaign.</p>
+        <div id="funding-single-quotes-list"></div>
+        <p class="rate-card-note" id="funding-single-quotes-empty">No quotes yet.</p>
+        <button class="invite-copy-btn" id="funding-single-quote-btn" style="width:100%; margin-top:10px;">Submit a quote as a seller</button>
       </div>
     </div>
   </div>
@@ -212,6 +223,11 @@
         <p class="invite-desc" style="margin-top:8px;">A real photo of the gear, the gig, or you/your band — campaigns with a photo get more support.</p>
       </div>
       <div class="form-field">
+        <label for="funding-item-link">Link to buy or sponsor this item (optional)</label>
+        <input type="url" id="funding-item-link" placeholder="e.g. a shop listing, quote page, or product link">
+        <p class="invite-desc" style="margin-top:8px;">Pasting a real listing or quote link — or getting a shop to submit one below once your campaign is live — helps back up that this is a real, priced item.</p>
+      </div>
+      <div class="form-field">
         <label for="funding-why">Why do you need this?</label>
         <textarea id="funding-why" rows="3" placeholder="e.g. My amp died mid-set last month and I can't gig without one."></textarea>
       </div>
@@ -230,6 +246,11 @@
         </div>
       </div>
       <p class="invite-desc" id="funding-goal-usd-hint" style="margin-top:-8px; margin-bottom:16px;"></p>
+      <div class="policy-box">
+        <p class="policy-box-title">Fundraising &amp; Marketplace Policy</p>
+        <p>Only post honest, accurate photos and descriptions. Pledges recorded here aren't processed payments yet — you're responsible for arranging payment and delivery directly with your supporters. Music Motel doesn't hold funds, guarantee delivery, or mediate disputes. Fake, misleading, or fraudulent campaigns may be removed and the account suspended.</p>
+      </div>
+      <label class="terms-check"><input type="checkbox" id="funding-start-policy-check"><span>I have read and agree to the Fundraising &amp; Marketplace Policy above.</span></label>
       <div class="loc-search-status" id="funding-start-status" role="status"></div>
       <button class="signup-submit" id="funding-start-save-btn">Start campaign</button>
     </div>
@@ -247,10 +268,15 @@
     </div>
     <div class="signup-body">
       <div class="pledge-disclosure fan-dashboard-note" style="margin-bottom:16px;">This records your pledge immediately — Music Motel's payment processor isn't connected yet, so no card is charged. The campaign owner will follow up on how to complete payment.</div>
+      <div class="quick-amount-row" id="funding-support-quick-amounts">
+        <button type="button" class="quick-amount-btn" data-amount="10">$10</button>
+        <button type="button" class="quick-amount-btn" data-amount="50">$50</button>
+        <button type="button" class="quick-amount-btn" data-amount="100">$100</button>
+      </div>
       <div class="rate-card-grid">
         <div class="form-field">
           <label for="funding-support-amount">Amount</label>
-          <input type="text" id="funding-support-amount" inputmode="decimal" placeholder="e.g. 25">
+          <input type="text" id="funding-support-amount" inputmode="decimal" placeholder="Custom amount">
         </div>
         <div class="form-field">
           <label for="funding-support-currency">Currency</label>
@@ -266,8 +292,65 @@
         <label for="funding-support-message">Message (optional)</label>
         <input type="text" id="funding-support-message" placeholder="e.g. Can't wait to hear the album!">
       </div>
+      <div class="form-field">
+        <label for="funding-support-tip">Also chip in for Music Motel (optional)</label>
+        <input type="text" id="funding-support-tip" inputmode="decimal" placeholder="e.g. 5 — keeps the platform free for everyone">
+      </div>
+      <div class="policy-box">
+        <p class="policy-box-title">Fundraising &amp; Marketplace Policy</p>
+        <p>This is a pledge, not a processed payment — Music Motel doesn't hold funds, guarantee delivery, or mediate disputes between you and the campaign owner. Report anything that looks fake or misleading.</p>
+      </div>
+      <label class="terms-check"><input type="checkbox" id="funding-support-policy-check"><span>I have read and agree to the Fundraising &amp; Marketplace Policy above.</span></label>
       <div class="loc-search-status" id="funding-support-status" role="status"></div>
       <button class="signup-submit" id="funding-support-save-btn">Pledge support</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="funding-quote-modal" role="dialog" aria-modal="true" aria-labelledby="funding-quote-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ Shop &amp; seller quote</span>
+        <h2 class="display" id="funding-quote-title" style="font-size:26px;">Submit a quote</h2>
+      </div>
+      <button class="modal-close" id="funding-quote-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <p class="invite-desc" style="margin-bottom:16px;">Selling or sponsoring the item this campaign needs? Post the item, a real price, and a stock or in-store photo — if the campaign owner accepts your quote, the campaign is marked verified.</p>
+      <div class="form-field">
+        <label for="funding-quote-item">Item</label>
+        <input type="text" id="funding-quote-item" placeholder="e.g. Pearl Export 5-piece drum kit, new">
+      </div>
+      <div class="rate-card-grid">
+        <div class="form-field">
+          <label for="funding-quote-price">Price</label>
+          <input type="text" id="funding-quote-price" inputmode="decimal" placeholder="e.g. 650">
+        </div>
+        <div class="form-field">
+          <label for="funding-quote-currency">Currency</label>
+          <select id="funding-quote-currency"></select>
+        </div>
+      </div>
+      <p class="invite-desc" id="funding-quote-usd-hint" style="margin-top:-8px; margin-bottom:16px;"></p>
+      <div class="form-field">
+        <label for="funding-quote-photo-input">Stock or in-store photo</label>
+        <div class="avatar-upload-row">
+          <div class="avatar-upload-preview" id="funding-quote-photo-preview" style="border-radius:10px;"></div>
+          <div class="avatar-upload-actions">
+            <input type="file" id="funding-quote-photo-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+            <button class="fan-add-btn" id="funding-quote-photo-btn" type="button">Add a photo</button>
+          </div>
+        </div>
+        <p class="invite-desc" style="margin-top:8px;">A real photo of the item for sale — quotes with a photo are far more convincing to backers.</p>
+      </div>
+      <div class="policy-box">
+        <p class="policy-box-title">Fundraising &amp; Marketplace Policy</p>
+        <p>Only post a quote you can genuinely honor — a real item, at a real price, with a real photo. A quote isn't a binding sale until you and the campaign owner agree off-platform. Fake or misleading quotes may be removed and the account suspended.</p>
+      </div>
+      <label class="terms-check"><input type="checkbox" id="funding-quote-policy-check"><span>I have read and agree to the Fundraising &amp; Marketplace Policy above.</span></label>
+      <div class="loc-search-status" id="funding-quote-status" role="status"></div>
+      <button class="signup-submit" id="funding-quote-save-btn">Submit quote</button>
     </div>
   </div>
 </div>

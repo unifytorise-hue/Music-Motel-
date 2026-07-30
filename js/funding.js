@@ -234,7 +234,11 @@
     // Single-campaign view, if this is the one being viewed
     if (currentSingleCampaign && currentSingleCampaign.id === row.id){
       currentSingleCampaign.raised_amount = row.raised_amount;
+      currentSingleCampaign.status = row.status;
+      currentSingleCampaign.verification_status = row.verification_status;
+      currentSingleCampaign.item_link = row.item_link;
       renderSingleProgress(currentSingleCampaign);
+      applyCampaignMeta(currentSingleCampaign);
     }
   }
 
@@ -337,8 +341,10 @@
       document.getElementById('funding-category').value = 'gear';
       document.getElementById('funding-item-label').value = '';
       titleInput.value = '';
+      document.getElementById('funding-item-link').value = '';
       document.getElementById('funding-why').value = '';
       document.getElementById('funding-how').value = '';
+      document.getElementById('funding-start-policy-check').checked = false;
       goalField.reset();
       selectedPhotoFile = null;
       photoPreview.innerHTML = '';
@@ -365,9 +371,11 @@
       var category = categorySelect.value;
       var itemLabel = document.getElementById('funding-item-label').value.trim();
       var title = titleInput.value.trim() || catMeta(category).heading;
+      var itemLink = document.getElementById('funding-item-link').value.trim();
       var whyText = document.getElementById('funding-why').value.trim();
       var howItHelps = document.getElementById('funding-how').value.trim();
       var goal = goalField.getUsdAmount();
+      var policyChecked = document.getElementById('funding-start-policy-check').checked;
       var statusEl = document.getElementById('funding-start-status');
       var saveBtn = document.getElementById('funding-start-save-btn');
 
@@ -383,6 +391,14 @@
         statusEl.textContent = 'Enter a goal amount greater than 0.';
         return;
       }
+      if (itemLink && !/^https?:\/\//i.test(itemLink)){
+        statusEl.textContent = 'The item link should start with http:// or https://';
+        return;
+      }
+      if (!policyChecked){
+        statusEl.textContent = 'Please agree to the Fundraising & Marketplace Policy first.';
+        return;
+      }
 
       saveBtn.disabled = true;
       statusEl.textContent = 'Starting your campaign…';
@@ -391,9 +407,11 @@
         category: category,
         item_label: catMeta(category).itemLabel ? itemLabel : '',
         title: title,
+        item_link: itemLink,
         why_text: whyText,
         how_it_helps: howItHelps,
-        goal_amount: goal
+        goal_amount: goal,
+        policy_accepted_at: new Date().toISOString()
       }).select().single().then(function(res){
         if (res.error){
           saveBtn.disabled = false;
@@ -429,6 +447,9 @@
     var ownProfile = profilesById[user.id];
     document.getElementById('funding-support-name').value = (ownProfile && ownProfile.name) || '';
     document.getElementById('funding-support-message').value = '';
+    document.getElementById('funding-support-tip').value = '';
+    document.getElementById('funding-support-policy-check').checked = false;
+    document.querySelectorAll('#funding-support-quick-amounts .quick-amount-btn').forEach(function(b){ b.classList.remove('active'); });
     document.getElementById('funding-support-status').textContent = '';
     var modal = document.getElementById('funding-support-modal');
     modal.classList.add('open');
@@ -454,17 +475,46 @@
 
     supportField = wireCurrencyAmountField('funding-support-amount', 'funding-support-currency', 'funding-support-usd-hint');
 
+    // Quick-amount presets are defined in USD, then converted into whatever
+    // currency is currently selected — the amount field always stays the
+    // single source of truth, this just fills it in for you.
+    var supportAmountInput = document.getElementById('funding-support-amount');
+    var supportCurrencySelect = document.getElementById('funding-support-currency');
+    document.querySelectorAll('#funding-support-quick-amounts .quick-amount-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var usd = parseFloat(btn.getAttribute('data-amount'));
+        var target = window.mmConvertFromUsd ? window.mmConvertFromUsd(usd, supportCurrencySelect.value) : usd;
+        supportAmountInput.value = Math.round(target * 100) / 100;
+        supportAmountInput.dispatchEvent(new Event('input'));
+        document.querySelectorAll('#funding-support-quick-amounts .quick-amount-btn').forEach(function(b){
+          b.classList.toggle('active', b === btn);
+        });
+      });
+    });
+    supportAmountInput.addEventListener('input', function(){
+      document.querySelectorAll('#funding-support-quick-amounts .quick-amount-btn').forEach(function(b){ b.classList.remove('active'); });
+    });
+
     document.getElementById('funding-support-save-btn').addEventListener('click', function(){
       if (!supportTarget) return;
       var user = currentUser();
       var amount = supportField.getUsdAmount();
       var name = document.getElementById('funding-support-name').value.trim() || 'Someone';
       var message = document.getElementById('funding-support-message').value.trim();
+      var tipRaw = parseFloat(document.getElementById('funding-support-tip').value);
+      var tipUsd = !isNaN(tipRaw) && tipRaw > 0
+        ? (window.mmConvertToUsd ? window.mmConvertToUsd(tipRaw, supportCurrencySelect.value) : tipRaw)
+        : 0;
+      var policyChecked = document.getElementById('funding-support-policy-check').checked;
       var statusEl = document.getElementById('funding-support-status');
       var saveBtn = document.getElementById('funding-support-save-btn');
 
       if (isNaN(amount) || amount <= 0){
         statusEl.textContent = 'Enter an amount greater than 0.';
+        return;
+      }
+      if (!policyChecked){
+        statusEl.textContent = 'Please agree to the Fundraising & Marketplace Policy first.';
         return;
       }
 
@@ -475,7 +525,9 @@
         donor_user_id: user.id,
         donor_name: name,
         amount: amount,
-        message: message
+        message: message,
+        platform_tip_amount: tipUsd,
+        policy_accepted_at: new Date().toISOString()
       }).then(function(res){
         saveBtn.disabled = false;
         if (res.error){
@@ -518,6 +570,32 @@
     document.getElementById('funding-single-goal').textContent = 'of ' + money(campaign.goal_amount) + ' goal';
     document.getElementById('funding-single-fill').style.width = pct + '%';
     document.getElementById('funding-single-pct').textContent = pct + '% funded';
+  }
+
+  // Shared by the initial render and the live-update path — a quote getting
+  // accepted (which flips verification_status server-side) arrives as a
+  // regular funding_campaigns UPDATE over the same realtime channel already
+  // used for raised_amount, so this needs to stay in sync there too.
+  function applyCampaignMeta(campaign){
+    var badge = document.getElementById('funding-single-verification');
+    if (badge){
+      var verified = campaign.verification_status === 'verified';
+      badge.textContent = verified ? '✓ Verified by a seller quote' : 'Unverified — self-reported';
+      badge.classList.toggle('verified', verified);
+    }
+    var linkBar = document.getElementById('funding-single-item-link');
+    if (linkBar){
+      if (campaign.item_link){
+        // Other-user-controlled URL — assigned via the .href property, not
+        // string-concatenated into markup, matching the convention used
+        // for every other remote URL on the site (avatars, campaign photos).
+        linkBar.href = campaign.item_link;
+        linkBar.style.display = 'block';
+      } else {
+        linkBar.removeAttribute('href');
+        linkBar.style.display = 'none';
+      }
+    }
   }
 
   function loadSupporters(campaignId){
@@ -578,11 +656,15 @@
     document.getElementById('funding-single-owner-role').textContent = owner ? (owner.role_label || owner.account_type || '') : '';
     if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('funding-single-owner-avatar'), owner && owner.avatar_url, owner && owner.avatar_color, owner && owner.name);
 
+    applyCampaignMeta(campaign);
     renderSingleProgress(campaign);
     loadSupporters(campaign.id);
+    loadQuotes(campaign.id);
 
     var shareBtn = document.getElementById('funding-single-share-btn');
     if (shareBtn) shareBtn.addEventListener('click', function(){ shareCampaign(campaign); });
+    var quoteBtn = document.getElementById('funding-single-quote-btn');
+    if (quoteBtn) quoteBtn.addEventListener('click', function(){ openQuoteModal(campaign); });
   }
 
   function initSingleView(campaignId){
@@ -607,6 +689,233 @@
         });
       })
       .catch(function(){ renderSingleNotFound(); });
+  }
+
+  // ===== shop & seller quotes =====
+  var currentQuoteTarget = null;
+  var quoteField = null;
+  var selectedQuotePhotoFile = null;
+
+  function loadQuotes(campaignId){
+    if (!configured()) return;
+    window.mmSupabase.from('campaign_quotes').select('*').eq('campaign_id', campaignId)
+      .order('created_at', { ascending: false })
+      .then(function(res){
+        var quotes = res.data || [];
+        return loadProfilesByIds(quotes.map(function(q){ return q.seller_user_id; })).then(function(map){
+          Object.keys(map).forEach(function(id){ profilesById[id] = map[id]; });
+          renderQuotes(quotes);
+        });
+      })
+      .catch(function(){});
+  }
+
+  function decideQuote(quoteId, status){
+    window.mmSupabase.from('campaign_quotes').update({ status: status }).eq('id', quoteId)
+      .then(function(res){
+        if (res.error){
+          if (window.showToast) window.showToast(res.error.message);
+          return;
+        }
+        if (window.showToast) window.showToast(status === 'accepted' ? 'Quote accepted — campaign marked verified.' : 'Quote declined.');
+        if (currentSingleCampaign) loadQuotes(currentSingleCampaign.id);
+        // The acceptance trigger updates funding_campaigns.verification_status
+        // server-side — re-fetch so the badge reflects it without waiting on
+        // realtime (which may not be connected in every browser context).
+        if (status === 'accepted' && currentSingleCampaign){
+          window.mmSupabase.from('funding_campaigns').select('verification_status').eq('id', currentSingleCampaign.id).single()
+            .then(function(vres){
+              if (!vres.error && vres.data){
+                currentSingleCampaign.verification_status = vres.data.verification_status;
+                applyCampaignMeta(currentSingleCampaign);
+              }
+            });
+        }
+      });
+  }
+
+  function renderQuotes(quotes){
+    var list = document.getElementById('funding-single-quotes-list');
+    var emptyEl = document.getElementById('funding-single-quotes-empty');
+    if (!list) return;
+    if (!quotes.length){
+      list.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    var user = currentUser();
+    var isOwner = !!(user && currentSingleCampaign && user.id === currentSingleCampaign.user_id);
+    list.innerHTML = '';
+    quotes.forEach(function(q){
+      var seller = profilesById[q.seller_user_id];
+      var item = document.createElement('div');
+      item.className = 'campaign-quote-item';
+      var actionsHtml = '';
+      if (isOwner && q.status === 'pending'){
+        actionsHtml = '<div class="campaign-quote-actions">' +
+          '<button class="accept-quote-btn" type="button">Accept</button>' +
+          '<button class="decline-quote-btn" type="button">Decline</button>' +
+        '</div>';
+      }
+      item.innerHTML =
+        '<div class="campaign-quote-body">' +
+          '<div class="campaign-quote-item-name">' + escapeHtml(q.item_description) + '</div>' +
+          '<div class="campaign-quote-seller">' + escapeHtml(seller ? seller.name : 'A seller on Music Motel') + '</div>' +
+          '<div class="campaign-quote-price">' + escapeHtml(money(q.price_amount)) + '</div>' +
+          '<div class="campaign-quote-status ' + escapeHtml(q.status) + '">' + escapeHtml(q.status) + '</div>' +
+          actionsHtml +
+        '</div>';
+      // q.photo_url is remote, seller-controlled data — set via the img
+      // element's own .src property, matching the convention used
+      // everywhere else on the site.
+      if (q.photo_url){
+        var img = document.createElement('img');
+        img.className = 'campaign-quote-photo';
+        img.alt = '';
+        img.src = q.photo_url;
+        item.insertBefore(img, item.firstChild);
+      }
+      if (isOwner && q.status === 'pending'){
+        item.querySelector('.accept-quote-btn').addEventListener('click', function(){ decideQuote(q.id, 'accepted'); });
+        item.querySelector('.decline-quote-btn').addEventListener('click', function(){ decideQuote(q.id, 'declined'); });
+      }
+      list.appendChild(item);
+    });
+  }
+
+  function openQuoteModal(campaign){
+    if (!configured() || !currentUser()){
+      if (window.openSignup) window.openSignup();
+      return;
+    }
+    if (currentUser().id === campaign.user_id){
+      if (window.showToast) window.showToast("You can't submit a quote to your own campaign.");
+      return;
+    }
+    currentQuoteTarget = campaign;
+    document.getElementById('funding-quote-item').value = '';
+    if (quoteField) quoteField.reset();
+    selectedQuotePhotoFile = null;
+    var preview = document.getElementById('funding-quote-photo-preview');
+    preview.innerHTML = '';
+    preview.style.background = '';
+    document.getElementById('funding-quote-policy-check').checked = false;
+    document.getElementById('funding-quote-status').textContent = '';
+    var modal = document.getElementById('funding-quote-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeQuoteModal(){
+    var modal = document.getElementById('funding-quote-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+
+  var quoteCloseBtn = document.getElementById('funding-quote-close-btn');
+  if (quoteCloseBtn){
+    quoteCloseBtn.addEventListener('click', closeQuoteModal);
+    document.getElementById('funding-quote-modal').addEventListener('click', function(e){
+      if (e.target.id === 'funding-quote-modal') closeQuoteModal();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.getElementById('funding-quote-modal').classList.contains('open')) closeQuoteModal();
+    });
+
+    quoteField = wireCurrencyAmountField('funding-quote-price', 'funding-quote-currency', 'funding-quote-usd-hint');
+
+    var MAX_QUOTE_PHOTO_BYTES = 5 * 1024 * 1024;
+    var QUOTE_PHOTO_EXT_BY_TYPE = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' };
+    var quotePhotoPreview = document.getElementById('funding-quote-photo-preview');
+    var quotePhotoInput = document.getElementById('funding-quote-photo-input');
+    document.getElementById('funding-quote-photo-btn').addEventListener('click', function(){ quotePhotoInput.click(); });
+    quotePhotoInput.addEventListener('change', function(){
+      var file = quotePhotoInput.files && quotePhotoInput.files[0];
+      quotePhotoInput.value = '';
+      if (!file) return;
+      var statusEl = document.getElementById('funding-quote-status');
+      if (Object.keys(QUOTE_PHOTO_EXT_BY_TYPE).indexOf(file.type) === -1){
+        statusEl.textContent = 'Please choose a PNG, JPEG, WEBP, or GIF image.';
+        return;
+      }
+      if (file.size > MAX_QUOTE_PHOTO_BYTES){
+        statusEl.textContent = 'That image is too large — please choose one under 5MB.';
+        return;
+      }
+      statusEl.textContent = '';
+      selectedQuotePhotoFile = file;
+      // Local blob: preview, same reasoning as the campaign-photo picker
+      // above — mmRenderAvatarPlain only accepts https:// URLs by design.
+      quotePhotoPreview.innerHTML = '';
+      var previewImg = document.createElement('img');
+      previewImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
+      previewImg.src = URL.createObjectURL(file);
+      quotePhotoPreview.appendChild(previewImg);
+    });
+
+    function uploadQuotePhoto(quoteId, file){
+      var user = currentUser();
+      var ext = QUOTE_PHOTO_EXT_BY_TYPE[file.type] || 'jpg';
+      var path = user.id + '/' + quoteId + '.' + ext;
+      return window.mmSupabase.storage.from('campaign-quote-photos').upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' })
+        .then(function(res){
+          if (res.error) throw res.error;
+          var pub = window.mmSupabase.storage.from('campaign-quote-photos').getPublicUrl(path);
+          var url = pub.data.publicUrl + '?t=' + Date.now();
+          return window.mmSupabase.from('campaign_quotes').update({ photo_url: url }).eq('id', quoteId);
+        });
+    }
+
+    document.getElementById('funding-quote-save-btn').addEventListener('click', function(){
+      if (!currentQuoteTarget) return;
+      var user = currentUser();
+      var itemDescription = document.getElementById('funding-quote-item').value.trim();
+      var price = quoteField.getUsdAmount();
+      var policyChecked = document.getElementById('funding-quote-policy-check').checked;
+      var statusEl = document.getElementById('funding-quote-status');
+      var saveBtn = document.getElementById('funding-quote-save-btn');
+
+      if (!itemDescription){
+        statusEl.textContent = 'Describe the item you’re quoting.';
+        return;
+      }
+      if (isNaN(price) || price <= 0){
+        statusEl.textContent = 'Enter a price greater than 0.';
+        return;
+      }
+      if (!policyChecked){
+        statusEl.textContent = 'Please agree to the Fundraising & Marketplace Policy first.';
+        return;
+      }
+
+      saveBtn.disabled = true;
+      statusEl.textContent = 'Submitting your quote…';
+      window.mmSupabase.from('campaign_quotes').insert({
+        campaign_id: currentQuoteTarget.id,
+        seller_user_id: user.id,
+        item_description: itemDescription,
+        price_amount: price,
+        policy_accepted_at: new Date().toISOString()
+      }).select().single().then(function(res){
+        if (res.error){
+          saveBtn.disabled = false;
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        var newQuoteId = res.data.id;
+        var photoStep = selectedQuotePhotoFile ? uploadQuotePhoto(newQuoteId, selectedQuotePhotoFile).catch(function(){}) : Promise.resolve();
+        photoStep.then(function(){
+          saveBtn.disabled = false;
+          statusEl.textContent = '';
+          closeQuoteModal();
+          if (window.showToast) window.showToast('Quote submitted — the campaign owner will review it.');
+          if (currentSingleCampaign) loadQuotes(currentSingleCampaign.id);
+        });
+      });
+    });
   }
 
   authReady.then(function(){

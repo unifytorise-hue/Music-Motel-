@@ -1328,6 +1328,79 @@
   .campaign-supporter-amount{ font-family:'JetBrains Mono', monospace; color:var(--green); font-weight:700; flex-shrink:0; }
   .campaign-supporter-message{ color:var(--cream-dim); font-size:12.5px; margin-top:2px; }
 
+  .quick-amount-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .quick-amount-btn{
+    flex:1;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    border:1.5px solid var(--line); border-radius:8px; padding:9px 0;
+    color:var(--cream-dim); transition:all 0.2s;
+  }
+  .quick-amount-btn:hover{ border-color:var(--green); color:var(--cream); }
+  .quick-amount-btn.active{ border-color:var(--green); background:rgba(74,222,128,0.12); color:var(--green); }
+
+  .policy-box{
+    border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; margin-bottom:12px;
+    background:rgba(255,255,255,0.015);
+  }
+  .policy-box-title{
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--cream-dim); margin-bottom:6px;
+  }
+  .policy-box p{ font-size:12.5px; line-height:1.55; color:var(--cream-dim); }
+  .policy-box p + p{ margin-top:8px; }
+
+  .verification-badge{
+    display:inline-block; margin-left:10px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em;
+    padding:3px 9px; border-radius:999px;
+    border:1px solid var(--line); color:var(--cream-dim);
+    vertical-align:middle;
+  }
+  .verification-badge.verified{ border-color:var(--green); color:var(--green); }
+
+  .item-link-bar{
+    display:block; margin-bottom:20px;
+    border:1.5px solid var(--cyan); border-radius:10px;
+    padding:12px 16px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    color:var(--cyan); text-align:center;
+    transition:all 0.2s;
+  }
+  .item-link-bar:hover{ background:rgba(43,232,217,0.1); }
+
+  .campaign-quote-item{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .campaign-quote-item:last-child{ border-bottom:none; }
+  .campaign-quote-photo{
+    width:56px; height:56px; border-radius:8px; object-fit:cover;
+    flex-shrink:0; border:1px solid var(--line);
+  }
+  .campaign-quote-body{ flex:1; min-width:0; }
+  .campaign-quote-item-name{ font-size:13.5px; font-weight:700; }
+  .campaign-quote-seller{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--cream-dim); margin-top:2px; }
+  .campaign-quote-price{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--green); font-weight:700; margin-top:4px; }
+  .campaign-quote-status{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em; color:var(--cream-dim);
+    margin-top:4px;
+  }
+  .campaign-quote-status.accepted{ color:var(--green); }
+  .campaign-quote-status.declined{ color:var(--red); }
+  .campaign-quote-actions{ display:flex; gap:8px; margin-top:8px; }
+  .campaign-quote-actions button{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    border-radius:999px; padding:5px 12px; border:1.5px solid var(--line);
+    color:var(--cream-dim); transition:all 0.2s;
+  }
+  .campaign-quote-actions button.accept-quote-btn:hover{ border-color:var(--green); color:var(--green); }
+  .campaign-quote-actions button.decline-quote-btn:hover{ border-color:var(--red); color:var(--red); }
+
   /* ===== real artist directory ===== */
   .real-artist-grid{
     display:grid;
@@ -1752,9 +1825,6 @@
   }
   @media (max-width:480px){
     .account-type-grid{ grid-template-columns:repeat(2,1fr); }
-    /* 5 buttons in a 2-col grid leaves the last one stranded alone with
-       empty space beside it — span it across both columns instead. */
-    .account-type-btn:last-child{ grid-column:1 / -1; }
   }
   .account-type-btn, .profile-kind-btn{
     font-family:'JetBrains Mono', monospace;

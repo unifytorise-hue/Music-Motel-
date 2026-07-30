@@ -34,6 +34,13 @@
       rolePlaceholder: 'e.g. Café, Gym, Hotel lobby, Retail store',
       roleRequired: true,
       submitLabel: 'Create free profile'
+    },
+    shop: {
+      note: 'Free forever — post priced quotes with photos on fundraising campaigns so backers know the material is real.',
+      roleLabel: 'What do you sell?',
+      rolePlaceholder: 'e.g. Guitars, Drum kits, Studio gear, PA systems',
+      roleRequired: true,
+      submitLabel: 'Create free shop profile'
     }
   };
   var currentAccountType = 'fan';
