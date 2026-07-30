@@ -45,6 +45,24 @@
     return '<svg class="icon' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + body + '</svg>';
   };
 
+  // profiles.account_type is stored lowercase (matches the DB check
+  // constraint and the signup form's data-type attributes) — every place
+  // that falls back to showing it when role_label is empty needs it
+  // presented the way a person would write it, not the raw DB value.
+  // "Talent Booker"/"Public Space" match the wording on the signup
+  // account-type buttons themselves, for consistency.
+  var ACCOUNT_TYPE_LABELS = {
+    fan: 'Fan',
+    musician: 'Musician',
+    educator: 'Educator',
+    venue: 'Talent Booker',
+    publicspace: 'Public Space',
+    shop: 'Shop / Seller'
+  };
+  window.mmAccountTypeLabel = function(type){
+    return ACCOUNT_TYPE_LABELS[type] || type || '';
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

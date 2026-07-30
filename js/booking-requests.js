@@ -87,7 +87,7 @@
       card.innerHTML =
         '<div class="real-artist-card-head">' +
           '<div>' +
-            '<div class="gear-card-cat">' + escapeHtml(p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
+            '<div class="gear-card-cat">' + escapeHtml(window.mmAccountTypeLabel ? window.mmAccountTypeLabel(p.account_type) : p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
             '<h4>' + escapeHtml(p.name) + '</h4>' +
           '</div>' +
           '<span class="real-artist-avatar"></span>' +

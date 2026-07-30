@@ -119,7 +119,7 @@
         '<div class="profile-modal-avatar" id="profile-modal-avatar-el"></div>' +
         '<div class="profile-modal-meta">' +
           '<div class="profile-modal-name">' + escapeHtmlProfile(profile.name) + (isBand ? ' · BAND' : '') + '</div>' +
-          '<div class="profile-modal-role">' + escapeHtmlProfile(profile.role_label || profile.account_type || '') + '</div>' +
+          '<div class="profile-modal-role">' + escapeHtmlProfile(profile.role_label || (window.mmAccountTypeLabel ? window.mmAccountTypeLabel(profile.account_type) : profile.account_type) || '') + '</div>' +
           (locBits.length ? '<div class="profile-modal-loc"><span class="pindot"></span>' + escapeHtmlProfile(locBits.join(' · ')) + '</div>' : '') +
         '</div>' +
       '</div>' +
