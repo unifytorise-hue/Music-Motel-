@@ -1,4 +1,5 @@
   .icon{ vertical-align:-0.15em; flex-shrink:0; }
+  .avatar-fallback-icon{ width:55%; height:55%; color:rgba(14,13,18,0.5); flex-shrink:0; }
 
   :root{
     --black:#0E0D12;
@@ -670,11 +671,23 @@
   @media (max-width:880px){ .patch-row{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:520px){ .patch-row{ grid-template-columns:1fr; } }
   .jack{
+    position:relative;
     border:1px solid var(--line); border-radius:8px;
-    padding:18px 16px; background:rgba(255,255,255,0.015);
+    padding:32px 16px 18px; background:rgba(255,255,255,0.015);
     transition:all 0.2s; cursor:pointer;
     opacity:1;
     display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .jack-example-tape{
+    position:absolute; top:0; left:0; right:0; height:18px;
+    display:flex; align-items:center; justify-content:center;
+    background:repeating-linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35) 8px, rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 16px);
+    border-bottom:1px solid var(--line);
+    border-radius:7px 7px 0 0;
+    font-family:'JetBrains Mono', monospace;
+    font-size:9.5px; font-weight:700;
+    letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--cream);
   }
   .jack.dim{ opacity:0.3; }
   .jack:hover, .jack.match{

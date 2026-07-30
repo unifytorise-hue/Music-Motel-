@@ -56,6 +56,9 @@
     if (!container) return;
     var safeColor = /^#[0-9a-f]{3,8}$/i.test(colorHex || '') ? colorHex : '#2BE8D9';
     container.style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
     container.innerHTML = '';
     if (avatarUrl && /^https:\/\//i.test(avatarUrl)){
       var img = document.createElement('img');
@@ -63,6 +66,12 @@
       img.alt = '';
       img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
       container.appendChild(img);
+    } else if (window.mmIcon){
+      // Without this, a profile that hasn't uploaded a photo yet just shows
+      // a blank gradient square — reads as broken rather than "no photo
+      // set". A silhouette placeholder (same icon the sample directory
+      // already falls back to) makes it read as an empty avatar slot.
+      container.innerHTML = window.mmIcon('user', 'avatar-fallback-icon');
     }
   };
 

@@ -454,7 +454,11 @@
       var avatarInner = (jack.person && jack.person.photoUrl)
         ? '<img src="' + jack.person.photoUrl + '" alt="">'
         : (window.mmIcon ? window.mmIcon('user') : '');
-      el.innerHTML = '<div class="jack-main"><div class="jhead"><span class="jplug"></span><div><span class="jname">' + displayName + '</span>' + roleSubtitle + '</div></div>' + distHtml + '</div>' +
+      // PATCH_JACKS is hardcoded sample data, not real registered profiles —
+      // this tape marks every card here as an example so it doesn't read as
+      // a real person on the platform.
+      el.innerHTML = '<div class="jack-example-tape">Example</div>' +
+        '<div class="jack-main"><div class="jhead"><span class="jplug"></span><div><span class="jname">' + displayName + '</span>' + roleSubtitle + '</div></div>' + distHtml + '</div>' +
         '<div class="jack-avatar">' + avatarInner + '</div>';
       function activateJack(){
         if (jack.person && typeof window.openProfile === 'function'){
