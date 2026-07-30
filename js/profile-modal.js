@@ -125,6 +125,7 @@
       '</div>' +
       (profile.bio ? '<p class="profile-bio">' + escapeHtmlProfile(profile.bio) + '</p>' : '') +
       instrumentsHtml +
+      '<a class="invite-copy-btn" id="profile-view-full-btn" style="display:block; text-align:center; text-decoration:none; margin-bottom:12px;">View full profile</a>' +
       '<button class="follow-btn-profile" id="profile-follow-btn">+ Follow</button>' +
       (profile.account_type !== 'fan' ? '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Request a quote</button>' : '') +
       (isBand ? '<button class="profile-unify-btn" id="profile-unify-btn">Unify with ' + escapeHtmlProfile(profile.name || 'this band') + '</button>' : '');
@@ -133,6 +134,10 @@
     // — mmRenderAvatar assigns them via img.src / a regex-validated color
     // rather than interpolating into the innerHTML string above.
     if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('profile-modal-avatar-el'), profile.avatar_url, profile.avatar_color, profile.name);
+
+    document.getElementById('profile-view-full-btn').href = window.mmProfileShareUrl
+      ? window.mmProfileShareUrl(profile.id)
+      : ('profile.html?id=' + encodeURIComponent(profile.id));
 
     var followBtn = document.getElementById('profile-follow-btn');
     refreshFollowButton(followBtn, profile.id);
