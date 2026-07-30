@@ -114,6 +114,8 @@
         }).join('') + '</div>'
       : '';
 
+    var availLabel = window.mmAvailabilityLabel ? window.mmAvailabilityLabel(profile.availability_status, profile.availability_until) : '';
+
     document.getElementById('profile-modal-body').innerHTML =
       '<div class="profile-modal-header">' +
         '<div class="profile-modal-avatar" id="profile-modal-avatar-el"></div>' +
@@ -123,6 +125,7 @@
           (locBits.length ? '<div class="profile-modal-loc"><span class="pindot"></span>' + escapeHtmlProfile(locBits.join(' · ')) + '</div>' : '') +
         '</div>' +
       '</div>' +
+      (availLabel ? '<div class="availability-pill avail-' + escapeHtmlProfile(profile.availability_status) + '">' + escapeHtmlProfile(availLabel) + '</div>' : '') +
       (profile.bio ? '<p class="profile-bio">' + escapeHtmlProfile(profile.bio) + '</p>' : '') +
       instrumentsHtml +
       '<a class="invite-copy-btn" id="profile-view-full-btn" style="display:block; text-align:center; text-decoration:none; margin-bottom:12px;">View full profile</a>' +

@@ -74,6 +74,25 @@
     return typeLabel;
   };
 
+  var AVAILABILITY_LABELS = {
+    available_sessions: 'Available for sessions',
+    touring: 'Touring',
+    teaching: 'Teaching',
+    remote_only: 'Remote only'
+  };
+  // Shared by the public profile page and compact profile modal — "booked
+  // until" needs the date interpolated in, everything else is a fixed label.
+  window.mmAvailabilityLabel = function(status, until){
+    if (!status) return '';
+    if (status === 'booked_until'){
+      if (!until) return 'Booked';
+      var d = new Date(until + 'T00:00:00');
+      var formatted = isNaN(d.getTime()) ? until : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      return 'Booked until ' + formatted;
+    }
+    return AVAILABILITY_LABELS[status] || '';
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

@@ -62,7 +62,7 @@
   function loadProfiles(){
     if (!currentUser()) return Promise.resolve([]);
     return window.mmSupabase.from('profiles')
-      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments')
+      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments,availability_status,availability_until')
       .then(function(res){ return res.data || []; })
       .catch(function(){ return []; });
   }

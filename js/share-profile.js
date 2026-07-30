@@ -120,6 +120,16 @@
       locRow.style.display = 'none';
     }
 
+    var availEl = document.getElementById('public-profile-availability');
+    var availLabel = window.mmAvailabilityLabel ? window.mmAvailabilityLabel(profile.availability_status, profile.availability_until) : '';
+    if (availLabel){
+      availEl.style.display = 'inline-flex';
+      availEl.textContent = availLabel;
+      availEl.className = 'availability-pill avail-' + profile.availability_status;
+    } else {
+      availEl.style.display = 'none';
+    }
+
     var bioEl = document.getElementById('public-profile-bio');
     if (profile.bio){
       bioEl.style.display = 'block';
@@ -205,12 +215,33 @@
       document.getElementById('public-profile-rate-box').style.display = 'block';
       document.getElementById('public-profile-rate-preview').innerHTML = window.renderRateCardBox ? window.renderRateCardBox(card) : '';
     }).catch(function(){});
+
+    window.mmSupabase.from('profile_media').select('*').eq('user_id', profile.id).order('sort_order', { ascending: true }).then(function(res){
+      var rows = res.data || [];
+      if (!rows.length || !window.mmRenderMediaEmbed) return;
+      var featured = rows.filter(function(r){ return r.is_featured; })[0];
+      if (featured){
+        var featuredBox = document.getElementById('public-profile-featured-box');
+        featuredBox.style.display = 'block';
+        var featuredEl = document.getElementById('public-profile-featured-embed');
+        featuredEl.innerHTML = '';
+        featuredEl.appendChild(window.mmRenderMediaEmbed(featured));
+      }
+      var rest = rows.filter(function(r){ return !featured || r.id !== featured.id; });
+      if (rest.length){
+        var portfolioBox = document.getElementById('public-profile-portfolio-box');
+        portfolioBox.style.display = 'block';
+        var portfolioEl = document.getElementById('public-profile-portfolio-list');
+        portfolioEl.innerHTML = '';
+        rest.forEach(function(item){ portfolioEl.appendChild(window.mmRenderMediaEmbed(item)); });
+      }
+    }).catch(function(){});
   }
 
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }

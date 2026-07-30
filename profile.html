@@ -116,6 +116,7 @@
             <div class="profile-modal-loc" id="public-profile-loc" style="display:none;"><span class="pindot"></span><span id="public-profile-loc-text"></span></div>
           </div>
         </div>
+        <div class="availability-pill" id="public-profile-availability" style="display:none;"></div>
         <p class="profile-bio" id="public-profile-bio" style="display:none;"></p>
         <div class="profile-badge-row" id="public-profile-instruments"></div>
 
@@ -125,6 +126,16 @@
           <button class="profile-book-btn" id="public-profile-book-btn" style="display:none;">Request a quote</button>
           <button class="profile-unify-btn" id="public-profile-unify-btn" style="display:none;">Unify with this band</button>
         </div>
+      </div>
+
+      <div class="content-box" id="public-profile-featured-box" style="display:none; max-width:560px; margin-top:16px;">
+        <h3 style="margin-bottom:10px;">Featured work</h3>
+        <div id="public-profile-featured-embed"></div>
+      </div>
+
+      <div class="content-box" id="public-profile-portfolio-box" style="display:none; max-width:560px; margin-top:16px;">
+        <h3 style="margin-bottom:10px;">Portfolio</h3>
+        <div id="public-profile-portfolio-list"></div>
       </div>
 
       <div class="content-box" id="public-profile-rate-box" style="display:none; max-width:560px; margin-top:16px;">
@@ -274,6 +285,50 @@
         </div>
         <div class="invite-status" id="invite-status"></div>
         <div class="invite-honesty-note" id="invite-honesty-note">This works when the link is opened in the <em>same browser</em> you're using now — sign in to get credit for a friend's signup even from a different phone or browser.</div>
+      </div>
+
+      <div class="fan-card" id="availability-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Availability</h3>
+        </div>
+        <p class="invite-desc">Let people know if you're free to book right now — shows on your public profile.</p>
+        <div class="form-field">
+          <label for="availability-status-select">Status</label>
+          <select id="availability-status-select">
+            <option value="">Not set</option>
+            <option value="available_sessions">Available for sessions</option>
+            <option value="touring">Touring</option>
+            <option value="teaching">Teaching</option>
+            <option value="remote_only">Remote only</option>
+            <option value="booked_until">Booked until…</option>
+          </select>
+        </div>
+        <div class="form-field" id="availability-until-field" style="display:none;">
+          <label for="availability-until-input">Available again on</label>
+          <input type="date" id="availability-until-input">
+        </div>
+        <button class="fan-add-btn" id="availability-save-btn" type="button">Save</button>
+        <div class="rate-card-note" id="availability-status-msg" role="status"></div>
+      </div>
+
+      <div class="fan-card" id="media-portfolio-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Media portfolio</h3>
+        </div>
+        <p class="invite-desc">Paste a link from Spotify, Apple Music, SoundCloud, Bandcamp, YouTube, or Vimeo — it'll play right on your profile.</p>
+        <div class="form-field">
+          <label for="media-url-input">Link</label>
+          <input type="text" id="media-url-input" placeholder="e.g. https://open.spotify.com/track/...">
+        </div>
+        <div class="form-field">
+          <label for="media-title-input">Title (optional)</label>
+          <input type="text" id="media-title-input" placeholder="e.g. Live at The Bowery">
+        </div>
+        <div class="rate-card-note" id="media-add-status" role="status"></div>
+        <button class="fan-add-btn" id="media-add-btn" type="button">+ Add to portfolio</button>
+        <div class="gig-log-list" id="media-portfolio-list" style="margin-top:14px;">
+          <div class="gig-log-empty" id="media-portfolio-empty">No media added yet.</div>
+        </div>
       </div>
 
       <div class="fan-card" id="rates-card" style="display:none;">
@@ -640,7 +695,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
-        <p>The directory for the music industry.<br>Founded 2014, South Africa.<br>Search by instrument and location, then connect directly.</p>
+        <p>The directory for the music industry.<br>Since 2014.<br>Search by instrument and location, then connect directly.</p>
       </div>
       <div class="footer-cols">
         <div class="footer-col">
@@ -666,6 +721,9 @@
 <script src="js/real-xp.js"></script>
 <script src="js/instrument-modal.js"></script>
 <script src="js/music-taste.js"></script>
+<script src="js/media-embed.js"></script>
+<script src="js/availability.js"></script>
+<script src="js/media-portfolio.js"></script>
 <script src="js/avatar-lightbox.js"></script>
 <script src="js/profile-modal.js"></script>
 <script src="js/referral.js"></script>
