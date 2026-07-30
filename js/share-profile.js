@@ -143,6 +143,30 @@
       return '<span class="profile-modal-badge">' + escapeHtml(instr) + '</span>';
     }).join('');
 
+    function renderBadgeWrap(wrapId, listId, items){
+      var wrap = document.getElementById(wrapId);
+      var has = items && items.length;
+      wrap.style.display = has ? 'block' : 'none';
+      document.getElementById(listId).innerHTML = has
+        ? items.map(function(v){ return '<span class="profile-modal-badge">' + escapeHtml(v) + '</span>'; }).join('')
+        : '';
+      return !!has;
+    }
+    var skillsBox = document.getElementById('public-profile-skills-box');
+    var touringEl = document.getElementById('public-profile-touring');
+    var touringLabel = window.mmTouringLevelLabel ? window.mmTouringLevelLabel(profile.touring_level) : '';
+    var hasGenres = renderBadgeWrap('public-profile-genres-wrap', 'public-profile-genres', profile.genres);
+    var hasSoftware = renderBadgeWrap('public-profile-software-wrap', 'public-profile-software', profile.software);
+    var hasLanguages = renderBadgeWrap('public-profile-languages-wrap', 'public-profile-languages', profile.languages);
+    var hasGear = renderBadgeWrap('public-profile-gear-wrap', 'public-profile-gear', profile.gear_list);
+    if (touringLabel){
+      touringEl.style.display = 'block';
+      touringEl.textContent = touringLabel + ' touring level.';
+    } else {
+      touringEl.style.display = 'none';
+    }
+    skillsBox.style.display = (touringLabel || hasGenres || hasSoftware || hasLanguages || hasGear) ? 'block' : 'none';
+
     var tasteBox = document.getElementById('public-profile-taste-box');
     var bandsWrap = document.getElementById('public-profile-bands-wrap');
     var songsWrap = document.getElementById('public-profile-songs-wrap');
@@ -236,12 +260,26 @@
         rest.forEach(function(item){ portfolioEl.appendChild(window.mmRenderMediaEmbed(item)); });
       }
     }).catch(function(){});
+
+    window.mmSupabase.from('profile_credits').select('*').eq('user_id', profile.id).order('created_at', { ascending: false }).then(function(res){
+      var rows = res.data || [];
+      if (!rows.length) return;
+      document.getElementById('public-profile-credits-box').style.display = 'block';
+      var list = document.getElementById('public-profile-credits-list');
+      list.innerHTML = rows.map(function(c){
+        var detail = escapeHtml(c.credit_role) + (c.year ? ' · ' + escapeHtml(String(c.year)) : '');
+        var titleHtml = c.link
+          ? '<a href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(c.title) + '</a>'
+          : escapeHtml(c.title);
+        return '<div class="gig-log-item"><span class="gig-log-dot"></span><div style="flex:1;"><h5>' + titleHtml + '</h5><p>' + detail + '</p></div></div>';
+      }).join('');
+    }).catch(function(){});
   }
 
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }

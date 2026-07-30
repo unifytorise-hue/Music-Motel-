@@ -93,6 +93,11 @@
     return AVAILABILITY_LABELS[status] || '';
   };
 
+  var TOURING_LEVEL_LABELS = { local: 'Local', regional: 'Regional', national: 'National', international: 'International' };
+  window.mmTouringLevelLabel = function(level){
+    return TOURING_LEVEL_LABELS[level] || '';
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

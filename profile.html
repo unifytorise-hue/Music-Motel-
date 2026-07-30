@@ -143,6 +143,32 @@
         <div id="public-profile-rate-preview"></div>
       </div>
 
+      <div class="content-box" id="public-profile-skills-box" style="display:none; max-width:560px; margin-top:16px;">
+        <h3 style="margin-bottom:10px;">Skills</h3>
+        <div id="public-profile-touring" class="rate-card-note" style="display:none; margin-bottom:14px;"></div>
+        <div id="public-profile-genres-wrap" style="display:none; margin-bottom:14px;">
+          <div class="requests-subhead" style="margin-bottom:8px;">Genres</div>
+          <div class="profile-badge-row" id="public-profile-genres"></div>
+        </div>
+        <div id="public-profile-software-wrap" style="display:none; margin-bottom:14px;">
+          <div class="requests-subhead" style="margin-bottom:8px;">Software</div>
+          <div class="profile-badge-row" id="public-profile-software"></div>
+        </div>
+        <div id="public-profile-languages-wrap" style="display:none; margin-bottom:14px;">
+          <div class="requests-subhead" style="margin-bottom:8px;">Languages</div>
+          <div class="profile-badge-row" id="public-profile-languages"></div>
+        </div>
+        <div id="public-profile-gear-wrap" style="display:none;">
+          <div class="requests-subhead" style="margin-bottom:8px;">Gear</div>
+          <div class="profile-badge-row" id="public-profile-gear"></div>
+        </div>
+      </div>
+
+      <div class="content-box" id="public-profile-credits-box" style="display:none; max-width:560px; margin-top:16px;">
+        <h3 style="margin-bottom:10px;">Credits</h3>
+        <div class="gig-log-list" id="public-profile-credits-list"></div>
+      </div>
+
       <div class="content-box" id="public-profile-taste-box" style="display:none; max-width:560px; margin-top:16px;">
         <h3 style="margin-bottom:10px;">Music taste</h3>
         <div id="public-profile-want-live" class="rate-card-note" style="display:none; margin-bottom:14px;"></div>
@@ -285,6 +311,90 @@
         </div>
         <div class="invite-status" id="invite-status"></div>
         <div class="invite-honesty-note" id="invite-honesty-note">This works when the link is opened in the <em>same browser</em> you're using now — sign in to get credit for a friend's signup even from a different phone or browser.</div>
+      </div>
+
+      <div class="fan-card" id="skills-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Skills</h3>
+        </div>
+        <p class="invite-desc">Genres, software, languages, and gear — helps the right people find you in search.</p>
+
+        <div class="form-field">
+          <label for="touring-level-select">Touring level</label>
+          <select id="touring-level-select">
+            <option value="">Not set</option>
+            <option value="local">Local</option>
+            <option value="regional">Regional</option>
+            <option value="national">National</option>
+            <option value="international">International</option>
+          </select>
+        </div>
+        <button class="fan-add-btn" id="touring-level-save-btn" type="button">Save</button>
+        <div class="rate-card-note" id="touring-level-status" role="status"></div>
+
+        <div class="form-field" style="margin-top:20px;">
+          <label for="genres-input">Add a genre</label>
+          <input type="text" id="genres-input" placeholder="e.g. Afrobeat">
+        </div>
+        <button class="fan-add-btn" id="genres-add-btn" type="button">+ Add genre</button>
+        <div class="gig-log-list" id="genres-list" style="margin-top:10px;">
+          <div class="gig-log-empty" id="genres-empty">No genres added yet.</div>
+        </div>
+
+        <div class="form-field" style="margin-top:20px;">
+          <label for="software-input">Add software/DAW</label>
+          <input type="text" id="software-input" placeholder="e.g. Ableton Live">
+        </div>
+        <button class="fan-add-btn" id="software-add-btn" type="button">+ Add software</button>
+        <div class="gig-log-list" id="software-list" style="margin-top:10px;">
+          <div class="gig-log-empty" id="software-empty">No software added yet.</div>
+        </div>
+
+        <div class="form-field" style="margin-top:20px;">
+          <label for="languages-input">Add a language</label>
+          <input type="text" id="languages-input" placeholder="e.g. Portuguese">
+        </div>
+        <button class="fan-add-btn" id="languages-add-btn" type="button">+ Add language</button>
+        <div class="gig-log-list" id="languages-list" style="margin-top:10px;">
+          <div class="gig-log-empty" id="languages-empty">No languages added yet.</div>
+        </div>
+
+        <div class="form-field" style="margin-top:20px;">
+          <label for="profile-gear-input">Add a piece of gear</label>
+          <input type="text" id="profile-gear-input" placeholder="e.g. Neumann U87">
+        </div>
+        <button class="fan-add-btn" id="profile-gear-add-btn" type="button">+ Add gear</button>
+        <div class="gig-log-list" id="profile-gear-list" style="margin-top:10px;">
+          <div class="gig-log-empty" id="profile-gear-empty">No gear added yet.</div>
+        </div>
+      </div>
+
+      <div class="fan-card" id="credits-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Credits</h3>
+        </div>
+        <p class="invite-desc">Recordings, tours, or projects you've worked on — proof of your experience.</p>
+        <div class="form-field">
+          <label for="credit-title-input">Title</label>
+          <input type="text" id="credit-title-input" placeholder="e.g. Midnight Radio (album)">
+        </div>
+        <div class="form-field">
+          <label for="credit-role-input">Your role</label>
+          <input type="text" id="credit-role-input" placeholder="e.g. Session guitarist">
+        </div>
+        <div class="form-field">
+          <label for="credit-year-input">Year (optional)</label>
+          <input type="number" id="credit-year-input" placeholder="e.g. 2024">
+        </div>
+        <div class="form-field">
+          <label for="credit-link-input">Link (optional)</label>
+          <input type="text" id="credit-link-input" placeholder="e.g. https://open.spotify.com/album/...">
+        </div>
+        <div class="rate-card-note" id="credit-add-status" role="status"></div>
+        <button class="fan-add-btn" id="credit-add-btn" type="button">+ Add credit</button>
+        <div class="gig-log-list" id="credits-list" style="margin-top:14px;">
+          <div class="gig-log-empty" id="credits-empty">No credits added yet.</div>
+        </div>
       </div>
 
       <div class="fan-card" id="availability-card" style="display:none;">
@@ -724,6 +834,8 @@
 <script src="js/media-embed.js"></script>
 <script src="js/availability.js"></script>
 <script src="js/media-portfolio.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/credits.js"></script>
 <script src="js/avatar-lightbox.js"></script>
 <script src="js/profile-modal.js"></script>
 <script src="js/referral.js"></script>
