@@ -95,6 +95,11 @@
       .then(function(){ uploadBtn.disabled = false; });
   }
 
+  var signinBtnEl = document.getElementById('avatar-open-signin-btn');
+  if (signinBtnEl) signinBtnEl.addEventListener('click', function(){ if (window.openSignin) window.openSignin(); });
+  var signupBtnEl = document.getElementById('avatar-open-signup-btn');
+  if (signupBtnEl) signupBtnEl.addEventListener('click', function(){ if (window.openSignup) window.openSignup(); });
+
   var uploadBtnEl = document.getElementById('avatar-upload-btn');
   var fileInputEl = document.getElementById('avatar-file-input');
   if (uploadBtnEl && fileInputEl){

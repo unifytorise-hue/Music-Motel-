@@ -907,6 +907,7 @@
   }
   .fan-card-head h3{ font-size:18px; font-weight:700; }
   .fan-card-head .fan-add-btn{ flex-shrink:0; }
+  .avatar-signed-out-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
   .fan-add-btn{
     font-family:'JetBrains Mono', monospace;
     font-size:11.5px; font-weight:700;

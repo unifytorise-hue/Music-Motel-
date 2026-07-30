@@ -162,7 +162,13 @@
           </div>
         </div>
         <div class="rate-card-note" id="avatar-status" role="status"></div>
-        <div class="rate-card-note" id="avatar-signed-out-note">Sign in to add a profile photo — it'll show up next to your name and on your profile.</div>
+        <div id="avatar-signed-out-note" style="display:none;">
+          <p class="rate-card-note">Sign in to add a profile photo — it'll show up next to your name and on your profile.</p>
+          <div class="avatar-signed-out-actions">
+            <button class="nav-cta" id="avatar-open-signin-btn" type="button">Sign in</button>
+            <button class="nav-cta" id="avatar-open-signup-btn" type="button">Create profile</button>
+          </div>
+        </div>
       </div>
 
       <div class="fan-card" id="share-profile-card">
