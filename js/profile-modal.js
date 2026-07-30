@@ -105,7 +105,7 @@
 
     var isBand = profile.profile_kind === 'band';
     var locBits = [];
-    if (profile.location_label) locBits.push(profile.location_label);
+    if (profile.location_label && !profile.hide_exact_location) locBits.push(profile.location_label);
     if (distanceKm != null && window.mmFormatDistanceKm) locBits.push(window.mmFormatDistanceKm(distanceKm));
 
     var instrumentsHtml = (profile.instruments && profile.instruments.length)
@@ -145,7 +145,7 @@
     var followBtn = document.getElementById('profile-follow-btn');
     refreshFollowButton(followBtn, profile.id);
     followBtn.addEventListener('click', function(){
-      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.location_label, color: profile.avatar_color, avatarUrl: profile.avatar_url });
+      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.hide_exact_location ? '' : profile.location_label, color: profile.avatar_color, avatarUrl: profile.avatar_url });
       refreshFollowButton(followBtn, profile.id);
     });
 

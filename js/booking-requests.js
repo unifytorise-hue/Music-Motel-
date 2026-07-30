@@ -20,12 +20,19 @@
 
   // ===== real artist directory =====
   function loadRealArtists(){
-    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color')
-      .then(function(res){
-        if (res.error || !res.data) return [];
-        return res.data.filter(function(p){ return p.account_type !== 'fan'; });
-      })
-      .catch(function(){ return []; });
+    return Promise.all([
+      window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,profile_visibility,hide_exact_location,hide_rate'),
+      window.mmLoadMyFollowSets ? window.mmLoadMyFollowSets() : Promise.resolve(null)
+    ]).then(function(results){
+      var res = results[0];
+      var followSets = results[1];
+      if (res.error || !res.data) return [];
+      var myId = currentUser() && currentUser().id;
+      return res.data.filter(function(p){
+        if (p.account_type === 'fan') return false;
+        return window.mmCanViewProfile ? window.mmCanViewProfile(p, myId, followSets) : true;
+      });
+    }).catch(function(){ return []; });
   }
 
   function loadRateCards(){
@@ -81,7 +88,7 @@
     artists.forEach(function(p){
       var isBand = p.profile_kind === 'band';
       var instrumentsText = (p.instruments && p.instruments.length) ? 'Plays: ' + p.instruments.join(', ') : '';
-      var rateShort = window.formatRateCardShort ? window.formatRateCardShort(rateCards[p.id]) : null;
+      var rateShort = (window.formatRateCardShort && !p.hide_rate) ? window.formatRateCardShort(rateCards[p.id]) : null;
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
@@ -97,7 +104,7 @@
         (rateShort ? '<p class="gear-card-condition">From ' + escapeHtml(rateShort) + ', apart from travel</p>' : '') +
         '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
         '<div class="gear-card-foot">' +
-          '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +
+          '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.hide_exact_location ? 'Location hidden' : (p.location_label || 'Location not set')) + '</span>' +
           '<div class="gear-card-actions">' +
             (isBand ? '<button class="request-quote-btn unify-band-btn">Unify</button>' : '') +
             '<button class="request-quote-btn">Request a quote</button>' +
@@ -146,7 +153,7 @@
 
     var previewEl = document.getElementById('quote-rate-preview');
     previewEl.style.display = 'none';
-    if (configured()){
+    if (configured() && !artist.hide_rate){
       window.mmSupabase.from('artist_rate_cards').select('*').eq('user_id', artist.id).maybeSingle().then(function(res){
         if (quoteTargetArtist !== artist) return; // modal moved on to a different artist
         var card = (res.error || !res.data) ? null : res.data;

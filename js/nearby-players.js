@@ -62,19 +62,24 @@
   function loadProfiles(){
     if (!currentUser()) return Promise.resolve([]);
     return window.mmSupabase.from('profiles')
-      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments,availability_status,availability_until')
+      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments,availability_status,availability_until,profile_visibility,hide_exact_location,hide_rate')
       .then(function(res){ return res.data || []; })
       .catch(function(){ return []; });
   }
 
   function loadAndRenderNearby(){
     if (!isSignedIn()) return;
-    loadProfiles().then(function(rows){
+    Promise.all([loadProfiles(), window.mmLoadMyFollowSets ? window.mmLoadMyFollowSets() : Promise.resolve(null)]).then(function(results){
+      var rows = results[0];
+      var followSets = results[1];
       var myId = currentUser().id;
       var me = rows.filter(function(r){ return r.id === myId; })[0];
       myLocation = (me && me.lat != null && me.lng != null) ? { lat: me.lat, lng: me.lng } : null;
 
-      allProfiles = rows.filter(function(r){ return r.id !== myId; });
+      allProfiles = rows.filter(function(r){
+        if (r.id === myId) return false;
+        return window.mmCanViewProfile ? window.mmCanViewProfile(r, myId, followSets) : true;
+      });
       allProfiles.forEach(function(p){
         p._distanceKm = (myLocation && p.lat != null && p.lng != null)
           ? haversineKm(myLocation.lat, myLocation.lng, p.lat, p.lng)
@@ -121,7 +126,7 @@
       var subBits = [];
       var roleAndType = window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(p) : '';
       if (roleAndType) subBits.push(roleAndType);
-      if (p.location_label) subBits.push(p.location_label);
+      if (p.location_label && !p.hide_exact_location) subBits.push(p.location_label);
       if (p._distanceKm != null && window.mmFormatDistanceKm) subBits.push(window.mmFormatDistanceKm(p._distanceKm));
 
       var item = document.createElement('div');

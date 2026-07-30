@@ -134,6 +134,42 @@
   };
   window.mmTemplateHeading = function(template){ return TEMPLATE_HEADING[template] || 'Book this profile now'; };
 
+  // Shared by every list/page that queries OTHER people's profiles and
+  // needs to respect profile_visibility ('public'/'followers_only'/
+  // 'private') — resolves the signed-in viewer's own follow relationships
+  // (both directions) once, so callers can check "is this profile in my
+  // network" without a query per row. Not needed by anything that only
+  // ever shows the current user their own profile.
+  window.mmLoadMyFollowSets = function(){
+    var user = window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser();
+    if (!user || !window.mmSupabase) return Promise.resolve({ following: {}, followers: {} });
+    return Promise.all([
+      window.mmSupabase.from('follows').select('following_id').eq('follower_id', user.id),
+      window.mmSupabase.from('follows').select('follower_id').eq('following_id', user.id)
+    ]).then(function(results){
+      var following = {};
+      (results[0].data || []).forEach(function(r){ following[r.following_id] = true; });
+      var followers = {};
+      (results[1].data || []).forEach(function(r){ followers[r.follower_id] = true; });
+      return { following: following, followers: followers };
+    }).catch(function(){ return { following: {}, followers: {} }; });
+  };
+
+  // Whether the (possibly signed-out) viewer is allowed to see this
+  // profile at all, given its visibility setting — the owner can always
+  // see their own profile regardless of setting.
+  window.mmCanViewProfile = function(profile, viewerId, followSets){
+    if (!profile) return false;
+    if (viewerId && profile.id === viewerId) return true;
+    var vis = profile.profile_visibility || 'public';
+    if (vis === 'private') return false;
+    if (vis === 'followers_only'){
+      var sets = followSets || { following: {}, followers: {} };
+      return !!(sets.following[profile.id] || sets.followers[profile.id]);
+    }
+    return true;
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

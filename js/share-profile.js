@@ -106,6 +106,9 @@
     document.getElementById('public-profile-body').style.display = 'block';
     document.title = profile.name + ' — Music Motel';
 
+    var user = currentUser();
+    var isOwnProfile = !!(user && user.id === profile.id);
+
     var template = window.mmResolveTemplate ? window.mmResolveTemplate(profile) : 'performing_artist';
     var isFanProfile = template === 'fan';
     var isBand = profile.profile_kind === 'band';
@@ -123,7 +126,8 @@
     document.getElementById('public-profile-role').textContent = window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(profile) : (profile.role_label || '');
 
     var locRow = document.getElementById('public-profile-loc');
-    if (profile.location_label){
+    var locationHidden = profile.hide_exact_location && !isOwnProfile;
+    if (profile.location_label && !locationHidden){
       locRow.style.display = 'flex';
       document.getElementById('public-profile-loc-text').textContent = profile.location_label;
     } else {
@@ -205,8 +209,6 @@
     // rather than interpolating into an HTML string.
     if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('public-profile-avatar'), profile.avatar_url, profile.avatar_color, profile.name);
 
-    var user = currentUser();
-    var isOwnProfile = !!(user && user.id === profile.id);
     var actions = document.getElementById('public-profile-actions');
     var ownNote = document.getElementById('public-profile-own-note');
 
@@ -221,7 +223,7 @@
       followBtn.style.display = '';
       if (window.refreshFollowButton) window.refreshFollowButton(followBtn, profile.id);
       followBtn.addEventListener('click', function(){
-        if (window.toggleFollow) window.toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.location_label, color: profile.avatar_color, avatarUrl: profile.avatar_url });
+        if (window.toggleFollow) window.toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: locationHidden ? '' : profile.location_label, color: profile.avatar_color, avatarUrl: profile.avatar_url });
         if (window.refreshFollowButton) window.refreshFollowButton(followBtn, profile.id);
       });
 
@@ -243,12 +245,14 @@
     }
 
     if (!configured()) return;
-    window.mmSupabase.from('artist_rate_cards').select('*').eq('user_id', profile.id).maybeSingle().then(function(res){
-      var card = (res.error || !res.data) ? null : res.data;
-      if (!card || card.rate_amount == null || !card.booking_agent_terms_accepted_at) return;
-      document.getElementById('public-profile-rate-box').style.display = 'block';
-      document.getElementById('public-profile-rate-preview').innerHTML = window.renderRateCardBox ? window.renderRateCardBox(card) : '';
-    }).catch(function(){});
+    if (!profile.hide_rate || isOwnProfile){
+      window.mmSupabase.from('artist_rate_cards').select('*').eq('user_id', profile.id).maybeSingle().then(function(res){
+        var card = (res.error || !res.data) ? null : res.data;
+        if (!card || card.rate_amount == null || !card.booking_agent_terms_accepted_at) return;
+        document.getElementById('public-profile-rate-box').style.display = 'block';
+        document.getElementById('public-profile-rate-preview').innerHTML = window.renderRateCardBox ? window.renderRateCardBox(card) : '';
+      }).catch(function(){});
+    }
 
     window.mmSupabase.from('profile_media').select('*').eq('user_id', profile.id).order('sort_order', { ascending: true }).then(function(res){
       var rows = res.data || [];
@@ -286,14 +290,26 @@
     }).catch(function(){});
   }
 
+  function renderPrivate(){
+    document.getElementById('public-profile-loading').style.display = 'none';
+    document.getElementById('public-profile-private').style.display = 'block';
+  }
+
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template,profile_visibility,hide_rate,hide_exact_location')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }
-        renderProfile(res.data);
+        var profile = res.data;
+        var user = currentUser();
+        if (user && user.id === profile.id){ renderProfile(profile); return; }
+        (window.mmLoadMyFollowSets ? window.mmLoadMyFollowSets() : Promise.resolve(null)).then(function(followSets){
+          var canView = window.mmCanViewProfile ? window.mmCanViewProfile(profile, user && user.id, followSets) : true;
+          if (!canView){ renderPrivate(); return; }
+          renderProfile(profile);
+        });
       })
       .catch(function(){ renderNotFound(); });
   });

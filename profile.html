@@ -98,6 +98,17 @@
       <a href="index.html" class="btn-secondary">Back to Music Motel</a>
     </div>
 
+    <div id="public-profile-private" style="display:none;">
+      <div class="section-head">
+        <div>
+          <span class="tag" style="color:var(--purple);">/ Profile</span>
+          <h2 class="display" id="public-profile-private-heading">This profile is private.</h2>
+        </div>
+        <p id="public-profile-private-sub">The owner has limited who can see this profile.</p>
+      </div>
+      <a href="index.html" class="btn-secondary">Back to Music Motel</a>
+    </div>
+
     <div id="public-profile-body" style="display:none;">
       <div class="section-head">
         <div>
@@ -234,6 +245,25 @@
           <button class="invite-copy-btn" id="share-profile-btn">Share</button>
         </div>
         <div class="invite-status" id="share-profile-status"></div>
+      </div>
+
+      <div class="fan-card" id="privacy-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Privacy</h3>
+        </div>
+        <p class="invite-desc">Control who can see your profile, and hide specific details if you'd rather keep them private.</p>
+        <div class="form-field">
+          <label for="privacy-visibility-select">Who can see my profile</label>
+          <select id="privacy-visibility-select">
+            <option value="public">Public — anyone with the link</option>
+            <option value="followers_only">My network — people I follow or who follow me</option>
+            <option value="private">Private — only me</option>
+          </select>
+        </div>
+        <label class="terms-check"><input type="checkbox" id="privacy-hide-rate-check"><span>Hide my rate from my public profile</span></label>
+        <label class="terms-check"><input type="checkbox" id="privacy-hide-location-check"><span>Hide my exact location (people searching nearby still see a distance, not your location name)</span></label>
+        <button class="fan-add-btn" id="privacy-save-btn" type="button" style="margin-top:10px;">Save</button>
+        <div class="rate-card-note" id="privacy-status" role="status"></div>
       </div>
 
       <div class="fan-card">
@@ -853,6 +883,7 @@
 <script src="js/avatar-lightbox.js"></script>
 <script src="js/profile-modal.js"></script>
 <script src="js/referral.js"></script>
+<script src="js/privacy.js"></script>
 <script src="js/invite-gig-follow.js"></script>
 <script src="js/preferences.js"></script>
 <script src="js/avatar-upload.js"></script>
