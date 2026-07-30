@@ -372,6 +372,11 @@
       var itemLabel = document.getElementById('funding-item-label').value.trim();
       var title = titleInput.value.trim() || catMeta(category).heading;
       var itemLink = document.getElementById('funding-item-link').value.trim();
+      // Most people type a bare domain ("myshop.co.za") without a scheme —
+      // silently rejecting the whole submission over a missing "https://"
+      // was the actual cause of campaigns never saving, so normalize
+      // instead of blocking.
+      if (itemLink && !/^https?:\/\//i.test(itemLink)) itemLink = 'https://' + itemLink;
       var whyText = document.getElementById('funding-why').value.trim();
       var howItHelps = document.getElementById('funding-how').value.trim();
       var goal = goalField.getUsdAmount();
@@ -389,10 +394,6 @@
       }
       if (isNaN(goal) || goal <= 0){
         statusEl.textContent = 'Enter a goal amount greater than 0.';
-        return;
-      }
-      if (itemLink && !/^https?:\/\//i.test(itemLink)){
-        statusEl.textContent = 'The item link should start with http:// or https://';
         return;
       }
       if (!policyChecked){
