@@ -119,6 +119,7 @@
         photoImg.className = 'gear-card-photo';
         photoImg.alt = '';
         photoImg.src = g.photoUrl;
+        if (window.mmMakePhotoTappable) window.mmMakePhotoTappable(photoImg, g.name);
         card.insertBefore(photoImg, card.firstChild);
       }
       card.querySelector('.gear-claim-btn').addEventListener('click', function(){

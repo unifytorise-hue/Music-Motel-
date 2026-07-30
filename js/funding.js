@@ -198,6 +198,7 @@
         photoImg.className = 'campaign-card-photo';
         photoImg.alt = '';
         photoImg.src = c.photo_url;
+        if (window.mmMakePhotoTappable) window.mmMakePhotoTappable(photoImg, c.title);
         card.insertBefore(photoImg, card.firstChild);
       }
       card.querySelector('[data-action="view"]').addEventListener('click', function(){
@@ -708,6 +709,7 @@
       var img = document.createElement('img');
       img.alt = '';
       img.src = p.photo_url;
+      if (window.mmMakePhotoTappable) window.mmMakePhotoTappable(img, currentSingleCampaign && currentSingleCampaign.title);
       box.appendChild(img);
     });
   }
@@ -735,6 +737,7 @@
       var img = document.createElement('img');
       img.alt = '';
       img.src = campaign.photo_url;
+      if (window.mmMakePhotoTappable) window.mmMakePhotoTappable(img, campaign.title);
       photoBox.appendChild(img);
       photoBox.style.display = 'block';
     } else {
@@ -789,6 +792,7 @@
       var img = document.createElement('img');
       img.alt = '';
       img.src = campaign.photo_url;
+      if (window.mmMakePhotoTappable) window.mmMakePhotoTappable(img, campaign.title);
       photoBox.appendChild(img);
       photoBox.style.display = 'block';
     } else {
@@ -1064,6 +1068,7 @@
         img.className = 'campaign-quote-photo';
         img.alt = '';
         img.src = q.photo_url;
+        if (window.mmMakePhotoTappable) window.mmMakePhotoTappable(img, q.item_description);
         item.insertBefore(img, item.firstChild);
       }
       if (isOwner && q.status === 'pending'){
