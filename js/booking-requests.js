@@ -263,9 +263,18 @@
 
   function initRates(){
     if (!(configured() && currentUser())) return;
-    loadMyRates().then(function(rates){
-      myRates = rates;
-      renderRates();
+    var card = document.getElementById('rates-card');
+    (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+      // Quick-reply price presets exist to answer booking requests — a fan
+      // never receives any, so there's nothing for this card to do.
+      if (accountType === 'fan'){
+        if (card) card.style.display = 'none';
+        return;
+      }
+      loadMyRates().then(function(rates){
+        myRates = rates;
+        renderRates();
+      });
     });
   }
 
@@ -479,7 +488,19 @@
     if (!(configured() && currentUser())) return;
     var requestsCard = document.getElementById('requests-card');
     if (requestsCard) requestsCard.style.display = 'block';
-    loadIncomingRequests().then(function(rows){ incomingRequests = rows; renderIncoming(); });
+    // "Requests for you" only makes sense for someone who can be booked —
+    // nobody sends a fan a quote request — so it hides for fan accounts
+    // while "Your sent requests" (a fan requesting a quote from an artist)
+    // stays visible either way.
+    var incomingSection = document.getElementById('incoming-requests-section');
+    (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+      if (accountType === 'fan'){
+        if (incomingSection) incomingSection.style.display = 'none';
+        return;
+      }
+      if (incomingSection) incomingSection.style.display = 'block';
+      loadIncomingRequests().then(function(rows){ incomingRequests = rows; renderIncoming(); });
+    });
     loadSentRequests().then(function(rows){ sentRequests = rows; renderSent(); });
     loadMyReviewedBookingIds().then(function(map){ reviewedBookingIds = map; renderSent(); });
   }

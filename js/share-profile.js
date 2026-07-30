@@ -99,8 +99,16 @@
     document.title = profile.name + ' — Music Motel';
 
     var noun = bookingNoun(profile);
+    var isFanProfile = profile.account_type === 'fan';
     document.getElementById('public-profile-tag').textContent = '/ ' + (noun === 'band' ? 'Band' : noun === 'artist' ? 'Artist' : 'Profile');
-    document.getElementById('public-profile-heading').textContent = 'Book this ' + noun + ' now';
+    // A fan has nothing to book — same condition already used below to hide
+    // the "Request a quote" button — so the heading shouldn't imply they do.
+    document.getElementById('public-profile-heading').textContent = isFanProfile
+      ? (profile.name || 'This profile') + ' on Music Motel'
+      : 'Book this ' + noun + ' now';
+    document.getElementById('public-profile-sub').textContent = isFanProfile
+      ? 'A fan on Music Motel — follow to keep up with them.'
+      : 'Real profile on Music Motel — connect directly, no agency markup.';
     document.getElementById('public-profile-name').textContent = profile.name || 'Unnamed profile';
     document.getElementById('public-profile-role').textContent = profile.role_label || (window.mmAccountTypeLabel ? window.mmAccountTypeLabel(profile.account_type) : profile.account_type) || '';
 
@@ -124,6 +132,29 @@
     instrEl.innerHTML = (profile.instruments || []).map(function(instr){
       return '<span class="profile-modal-badge">' + escapeHtml(instr) + '</span>';
     }).join('');
+
+    var tasteBox = document.getElementById('public-profile-taste-box');
+    var bandsWrap = document.getElementById('public-profile-bands-wrap');
+    var songsWrap = document.getElementById('public-profile-songs-wrap');
+    var wantLiveEl = document.getElementById('public-profile-want-live');
+    var hasBands = profile.favorite_bands && profile.favorite_bands.length;
+    var hasSongs = profile.favorite_songs && profile.favorite_songs.length;
+    var hasWantLive = !!profile.want_to_see_live;
+    tasteBox.style.display = (hasBands || hasSongs || hasWantLive) ? 'block' : 'none';
+    if (hasWantLive){
+      wantLiveEl.style.display = 'block';
+      wantLiveEl.textContent = 'Wants to see ' + profile.want_to_see_live + ' live.';
+    } else {
+      wantLiveEl.style.display = 'none';
+    }
+    bandsWrap.style.display = hasBands ? 'block' : 'none';
+    document.getElementById('public-profile-bands').innerHTML = hasBands
+      ? profile.favorite_bands.map(function(b){ return '<span class="profile-modal-badge">' + escapeHtml(b) + '</span>'; }).join('')
+      : '';
+    songsWrap.style.display = hasSongs ? 'block' : 'none';
+    document.getElementById('public-profile-songs').innerHTML = hasSongs
+      ? profile.favorite_songs.map(function(s){ return '<span class="profile-modal-badge">' + escapeHtml(s) + '</span>'; }).join('')
+      : '';
 
     // profile.avatar_color/avatar_url are remote, other-user-controlled data
     // — mmRenderAvatar assigns them via img.src / a regex-validated color
@@ -179,7 +210,7 @@
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }
