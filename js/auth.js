@@ -102,6 +102,8 @@
 
     var signinNav = document.getElementById('open-signin-nav');
     var signupNav = document.getElementById('open-signup-nav');
+    var signinNavCompact = document.getElementById('open-signin-nav-compact');
+    var signupNavCompact = document.getElementById('open-signup-nav-compact');
     var accountEl = document.getElementById('nav-account');
     var accountEmail = document.getElementById('nav-account-email');
     var navAvatar = document.getElementById('nav-avatar');
@@ -127,6 +129,8 @@
     var displayName = (currentProfileName || (currentUser && currentUser.email) || '');
     if (signinNav) signinNav.style.display = signedIn ? 'none' : '';
     if (signupNav) signupNav.style.display = signedIn ? 'none' : '';
+    if (signinNavCompact) signinNavCompact.style.display = signedIn ? 'none' : '';
+    if (signupNavCompact) signupNavCompact.style.display = signedIn ? 'none' : '';
     // Two more "Create your free profile" CTAs live further down the page (hero,
     // bottom cta-section) — pointless to show someone who already has a
     // profile, same reasoning as hiding the nav version above.
@@ -218,7 +222,7 @@
     }
     window.openSignin = openSignin;
 
-    ['open-signin-nav', 'open-signin-mobile'].forEach(function(id){
+    ['open-signin-nav', 'open-signin-mobile', 'open-signin-nav-compact'].forEach(function(id){
       var el = document.getElementById(id);
       if (el) el.addEventListener('click', function(e){
         e.preventDefault();

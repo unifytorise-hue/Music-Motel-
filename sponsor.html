@@ -42,6 +42,8 @@
         <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
         <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
       </div>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta-compact" id="open-signup-nav-compact">Sign up</a>
       <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -175,7 +177,7 @@
   // dead links. A second, independent listener still fires after the first
   // one's preventDefault(), since preventDefault only suppresses the
   // browser's default navigation, not other JS listeners on the same element.
-  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile'].forEach(function(id){
+  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile', 'open-signin-nav-compact', 'open-signup-nav-compact'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
   });
