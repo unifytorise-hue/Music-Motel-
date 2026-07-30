@@ -63,6 +63,17 @@
     return ACCOUNT_TYPE_LABELS[type] || type || '';
   };
 
+  // Shared by every place that shows a profile's category line — combines
+  // the account type with the free-text role/genre they typed at signup
+  // (e.g. "Musician - Rock") instead of showing only one, which drops
+  // whichever half wasn't picked.
+  window.mmRoleAndTypeLabel = function(profile){
+    if (!profile) return '';
+    var typeLabel = window.mmAccountTypeLabel(profile.account_type);
+    if (profile.role_label) return (typeLabel ? typeLabel + ' - ' : '') + profile.role_label;
+    return typeLabel;
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

@@ -110,7 +110,7 @@
       ? 'A fan on Music Motel — follow to keep up with them.'
       : 'Real profile on Music Motel — connect directly, no agency markup.';
     document.getElementById('public-profile-name').textContent = profile.name || 'Unnamed profile';
-    document.getElementById('public-profile-role').textContent = profile.role_label || (window.mmAccountTypeLabel ? window.mmAccountTypeLabel(profile.account_type) : profile.account_type) || '';
+    document.getElementById('public-profile-role').textContent = window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(profile) : (profile.role_label || '');
 
     var locRow = document.getElementById('public-profile-loc');
     if (profile.location_label){

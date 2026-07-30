@@ -745,7 +745,7 @@
     }
 
     document.getElementById('funding-single-owner-name').textContent = owner ? owner.name : 'Someone on Music Motel';
-    document.getElementById('funding-single-owner-role').textContent = owner ? (owner.role_label || (window.mmAccountTypeLabel ? window.mmAccountTypeLabel(owner.account_type) : owner.account_type) || '') : '';
+    document.getElementById('funding-single-owner-role').textContent = owner && window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(owner) : '';
     if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('funding-single-owner-avatar'), owner && owner.avatar_url, owner && owner.avatar_color, owner && owner.name);
 
     applyCampaignMeta(campaign);

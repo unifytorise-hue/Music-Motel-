@@ -119,9 +119,8 @@
     visible.forEach(function(p){
       var isBand = p.profile_kind === 'band';
       var subBits = [];
-      var typeLabel = window.mmAccountTypeLabel ? window.mmAccountTypeLabel(p.account_type) : p.account_type;
-      if (p.role_label) subBits.push(typeLabel + ' - ' + p.role_label);
-      else if (typeLabel) subBits.push(typeLabel);
+      var roleAndType = window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(p) : '';
+      if (roleAndType) subBits.push(roleAndType);
       if (p.location_label) subBits.push(p.location_label);
       if (p._distanceKm != null && window.mmFormatDistanceKm) subBits.push(window.mmFormatDistanceKm(p._distanceKm));
 
