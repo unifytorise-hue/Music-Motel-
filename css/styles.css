@@ -532,17 +532,15 @@
   }
   .sponsor-cta-btn:disabled:hover{ transform:none; opacity:1; }
 
-  /* Sponsorship applications aren't open yet — the real CTA sits
-     underneath, greyed out and inert, with this glowing sign covering
-     the whole tier card so it's unmistakably "not yet" rather than
-     "broken", on every tier, not just the button. */
+  /* Sponsorship applications aren't open yet, but the tier details
+     shouldn't be hidden — the whole card body is desaturated and dimmed
+     (still fully readable, just visibly inert) rather than blurred out,
+     with the glowing sign layered on top in full color so it's
+     unmistakably "not yet" rather than "broken". */
+  .sponsor-card-body{ filter:grayscale(1) opacity(0.55); }
   .sponsor-coming-soon-overlay{
     position:absolute; inset:0;
     display:flex; align-items:center; justify-content:center;
-    background:rgba(14,13,18,0.94);
-    backdrop-filter:blur(3px);
-    -webkit-backdrop-filter:blur(3px);
-    border-radius:14px;
     pointer-events:none;
   }
   .sponsor-coming-soon-overlay span{
