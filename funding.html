@@ -118,6 +118,38 @@
       <a href="funding.html" class="btn-secondary">See all campaigns</a>
     </div>
 
+    <div id="funding-draft-body" style="display:none;">
+      <div class="section-head">
+        <div>
+          <span class="tag" style="color:var(--yellow);">/ Draft — only you can see this</span>
+          <h2 class="display" id="funding-draft-title">—</h2>
+        </div>
+        <p>Review and edit everything below, then publish when you're ready. Once live, you can only add more details and photos — not remove what's already there.</p>
+      </div>
+
+      <div class="campaign-photo" id="funding-draft-photo" style="display:none; max-width:640px;"></div>
+
+      <div class="content-box" style="max-width:640px;">
+        <p class="rate-card-note" id="funding-draft-item-label" style="margin-bottom:10px;"></p>
+        <div>
+          <h3 class="campaign-story-label">Why they need this</h3>
+          <p class="campaign-story" id="funding-draft-why"></p>
+        </div>
+        <div style="margin-top:16px;">
+          <h3 class="campaign-story-label">How this helps</h3>
+          <p class="campaign-story" id="funding-draft-how"></p>
+        </div>
+        <div style="margin-top:16px;">
+          <h3 class="campaign-story-label">Goal</h3>
+          <p class="campaign-story" id="funding-draft-goal"></p>
+        </div>
+
+        <div class="loc-search-status" id="funding-draft-status" role="status"></div>
+        <button class="fan-add-btn" id="funding-draft-edit-btn" type="button" style="margin-top:16px;">Edit draft</button>
+        <button class="btn-primary" id="funding-draft-publish-btn" style="width:100%; text-align:center; margin-top:12px;">Publish campaign — go live</button>
+      </div>
+    </div>
+
     <div id="funding-single-body" style="display:none;">
       <div class="section-head">
         <div>
@@ -137,6 +169,8 @@
       </div>
 
       <div class="campaign-photo" id="funding-single-photo" style="display:none; max-width:640px;"></div>
+
+      <div class="campaign-gallery" id="funding-single-gallery" style="display:none;"></div>
 
       <a class="item-link-bar" id="funding-single-item-link" href="#" target="_blank" rel="noopener noreferrer" style="display:none; max-width:640px;">View the item to buy or sponsor →</a>
 
@@ -164,6 +198,20 @@
       <div class="content-box" id="funding-single-supporters-box" style="max-width:640px; margin-top:16px; display:none;">
         <h3 style="margin-bottom:6px;">Recent support</h3>
         <div id="funding-single-supporters-list"></div>
+      </div>
+
+      <div class="content-box" id="funding-single-owner-tools" style="max-width:640px; margin-top:16px; display:none;">
+        <h3 style="margin-bottom:10px;">Campaign tools</h3>
+        <button class="fan-add-btn" id="funding-single-edit-btn" type="button">Edit details</button>
+        <div class="avatar-upload-row" style="margin-top:16px;">
+          <div class="avatar-upload-preview" id="funding-gallery-photo-preview" style="border-radius:10px;"></div>
+          <div class="avatar-upload-actions">
+            <input type="file" id="funding-gallery-photo-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+            <button class="fan-add-btn" id="funding-gallery-photo-btn" type="button">Add another photo</button>
+          </div>
+        </div>
+        <p class="invite-desc" style="margin-top:8px;">Photos can only be added, never removed, once your campaign is live.</p>
+        <div class="loc-search-status" id="funding-gallery-status" role="status"></div>
       </div>
 
       <div class="content-box" style="max-width:640px; margin-top:16px;">
@@ -351,6 +399,46 @@
       <label class="terms-check"><input type="checkbox" id="funding-quote-policy-check"><span>I have read and agree to the Fundraising &amp; Marketplace Policy above.</span></label>
       <div class="loc-search-status" id="funding-quote-status" role="status"></div>
       <button class="signup-submit" id="funding-quote-save-btn">Submit quote</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay" id="funding-live-edit-modal" role="dialog" aria-modal="true" aria-labelledby="funding-live-edit-title">
+  <div class="signup-card" style="max-width:520px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--yellow);">/ Edit campaign</span>
+        <h2 class="display" id="funding-live-edit-title" style="font-size:26px;">Edit your campaign</h2>
+      </div>
+      <button class="modal-close" id="funding-live-edit-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="policy-box">
+        <p class="policy-box-title">Editing a live campaign</p>
+        <p>You can add details or fix mistakes, but please don't remove existing content. The goal amount and category can't be changed once a campaign is live.</p>
+      </div>
+      <div class="form-field" id="funding-live-edit-item-label-field">
+        <label for="funding-live-edit-item-label" id="funding-live-edit-item-label-label">Which gear?</label>
+        <input type="text" id="funding-live-edit-item-label">
+      </div>
+      <div class="form-field">
+        <label for="funding-live-edit-title-input">Campaign title</label>
+        <input type="text" id="funding-live-edit-title-input">
+      </div>
+      <div class="form-field">
+        <label for="funding-live-edit-link">Link to buy or sponsor this item</label>
+        <input type="url" id="funding-live-edit-link">
+      </div>
+      <div class="form-field">
+        <label for="funding-live-edit-why">Why they need this</label>
+        <textarea id="funding-live-edit-why" rows="3"></textarea>
+      </div>
+      <div class="form-field">
+        <label for="funding-live-edit-how">How this helps</label>
+        <textarea id="funding-live-edit-how" rows="3"></textarea>
+      </div>
+      <div class="loc-search-status" id="funding-live-edit-status" role="status"></div>
+      <button class="signup-submit" id="funding-live-edit-save-btn">Save changes</button>
     </div>
   </div>
 </div>

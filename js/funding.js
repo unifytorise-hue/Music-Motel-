@@ -125,6 +125,11 @@
   var profilesById = {};
   var activeFilter = 'all';
 
+  // Assigned inside the start-modal wiring block below (where the form's
+  // DOM refs already live) — declared up here so initSingleView/renderDraftView
+  // can call it once a draft campaign is loaded.
+  var openEditDraftModal;
+
   function renderFilterTabs(){
     var tabsEl = document.getElementById('funding-filter-tabs');
     if (!tabsEl) return;
@@ -251,7 +256,8 @@
       .subscribe();
   }
 
-  // ===== start a campaign =====
+  // ===== start a campaign (also reused for editing a draft) =====
+  var editingDraftId = null;
   function openStartModal(){
     document.getElementById('funding-start-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -261,6 +267,11 @@
     document.getElementById('funding-start-modal').classList.remove('open');
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
+    // Always drop back to "create" mode on close — openEditDraftModal()
+    // re-applies edit mode fresh each time it's opened, so nothing is lost.
+    editingDraftId = null;
+    document.getElementById('funding-start-title').textContent = 'Start a campaign';
+    document.getElementById('funding-start-save-btn').textContent = 'Start campaign';
   }
   var startBtn = document.getElementById('funding-start-btn');
   if (startBtn){
@@ -337,6 +348,36 @@
       photoPreview.appendChild(previewImg);
     });
 
+    openEditDraftModal = function(campaign){
+      editingDraftId = campaign.id;
+      document.getElementById('funding-start-title').textContent = 'Edit your draft';
+      document.getElementById('funding-start-save-btn').textContent = 'Save changes';
+      categorySelect.value = campaign.category;
+      syncCategoryFields();
+      document.getElementById('funding-item-label').value = campaign.item_label || '';
+      titleInput.value = campaign.title || '';
+      document.getElementById('funding-item-link').value = campaign.item_link || '';
+      document.getElementById('funding-why').value = campaign.why_text || '';
+      document.getElementById('funding-how').value = campaign.how_it_helps || '';
+      var curr = window.mmGetPreferredCurrency ? window.mmGetPreferredCurrency() : 'USD';
+      document.getElementById('funding-goal-currency').value = curr;
+      var goalInCurr = window.mmConvertFromUsd ? window.mmConvertFromUsd(campaign.goal_amount, curr) : campaign.goal_amount;
+      document.getElementById('funding-goal').value = Math.round(goalInCurr * 100) / 100;
+      document.getElementById('funding-start-policy-check').checked = !!campaign.policy_accepted_at;
+      document.getElementById('funding-start-status').textContent = '';
+      selectedPhotoFile = null;
+      photoPreview.innerHTML = '';
+      if (campaign.photo_url){
+        var img = document.createElement('img');
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
+        img.src = campaign.photo_url;
+        photoPreview.appendChild(img);
+      } else {
+        photoPreview.style.background = '';
+      }
+      openStartModal();
+    };
+
     function resetStartForm(){
       document.getElementById('funding-category').value = 'gear';
       document.getElementById('funding-item-label').value = '';
@@ -401,10 +442,7 @@
         return;
       }
 
-      saveBtn.disabled = true;
-      statusEl.textContent = 'Starting your campaign…';
-      window.mmSupabase.from('funding_campaigns').insert({
-        user_id: user.id,
+      var payload = {
         category: category,
         item_label: catMeta(category).itemLabel ? itemLabel : '',
         title: title,
@@ -413,7 +451,34 @@
         how_it_helps: howItHelps,
         goal_amount: goal,
         policy_accepted_at: new Date().toISOString()
-      }).select().single().then(function(res){
+      };
+
+      saveBtn.disabled = true;
+
+      if (editingDraftId){
+        var draftId = editingDraftId;
+        statusEl.textContent = 'Saving changes…';
+        window.mmSupabase.from('funding_campaigns').update(payload).eq('id', draftId).then(function(res){
+          if (res.error){
+            saveBtn.disabled = false;
+            statusEl.textContent = res.error.message;
+            return;
+          }
+          var photoStep = selectedPhotoFile ? uploadCampaignPhoto(draftId, selectedPhotoFile).catch(function(){}) : Promise.resolve();
+          photoStep.then(function(){
+            saveBtn.disabled = false;
+            statusEl.textContent = '';
+            closeStartModal();
+            resetStartForm();
+            initSingleView(draftId);
+          });
+        });
+        return;
+      }
+
+      statusEl.textContent = 'Starting your campaign…';
+      window.mmSupabase.from('funding_campaigns').insert(Object.assign({ user_id: user.id }, payload))
+        .select().single().then(function(res){
         if (res.error){
           saveBtn.disabled = false;
           statusEl.textContent = res.error.message;
@@ -624,6 +689,29 @@
     document.getElementById('funding-single-notfound').style.display = 'block';
   }
 
+  // ===== photo gallery (add-only once a campaign is live) =====
+  function loadGalleryPhotos(campaignId){
+    window.mmSupabase.from('campaign_gallery_photos').select('*').eq('campaign_id', campaignId)
+      .order('created_at', { ascending: true })
+      .then(function(res){ renderGalleryPhotos(res.data || []); })
+      .catch(function(){});
+  }
+  function renderGalleryPhotos(photos){
+    var box = document.getElementById('funding-single-gallery');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!photos.length){ box.style.display = 'none'; return; }
+    box.style.display = 'flex';
+    photos.forEach(function(p){
+      // p.photo_url is remote, owner-controlled data — same .src-property
+      // convention used for every other remote image on the site.
+      var img = document.createElement('img');
+      img.alt = '';
+      img.src = p.photo_url;
+      box.appendChild(img);
+    });
+  }
+
   function renderSingleCampaign(campaign, owner){
     document.getElementById('funding-single-loading').style.display = 'none';
     document.getElementById('funding-single-body').style.display = 'block';
@@ -661,11 +749,70 @@
     renderSingleProgress(campaign);
     loadSupporters(campaign.id);
     loadQuotes(campaign.id);
+    loadGalleryPhotos(campaign.id);
 
+    // Assigned (not addEventListener) since initSingleView can re-render
+    // this same campaign after a publish/edit — addEventListener would
+    // stack a duplicate handler on every re-render.
     var shareBtn = document.getElementById('funding-single-share-btn');
-    if (shareBtn) shareBtn.addEventListener('click', function(){ shareCampaign(campaign); });
+    if (shareBtn) shareBtn.onclick = function(){ shareCampaign(campaign); };
     var quoteBtn = document.getElementById('funding-single-quote-btn');
-    if (quoteBtn) quoteBtn.addEventListener('click', function(){ openQuoteModal(campaign); });
+    if (quoteBtn) quoteBtn.onclick = function(){ openQuoteModal(campaign); };
+
+    var user = currentUser();
+    var isOwner = !!(user && user.id === campaign.user_id);
+    var ownerTools = document.getElementById('funding-single-owner-tools');
+    if (ownerTools) ownerTools.style.display = isOwner ? 'block' : 'none';
+    var editBtn = document.getElementById('funding-single-edit-btn');
+    if (editBtn) editBtn.onclick = function(){ openLiveEditModal(campaign); };
+  }
+
+  // ===== draft view (owner-only, before a campaign goes live) =====
+  function renderDraftView(campaign){
+    document.getElementById('funding-single-loading').style.display = 'none';
+    document.getElementById('funding-draft-body').style.display = 'block';
+    currentSingleCampaign = campaign;
+
+    var meta = catMeta(campaign.category);
+    document.title = 'Draft — ' + (campaign.title || meta.heading) + ' — Music Motel';
+    document.getElementById('funding-draft-title').textContent = campaign.title || meta.heading;
+    document.getElementById('funding-draft-item-label').textContent = campaign.item_label
+      ? (meta.itemLabel || 'Item') + ': ' + campaign.item_label
+      : '';
+    document.getElementById('funding-draft-why').textContent = campaign.why_text || '';
+    document.getElementById('funding-draft-how').textContent = campaign.how_it_helps || '';
+    document.getElementById('funding-draft-goal').textContent = money(campaign.goal_amount) + ' goal';
+
+    var photoBox = document.getElementById('funding-draft-photo');
+    photoBox.innerHTML = '';
+    if (campaign.photo_url){
+      var img = document.createElement('img');
+      img.alt = '';
+      img.src = campaign.photo_url;
+      photoBox.appendChild(img);
+      photoBox.style.display = 'block';
+    } else {
+      photoBox.style.display = 'none';
+    }
+
+    document.getElementById('funding-draft-status').textContent = '';
+    document.getElementById('funding-draft-edit-btn').onclick = function(){
+      if (openEditDraftModal) openEditDraftModal(campaign);
+    };
+    document.getElementById('funding-draft-publish-btn').onclick = function(){ publishCampaign(campaign); };
+  }
+
+  function publishCampaign(campaign){
+    var btn = document.getElementById('funding-draft-publish-btn');
+    var statusEl = document.getElementById('funding-draft-status');
+    btn.disabled = true;
+    statusEl.textContent = 'Publishing…';
+    window.mmSupabase.from('funding_campaigns').update({ status: 'active' }).eq('id', campaign.id).then(function(res){
+      btn.disabled = false;
+      if (res.error){ statusEl.textContent = res.error.message; return; }
+      if (window.showToast) window.showToast('Campaign is live!');
+      initSingleView(campaign.id);
+    });
   }
 
   function initSingleView(campaignId){
@@ -674,22 +821,164 @@
     if (browseView) browseView.style.display = 'none';
     if (singleView) singleView.style.display = '';
 
+    // Reset every sub-state so re-entry (publishing, saving an edit) never
+    // leaves a stale view showing underneath the new one.
+    document.getElementById('funding-single-loading').style.display = 'block';
+    document.getElementById('funding-single-notfound').style.display = 'none';
+    document.getElementById('funding-single-body').style.display = 'none';
+    document.getElementById('funding-draft-body').style.display = 'none';
+
     if (!configured()){ renderSingleNotFound(); return; }
     window.mmSupabase.from('funding_campaigns').select('*').eq('id', campaignId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderSingleNotFound(); return; }
         var campaign = res.data;
         var user = currentUser();
+        var isOwner = !!(user && user.id === campaign.user_id);
+        // A draft is only visible to its own owner — anyone else gets the
+        // same "not found" treatment as a genuinely missing campaign.
+        if (campaign.status === 'draft' && !isOwner){ renderSingleNotFound(); return; }
         var ids = user ? [campaign.user_id, user.id] : [campaign.user_id];
         return loadProfilesByIds(ids).then(function(map){
           // Merged into the shared map (not reassigned) so openSupportModal's
           // own-name prefill also works when pledging from this view — the
           // browse-grid flow is the only other place that populates it.
           Object.keys(map).forEach(function(id){ profilesById[id] = map[id]; });
-          renderSingleCampaign(campaign, map[campaign.user_id]);
+          if (campaign.status === 'draft'){
+            renderDraftView(campaign);
+          } else {
+            renderSingleCampaign(campaign, map[campaign.user_id]);
+          }
         });
       })
       .catch(function(){ renderSingleNotFound(); });
+  }
+
+  // ===== live campaign edit (owner, append-only once published) =====
+  var liveEditTarget = null;
+
+  function openLiveEditModal(campaign){
+    liveEditTarget = campaign;
+    var meta = catMeta(campaign.category);
+    var itemLabelField = document.getElementById('funding-live-edit-item-label-field');
+    if (meta.itemLabel){
+      itemLabelField.style.display = 'block';
+      document.getElementById('funding-live-edit-item-label-label').textContent = meta.itemLabel;
+      document.getElementById('funding-live-edit-item-label').value = campaign.item_label || '';
+    } else {
+      itemLabelField.style.display = 'none';
+    }
+    document.getElementById('funding-live-edit-title-input').value = campaign.title || '';
+    document.getElementById('funding-live-edit-link').value = campaign.item_link || '';
+    document.getElementById('funding-live-edit-why').value = campaign.why_text || '';
+    document.getElementById('funding-live-edit-how').value = campaign.how_it_helps || '';
+    document.getElementById('funding-live-edit-status').textContent = '';
+    var modal = document.getElementById('funding-live-edit-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeLiveEditModal(){
+    var modal = document.getElementById('funding-live-edit-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+
+  var liveEditCloseBtn = document.getElementById('funding-live-edit-close-btn');
+  if (liveEditCloseBtn){
+    liveEditCloseBtn.addEventListener('click', closeLiveEditModal);
+    document.getElementById('funding-live-edit-modal').addEventListener('click', function(e){
+      if (e.target.id === 'funding-live-edit-modal') closeLiveEditModal();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.getElementById('funding-live-edit-modal').classList.contains('open')) closeLiveEditModal();
+    });
+
+    document.getElementById('funding-live-edit-save-btn').addEventListener('click', function(){
+      if (!liveEditTarget) return;
+      var itemLabel = document.getElementById('funding-live-edit-item-label').value.trim();
+      var title = document.getElementById('funding-live-edit-title-input').value.trim() || catMeta(liveEditTarget.category).heading;
+      var itemLink = document.getElementById('funding-live-edit-link').value.trim();
+      if (itemLink && !/^https?:\/\//i.test(itemLink)) itemLink = 'https://' + itemLink;
+      var whyText = document.getElementById('funding-live-edit-why').value.trim();
+      var howItHelps = document.getElementById('funding-live-edit-how').value.trim();
+      var statusEl = document.getElementById('funding-live-edit-status');
+      var saveBtn = document.getElementById('funding-live-edit-save-btn');
+
+      if (!whyText || !howItHelps){
+        statusEl.textContent = "Why and how can't be left empty.";
+        return;
+      }
+
+      saveBtn.disabled = true;
+      statusEl.textContent = 'Saving…';
+      window.mmSupabase.from('funding_campaigns').update({
+        item_label: catMeta(liveEditTarget.category).itemLabel ? itemLabel : '',
+        title: title,
+        item_link: itemLink,
+        why_text: whyText,
+        how_it_helps: howItHelps
+      }).eq('id', liveEditTarget.id).then(function(res){
+        saveBtn.disabled = false;
+        if (res.error){ statusEl.textContent = res.error.message; return; }
+        statusEl.textContent = '';
+        var editedId = liveEditTarget.id;
+        closeLiveEditModal();
+        if (window.showToast) window.showToast('Campaign updated.');
+        initSingleView(editedId);
+      });
+    });
+  }
+
+  // ===== gallery photo upload (owner, append-only once published) =====
+  var MAX_GALLERY_PHOTO_BYTES = 5 * 1024 * 1024;
+  var GALLERY_PHOTO_EXT_BY_TYPE = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' };
+  var galleryPhotoBtn = document.getElementById('funding-gallery-photo-btn');
+  var galleryPhotoInput = document.getElementById('funding-gallery-photo-input');
+  if (galleryPhotoBtn && galleryPhotoInput){
+    galleryPhotoBtn.addEventListener('click', function(){ galleryPhotoInput.click(); });
+    galleryPhotoInput.addEventListener('change', function(){
+      var file = galleryPhotoInput.files && galleryPhotoInput.files[0];
+      galleryPhotoInput.value = '';
+      if (!file || !currentSingleCampaign) return;
+      var statusEl = document.getElementById('funding-gallery-status');
+      if (Object.keys(GALLERY_PHOTO_EXT_BY_TYPE).indexOf(file.type) === -1){
+        statusEl.textContent = 'Please choose a PNG, JPEG, WEBP, or GIF image.';
+        return;
+      }
+      if (file.size > MAX_GALLERY_PHOTO_BYTES){
+        statusEl.textContent = 'That image is too large — please choose one under 5MB.';
+        return;
+      }
+      var user = currentUser();
+      if (!user) return;
+      var campaignId = currentSingleCampaign.id;
+      var ext = GALLERY_PHOTO_EXT_BY_TYPE[file.type] || 'jpg';
+      // Unique filename per upload (not the fixed-key upsert pattern used
+      // for a single cover photo) — this is an append-only gallery, so
+      // every upload is a new object, never an overwrite.
+      var path = user.id + '/' + campaignId + '-' + Date.now() + '.' + ext;
+      statusEl.textContent = 'Uploading…';
+      galleryPhotoBtn.disabled = true;
+      window.mmSupabase.storage.from('campaign-gallery-photos').upload(path, file, { contentType: file.type, cacheControl: '3600' })
+        .then(function(res){
+          if (res.error) throw res.error;
+          var pub = window.mmSupabase.storage.from('campaign-gallery-photos').getPublicUrl(path);
+          return window.mmSupabase.from('campaign_gallery_photos').insert({ campaign_id: campaignId, photo_url: pub.data.publicUrl });
+        })
+        .then(function(res){
+          galleryPhotoBtn.disabled = false;
+          if (res && res.error){ statusEl.textContent = res.error.message; return; }
+          statusEl.textContent = 'Photo added.';
+          loadGalleryPhotos(campaignId);
+        })
+        .catch(function(err){
+          galleryPhotoBtn.disabled = false;
+          statusEl.textContent = (err && err.message) || 'Could not upload that photo.';
+        });
+    });
   }
 
   // ===== shop & seller quotes =====
@@ -948,16 +1237,23 @@
     campaigns.forEach(function(c){
       var meta = catMeta(c.category);
       var pct = progressPct(c);
+      var isDraft = c.status === 'draft';
       var item = document.createElement('div');
       item.className = 'gig-log-item';
       item.innerHTML =
         '<span class="gig-log-dot" style="background:' + meta.color + ';"></span>' +
         '<div style="flex:1;">' +
-          '<h5><a href="funding.html?id=' + c.id + '" style="color:inherit;">' + escapeHtml(c.title || meta.heading) + '</a></h5>' +
-          '<p>' + escapeHtml(money(c.raised_amount)) + ' of ' + escapeHtml(money(c.goal_amount)) + ' — ' + pct + '% funded</p>' +
+          '<h5><a href="funding.html?id=' + c.id + '" style="color:inherit;">' + escapeHtml(c.title || meta.heading) +
+            (isDraft ? ' <span class="verification-badge">draft</span>' : '') + '</a></h5>' +
+          '<p>' + (isDraft
+            ? 'Not published yet — only you can see this.'
+            : escapeHtml(money(c.raised_amount)) + ' of ' + escapeHtml(money(c.goal_amount)) + ' — ' + pct + '% funded') + '</p>' +
         '</div>' +
-        '<button class="gig-log-remove" aria-label="Share this campaign">Share</button>';
-      item.querySelector('.gig-log-remove').addEventListener('click', function(){ shareCampaign(c); });
+        '<button class="gig-log-remove" aria-label="' + (isDraft ? 'Continue editing this draft' : 'Share this campaign') + '">' + (isDraft ? 'Continue' : 'Share') + '</button>';
+      item.querySelector('.gig-log-remove').addEventListener('click', function(){
+        if (isDraft) window.location.href = 'funding.html?id=' + c.id;
+        else shareCampaign(c);
+      });
       list.appendChild(item);
     });
   }

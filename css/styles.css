@@ -1368,6 +1368,14 @@
     border:1px solid var(--line); background:var(--black-2);
   }
   .campaign-photo img{ width:100%; max-height:420px; object-fit:cover; display:block; }
+  .campaign-gallery{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-bottom:20px; max-width:640px;
+  }
+  .campaign-gallery img{
+    width:100px; height:100px; object-fit:cover;
+    border-radius:8px; border:1px solid var(--line);
+  }
   .campaign-card-photo{
     width:100%; height:150px; object-fit:cover; display:block;
     border-radius:8px; margin-bottom:14px;
