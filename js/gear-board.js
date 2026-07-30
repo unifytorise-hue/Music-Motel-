@@ -58,7 +58,7 @@
     return window.mmSupabase.from('gear_listings').select('*').order('created_at', { ascending: true })
       .then(function(res){
         var remoteItems = (res.data || []).map(function(row){
-          return { id: row.id, name: row.name, category: row.category, condition: row.condition, loc: row.location_label, remote: true };
+          return { id: row.id, name: row.name, category: row.category, condition: row.condition, loc: row.location_label, photoUrl: row.photo_url, remote: true };
         });
         return SEED_GEAR.concat(remoteItems);
       })
@@ -110,6 +110,17 @@
           '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(g.loc) + '</span>' +
           '<button class="gear-claim-btn' + (isClaimed ? ' claimed' : '') + '">' + (isClaimed ? '✓ Claimed' : 'Claim item') + '</button>' +
         '</div>';
+      // g.photoUrl is remote, owner-controlled data — set via the img
+      // element's own .src property (not string-concatenated into the
+      // innerHTML above), matching the pattern used for every other
+      // remote/other-user-controlled photo on the site.
+      if (g.photoUrl){
+        var photoImg = document.createElement('img');
+        photoImg.className = 'gear-card-photo';
+        photoImg.alt = '';
+        photoImg.src = g.photoUrl;
+        card.insertBefore(photoImg, card.firstChild);
+      }
       card.querySelector('.gear-claim-btn').addEventListener('click', function(){
         if (isClaimed) return;
 
@@ -176,6 +187,56 @@
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && document.getElementById('gear-list-modal').classList.contains('open')) closeGearList();
   });
+
+  // ===== photo picker =====
+  // Only meaningful for the signed-in/remote path — the unconfigured local
+  // path has no storage to upload to, so the picker still works (preview
+  // shows fine) but the file is simply never uploaded for that path.
+  var MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+  var PHOTO_EXT_BY_TYPE = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' };
+  var selectedGearPhotoFile = null;
+  var gearPhotoPreview = document.getElementById('gear-photo-preview');
+  var gearPhotoInput = document.getElementById('gear-photo-input');
+  document.getElementById('gear-photo-btn').addEventListener('click', function(){ gearPhotoInput.click(); });
+  gearPhotoInput.addEventListener('change', function(){
+    var file = gearPhotoInput.files && gearPhotoInput.files[0];
+    gearPhotoInput.value = '';
+    if (!file) return;
+    var statusEl = document.getElementById('gear-list-status');
+    if (Object.keys(PHOTO_EXT_BY_TYPE).indexOf(file.type) === -1){
+      statusEl.textContent = 'Please choose a PNG, JPEG, WEBP, or GIF image.';
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES){
+      statusEl.textContent = 'That image is too large — please choose one under 5MB.';
+      return;
+    }
+    statusEl.textContent = '';
+    selectedGearPhotoFile = file;
+    // Local blob: preview — not routed through window.mmRenderAvatarPlain,
+    // which deliberately only accepts https:// URLs for remote data. This
+    // is a local file the browser's own picker just returned, so building
+    // the blob: URL preview directly here is the right tool for that.
+    gearPhotoPreview.innerHTML = '';
+    var previewImg = document.createElement('img');
+    previewImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
+    previewImg.src = URL.createObjectURL(file);
+    gearPhotoPreview.appendChild(previewImg);
+  });
+
+  function uploadGearPhoto(gearId, file){
+    var user = window.mmAuth.getUser();
+    var ext = PHOTO_EXT_BY_TYPE[file.type] || 'jpg';
+    var path = user.id + '/' + gearId + '.' + ext;
+    return window.mmSupabase.storage.from('gear-photos').upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' })
+      .then(function(res){
+        if (res.error) throw res.error;
+        var pub = window.mmSupabase.storage.from('gear-photos').getPublicUrl(path);
+        var url = pub.data.publicUrl + '?t=' + Date.now();
+        return window.mmSupabase.from('gear_listings').update({ photo_url: url }).eq('id', gearId).then(function(){ return url; });
+      });
+  }
+
   document.getElementById('gear-list-save-btn').addEventListener('click', function(){
     var name = document.getElementById('gear-item-name').value.trim();
     var category = document.getElementById('gear-item-category').value.trim() || 'Other';
@@ -193,6 +254,9 @@
       document.getElementById('gear-item-category').value = '';
       document.getElementById('gear-item-condition').value = '';
       document.getElementById('gear-item-loc').value = '';
+      selectedGearPhotoFile = null;
+      gearPhotoPreview.innerHTML = '';
+      gearPhotoPreview.style.background = '';
       if (statusEl) statusEl.textContent = '';
       closeGearList();
     }
@@ -204,15 +268,22 @@
         user_id: window.mmAuth.getUser().id,
         name: name, category: category, condition: condition, location_label: loc
       }).select().single().then(function(res){
-        saveBtn.disabled = false;
         if (res.error){
+          saveBtn.disabled = false;
           if (statusEl) statusEl.textContent = res.error.message;
           return;
         }
-        gearItems.push({ id: res.data.id, name: res.data.name, category: res.data.category, condition: res.data.condition, loc: res.data.location_label, remote: true });
-        renderGearTabs();
-        renderGearGrid();
-        resetForm();
+        var newItem = { id: res.data.id, name: res.data.name, category: res.data.category, condition: res.data.condition, loc: res.data.location_label, photoUrl: null, remote: true };
+        var photoStep = selectedGearPhotoFile
+          ? uploadGearPhoto(res.data.id, selectedGearPhotoFile).then(function(url){ newItem.photoUrl = url; }).catch(function(){})
+          : Promise.resolve();
+        photoStep.then(function(){
+          saveBtn.disabled = false;
+          gearItems.push(newItem);
+          renderGearTabs();
+          renderGearGrid();
+          resetForm();
+        });
       });
     } else {
       var newItem = { id:'g-' + Date.now(), name:name, category:category, condition:condition, loc:loc };

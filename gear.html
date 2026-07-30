@@ -129,6 +129,17 @@
         <label for="gear-item-loc">Your city</label>
         <input type="text" id="gear-item-loc" placeholder="e.g. Austin, US">
       </div>
+      <div class="form-field">
+        <label for="gear-photo-input">A photo (optional)</label>
+        <div class="avatar-upload-row">
+          <div class="avatar-upload-preview" id="gear-photo-preview" style="border-radius:10px;"></div>
+          <div class="avatar-upload-actions">
+            <input type="file" id="gear-photo-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+            <button class="fan-add-btn" id="gear-photo-btn" type="button">Add a photo</button>
+          </div>
+        </div>
+        <p class="invite-desc" style="margin-top:8px;">A real photo of the item — listings with a photo get claimed faster.</p>
+      </div>
       <div class="loc-search-status" id="gear-list-status" role="status"></div>
       <button class="signup-submit" id="gear-list-save-btn">List for donation</button>
     </div>
