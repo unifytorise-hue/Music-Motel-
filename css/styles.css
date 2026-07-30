@@ -504,10 +504,29 @@
     font-family:'JetBrains Mono', monospace; font-size:10px;
     letter-spacing:0.08em; padding:5px 10px; border-radius:999px; font-weight:700;
   }
-  .sponsor-card p.desc{ color:var(--cream-dim); font-size:14px; line-height:1.6; margin:14px 0 20px; }
-  .sponsor-card ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .sponsor-slots-badge{
+    display:inline-block; margin-left:8px; vertical-align:middle;
+    font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--sp-color, var(--yellow)); border:1px solid var(--sp-color, var(--yellow));
+    border-radius:999px; padding:3px 9px;
+  }
+  .sponsor-price{ margin:2px 0 14px; }
+  .sponsor-price-amount{ font-family:'Anton', sans-serif; font-size:30px; color:var(--sp-color, var(--cream)); }
+  .sponsor-price-period{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--cream-dim); margin-left:4px; }
+  .sponsor-card p.desc{ color:var(--cream-dim); font-size:14px; line-height:1.6; margin:0 0 20px; }
+  .sponsor-card ul{ list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
   .sponsor-card li{ font-size:13.5px; color:var(--cream-dim); display:flex; gap:10px; }
   .sponsor-card li::before{ content:"→"; color:var(--sp-color, var(--cyan)); flex-shrink:0; font-weight:700; }
+  .sponsor-cta-btn{
+    display:block; width:100%; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em;
+    background:var(--sp-color, var(--cyan)); color:var(--black);
+    padding:14px; border-radius:8px;
+    transition:transform 0.2s, opacity 0.2s;
+  }
+  .sponsor-cta-btn:hover{ transform:translateY(-2px); opacity:0.92; }
 
   /* ===== about — sliding neon instrument icons ===== */
   .icon-marquee{ overflow:hidden; margin:48px 0; }
