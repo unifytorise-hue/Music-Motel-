@@ -492,12 +492,12 @@
   .sponsor-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
   @media (max-width:880px){ .sponsor-grid{ grid-template-columns:1fr; } }
   .sponsor-card{
+    position:relative;
     background:var(--black-2); border:1px solid var(--line);
     border-radius:14px; padding:32px;
     border-top:4px solid var(--sp-color, var(--cyan));
   }
   .sponsor-card .tier-name{ font-family:'Anton', sans-serif; font-size:25px; text-transform:uppercase; margin-bottom:6px; color:var(--sp-color, var(--cream)); }
-  .sponsor-card.feat{ position:relative; }
   .sponsor-card.feat::before{
     content:"MOST IMPACT"; position:absolute; top:-13px; right:24px;
     background:var(--pink); color:var(--cream);
@@ -523,10 +523,44 @@
     font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.04em;
     background:var(--sp-color, var(--cyan)); color:var(--black);
-    padding:14px; border-radius:8px;
+    padding:14px; border-radius:8px; border:none;
     transition:transform 0.2s, opacity 0.2s;
   }
   .sponsor-cta-btn:hover{ transform:translateY(-2px); opacity:0.92; }
+  .sponsor-cta-btn:disabled{
+    background:#3a3742; color:#6b6774; cursor:not-allowed;
+  }
+  .sponsor-cta-btn:disabled:hover{ transform:none; opacity:1; }
+
+  /* Sponsorship applications aren't open yet — the real CTA sits
+     underneath, greyed out and inert, with this glowing sign covering
+     the whole tier card so it's unmistakably "not yet" rather than
+     "broken", on every tier, not just the button. */
+  .sponsor-coming-soon-overlay{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(14,13,18,0.94);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    border-radius:14px;
+    pointer-events:none;
+  }
+  .sponsor-coming-soon-overlay span{
+    font-family:'Anton', sans-serif; font-size:26px;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--sp-color, var(--pink));
+    text-shadow:0 0 4px var(--sp-color, var(--pink)), 0 0 14px var(--sp-color, var(--pink)), 0 0 28px var(--sp-color, var(--pink));
+    border:2px solid var(--sp-color, var(--pink));
+    border-radius:10px;
+    padding:12px 26px;
+    transform:rotate(-6deg);
+    box-shadow:0 0 16px var(--sp-color, var(--pink)), inset 0 0 14px rgba(255,255,255,0.06);
+    animation:sponsor-neon-flicker 2.8s infinite;
+  }
+  @keyframes sponsor-neon-flicker{
+    0%, 19%, 21%, 23%, 54%, 56%, 100%{ opacity:1; }
+    20%, 22%, 55%{ opacity:0.75; }
+  }
 
   /* ===== about — sliding neon instrument icons ===== */
   .icon-marquee{ overflow:hidden; margin:48px 0; }
