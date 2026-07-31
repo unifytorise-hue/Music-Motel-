@@ -68,7 +68,17 @@
     if (!isConfigured()) return;
     var user = window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser();
     updateHonestyCopy(!!user);
-    if (!user) return;
+    if (!user){
+      // Without this, signing out mid-session left the last signed-in
+      // user's XP badge (and the dashboard rank row) stuck on screen —
+      // nothing else clears #nav-xp back to its static "0" markup, or
+      // re-hides #fan-rank-row, once a real value has been rendered once.
+      var navXp = document.getElementById('nav-xp');
+      if (navXp) navXp.textContent = '0';
+      var rankRow = document.getElementById('fan-rank-row');
+      if (rankRow) rankRow.style.display = 'none';
+      return;
+    }
     loadRealXP(user.id).then(renderRealXP);
   }
 

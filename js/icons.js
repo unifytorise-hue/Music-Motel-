@@ -30,13 +30,229 @@
     wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
     book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
-    'eye-off': '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 4.22-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    'eye-off': '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 4.22-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
+    user: '<circle cx="12" cy="7.5" r="4"/><path d="M20 21v-1.5a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6V21"/>',
+    drum: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v11a8 3 0 0 0 16 0V6"/><line x1="4" y1="6" x2="4" y2="17"/><line x1="20" y1="6" x2="20" y2="17"/>',
+    piano: '<rect x="2" y="6" width="20" height="12" rx="1"/><line x1="6.5" y1="6" x2="6.5" y2="14"/><line x1="11" y1="6" x2="11" y2="14"/><line x1="15.5" y1="6" x2="15.5" y2="14"/><line x1="20" y1="6" x2="20" y2="14"/>',
+    saxophone: '<path d="M8 3c2 0 3 1 3 3v7.5c0 2.2 1.3 3.5 3.5 3.5S18 15.7 18 13.5s-1.3-3.5-3.5-3.5"/><circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="14.5" cy="17" r="2"/>',
+    trumpet: '<path d="M1 9.5h6l3-2.3 3.5 2.3v4l-3.5 2.3-3-2.3H1z"/><rect x="10.5" y="8" width="2" height="5" rx="0.6"/><rect x="13.3" y="8" width="2" height="5" rx="0.6"/><rect x="16.1" y="8" width="2" height="5" rx="0.6"/><path d="M19 8.5l4 2-4 2z"/>',
+    flute: '<path d="M3 21L20 4"/><path d="M17 3.5l3.5 3.5"/><circle cx="13.5" cy="9" r="0.75" fill="currentColor" stroke="none"/><circle cx="11" cy="11.5" r="0.75" fill="currentColor" stroke="none"/><circle cx="8.5" cy="14" r="0.75" fill="currentColor" stroke="none"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'
   };
 
   window.mmIcon = function(name, cls){
     var body = ICONS[name];
     if (!body) return null;
     return '<svg class="icon' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + body + '</svg>';
+  };
+
+  // profiles.account_type is stored lowercase (matches the DB check
+  // constraint and the signup form's data-type attributes) — every place
+  // that falls back to showing it when role_label is empty needs it
+  // presented the way a person would write it, not the raw DB value.
+  // "Talent Booker"/"Public Space" match the wording on the signup
+  // account-type buttons themselves, for consistency.
+  var ACCOUNT_TYPE_LABELS = {
+    fan: 'Fan',
+    musician: 'Musician',
+    educator: 'Educator',
+    venue: 'Talent Booker',
+    publicspace: 'Public Space',
+    shop: 'Shop / Seller'
+  };
+  window.mmAccountTypeLabel = function(type){
+    return ACCOUNT_TYPE_LABELS[type] || type || '';
+  };
+
+  // Shared by every place that shows a profile's category line — combines
+  // the account type with the free-text role/genre they typed at signup
+  // (e.g. "Musician - Rock") instead of showing only one, which drops
+  // whichever half wasn't picked.
+  window.mmRoleAndTypeLabel = function(profile){
+    if (!profile) return '';
+    var typeLabel = window.mmAccountTypeLabel(profile.account_type);
+    if (profile.role_label) return (typeLabel ? typeLabel + ' - ' : '') + profile.role_label;
+    return typeLabel;
+  };
+
+  var AVAILABILITY_LABELS = {
+    available_sessions: 'Available for sessions',
+    touring: 'Touring',
+    teaching: 'Teaching',
+    remote_only: 'Remote only'
+  };
+  // Shared by the public profile page and compact profile modal — "booked
+  // until" needs the date interpolated in, everything else is a fixed label.
+  window.mmAvailabilityLabel = function(status, until){
+    if (!status) return '';
+    if (status === 'booked_until'){
+      if (!until) return 'Booked';
+      var d = new Date(until + 'T00:00:00');
+      var formatted = isNaN(d.getTime()) ? until : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      return 'Booked until ' + formatted;
+    }
+    return AVAILABILITY_LABELS[status] || '';
+  };
+
+  var TOURING_LEVEL_LABELS = { local: 'Local', regional: 'Regional', national: 'National', international: 'International' };
+  window.mmTouringLevelLabel = function(level){
+    return TOURING_LEVEL_LABELS[level] || '';
+  };
+
+  // A profile's "template" is what the public profile page leads with.
+  // musician and venue each split into two distinct templates (chosen via
+  // js/profile-template.js, stored in profiles.profile_template); every
+  // other account_type maps straight to its own template — there's nothing
+  // to choose. A band profile is always presented as a band regardless of
+  // template, handled by the caller checking profile_kind separately.
+  window.mmResolveTemplate = function(profile){
+    if (!profile) return 'fan';
+    switch (profile.account_type){
+      case 'fan': return 'fan';
+      case 'musician': return profile.profile_template === 'producer_engineer' ? 'producer_engineer' : 'performing_artist';
+      case 'educator': return 'educator';
+      case 'venue': return profile.profile_template === 'manager_agent' ? 'manager_agent' : 'venue_space';
+      case 'publicspace': return 'public_space';
+      case 'shop': return 'shop';
+      default: return 'fan';
+    }
+  };
+
+  var TEMPLATE_TAG = {
+    performing_artist: 'Artist', producer_engineer: 'Producer', educator: 'Educator',
+    venue_space: 'Venue', manager_agent: 'Manager', public_space: 'Space', shop: 'Shop'
+  };
+  window.mmTemplateTag = function(template){ return TEMPLATE_TAG[template] || 'Profile'; };
+
+  var TEMPLATE_HEADING = {
+    performing_artist: 'Book this artist now',
+    producer_engineer: 'Hire this producer/engineer',
+    educator: 'Book a lesson now',
+    venue_space: 'Book this space now',
+    manager_agent: 'Connect with this manager/agent',
+    public_space: 'Book this space now',
+    shop: 'Get a quote'
+  };
+  window.mmTemplateHeading = function(template){ return TEMPLATE_HEADING[template] || 'Book this profile now'; };
+
+  // Shared by every list/page that queries OTHER people's profiles and
+  // needs to respect profile_visibility ('public'/'followers_only'/
+  // 'private') — resolves the signed-in viewer's own follow relationships
+  // (both directions) once, so callers can check "is this profile in my
+  // network" without a query per row. Not needed by anything that only
+  // ever shows the current user their own profile.
+  window.mmLoadMyFollowSets = function(){
+    var user = window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser();
+    if (!user || !window.mmSupabase) return Promise.resolve({ following: {}, followers: {} });
+    return Promise.all([
+      window.mmSupabase.from('follows').select('following_id').eq('follower_id', user.id),
+      window.mmSupabase.from('follows').select('follower_id').eq('following_id', user.id)
+    ]).then(function(results){
+      var following = {};
+      (results[0].data || []).forEach(function(r){ following[r.following_id] = true; });
+      var followers = {};
+      (results[1].data || []).forEach(function(r){ followers[r.follower_id] = true; });
+      return { following: following, followers: followers };
+    }).catch(function(){ return { following: {}, followers: {} }; });
+  };
+
+  // Whether the (possibly signed-out) viewer is allowed to see this
+  // profile at all, given its visibility setting — the owner can always
+  // see their own profile regardless of setting.
+  window.mmCanViewProfile = function(profile, viewerId, followSets){
+    if (!profile) return false;
+    if (viewerId && profile.id === viewerId) return true;
+    var vis = profile.profile_visibility || 'public';
+    if (vis === 'private') return false;
+    if (vis === 'followers_only'){
+      var sets = followSets || { following: {}, followers: {} };
+      return !!(sets.following[profile.id] || sets.followers[profile.id]);
+    }
+    return true;
+  };
+
+  // Tiered verification badges — each tier is optional and has a free
+  // path, per the site's "free forever" policy. `signals` carries the
+  // pieces this can't compute on its own (rows from other tables), so this
+  // stays a pure function with no Supabase calls of its own:
+  //   { hasVerifiedPlatformLink, hasCreditsOrTouring, completedBookingCount, hasPositiveReview }
+  window.mmVerificationTiers = function(profile, signals){
+    signals = signals || {};
+    var basicDone = !!(profile && profile.phone_verified_at);
+    var idDone = !!(profile && profile.id_verified_at);
+    var platformDone = !!signals.hasVerifiedPlatformLink;
+    var creditsDone = !!signals.hasCreditsOrTouring;
+    var trustedDone = !!(signals.completedBookingCount > 0 && signals.hasPositiveReview);
+    return [
+      { key: 'basic', label: 'Basic', desc: 'Email confirmed and phone verified.', done: basicDone },
+      { key: 'id_verified', label: 'ID Verified', desc: 'Government ID + liveness check.', done: idDone },
+      { key: 'platform_linked', label: 'Platform Linked', desc: 'Claimed a Spotify/Apple/SoundCloud/Bandcamp/YouTube profile.', done: platformDone },
+      { key: 'credits_verified', label: 'Credits / Touring Verified', desc: 'Has real credits, touring level, or a PRO membership on file.', done: creditsDone },
+      { key: 'trusted', label: 'Trusted', desc: 'Completed bookings with positive reviews.', done: trustedDone }
+    ];
+  };
+
+  // Monetization layer, UI/UX scaffolding only (same pattern as escrow and
+  // ID verification) — "buying" a boost just writes boosted_until into the
+  // future; no payment processor is connected. Shared here so every surface
+  // that sorts or badges profiles (nearby-players, real-artist directory,
+  // similar profiles, public profile page) agrees on what "currently
+  // boosted" means without each re-deriving it from a raw timestamp.
+  window.mmIsBoosted = function(profile){
+    return !!(profile && profile.boosted_until && new Date(profile.boosted_until) > new Date());
+  };
+
+  // Shared by every place that shows a profile picture (nav, nearby-players
+  // list, follow list, profile modal, the upload preview itself) — avatarUrl
+  // is remote, other-user-controlled data, so it's only ever assigned via
+  // the img.src DOM property (never string-concatenated into innerHTML/CSS),
+  // which the browser treats strictly as a URL, not markup or a style value.
+  // "Plain" = no click-to-enlarge wiring, used by the lightbox itself to
+  // render the enlarged photo without recursively wiring another lightbox.
+  window.mmRenderAvatarPlain = function(container, avatarUrl, colorHex){
+    if (!container) return;
+    var safeColor = /^#[0-9a-f]{3,8}$/i.test(colorHex || '') ? colorHex : '#2BE8D9';
+    container.style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.innerHTML = '';
+    if (avatarUrl && /^https:\/\//i.test(avatarUrl)){
+      var img = document.createElement('img');
+      img.src = avatarUrl;
+      img.alt = '';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;';
+      container.appendChild(img);
+    } else if (window.mmIcon){
+      // Without this, a profile that hasn't uploaded a photo yet just shows
+      // a blank gradient square — reads as broken rather than "no photo
+      // set". A silhouette placeholder (same icon the sample directory
+      // already falls back to) makes it read as an empty avatar slot.
+      container.innerHTML = window.mmIcon('user', 'avatar-fallback-icon');
+    }
+  };
+
+  // Every avatar rendered this way is tappable to view larger — assigning
+  // .onclick/.onkeydown (rather than addEventListener) means a re-render
+  // safely replaces the previous handler instead of stacking duplicates.
+  window.mmRenderAvatar = function(container, avatarUrl, colorHex, label){
+    if (!container) return;
+    window.mmRenderAvatarPlain(container, avatarUrl, colorHex);
+    container.style.cursor = 'pointer';
+    container.setAttribute('role', 'button');
+    container.setAttribute('tabindex', '0');
+    container.setAttribute('aria-label', label ? ('View larger photo of ' + label) : 'View larger photo');
+    container.onclick = function(e){
+      // Several call sites (e.g. the nearby-players row) put the avatar
+      // inside a larger element that's itself clickable to open a full
+      // profile — without this, tapping the avatar would open the
+      // lightbox AND that other click handler underneath it.
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (window.openAvatarLightbox) window.openAvatarLightbox(avatarUrl, colorHex, label);
+    };
+    container.onkeydown = function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); container.click(); }
+    };
   };
 
   // Static markup can't call mmIcon() directly, so a `<span data-icon="name">`

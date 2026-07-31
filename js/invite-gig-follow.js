@@ -131,6 +131,7 @@
 
   function renderGigLog(gigs){
     var list = document.getElementById('gig-log-list');
+    if (!list) return;
     var empty = gigLogEmptyEl;
     if (!gigs || gigs.length === 0){
       list.innerHTML = '';
@@ -176,66 +177,72 @@
     });
   });
 
-  document.getElementById('fan-add-gig-btn').addEventListener('click', function(){
-    document.getElementById('add-gig-modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    if (window.trapFocus) window.trapFocus(document.getElementById('add-gig-modal'));
-  });
-  function closeAddGig(){
-    document.getElementById('add-gig-modal').classList.remove('open');
-    document.body.style.overflow = '';
-    if (window.releaseFocusTrap) window.releaseFocusTrap();
-  }
-  document.getElementById('add-gig-close-btn').addEventListener('click', closeAddGig);
-  document.getElementById('add-gig-modal').addEventListener('click', function(e){
-    if (e.target.id === 'add-gig-modal') closeAddGig();
-  });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && document.getElementById('add-gig-modal').classList.contains('open')) closeAddGig();
-  });
-  document.getElementById('gig-save-btn').addEventListener('click', function(){
-    var artist = document.getElementById('gig-artist').value.trim();
-    var venue = document.getElementById('gig-venue').value.trim();
-    var date = document.getElementById('gig-date').value.trim();
-    var statusEl = document.getElementById('gig-log-status');
-    var saveBtn = document.getElementById('gig-save-btn');
-    if (!artist){
-      document.getElementById('gig-artist').focus();
-      return;
-    }
+  // The gig-log card (and its "+ Add a show" modal) only exists in the fan
+  // dashboard, which now lives on profile.html only — guarded so this file
+  // can still load on index.html (for the follow-state logic below, which
+  // IS needed there) without crashing on missing elements.
+  if (document.getElementById('fan-add-gig-btn')){
+    document.getElementById('fan-add-gig-btn').addEventListener('click', function(){
+      document.getElementById('add-gig-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if (window.trapFocus) window.trapFocus(document.getElementById('add-gig-modal'));
+    });
+    var closeAddGig = function(){
+      document.getElementById('add-gig-modal').classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.releaseFocusTrap) window.releaseFocusTrap();
+    };
+    document.getElementById('add-gig-close-btn').addEventListener('click', closeAddGig);
+    document.getElementById('add-gig-modal').addEventListener('click', function(e){
+      if (e.target.id === 'add-gig-modal') closeAddGig();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.getElementById('add-gig-modal').classList.contains('open')) closeAddGig();
+    });
+    document.getElementById('gig-save-btn').addEventListener('click', function(){
+      var artist = document.getElementById('gig-artist').value.trim();
+      var venue = document.getElementById('gig-venue').value.trim();
+      var date = document.getElementById('gig-date').value.trim();
+      var statusEl = document.getElementById('gig-log-status');
+      var saveBtn = document.getElementById('gig-save-btn');
+      if (!artist){
+        document.getElementById('gig-artist').focus();
+        return;
+      }
 
-    function resetForm(){
-      document.getElementById('gig-artist').value = '';
-      document.getElementById('gig-venue').value = '';
-      document.getElementById('gig-date').value = '';
-      if (statusEl) statusEl.textContent = '';
-      closeAddGig();
-    }
+      function resetForm(){
+        document.getElementById('gig-artist').value = '';
+        document.getElementById('gig-venue').value = '';
+        document.getElementById('gig-date').value = '';
+        if (statusEl) statusEl.textContent = '';
+        closeAddGig();
+      }
 
-    if (isSignedIn()){
-      saveBtn.disabled = true;
-      if (statusEl) statusEl.textContent = 'Saving…';
-      window.mmSupabase.from('gig_log').insert({
-        user_id: window.mmAuth.getUser().id,
-        artist: artist, venue: venue, date_text: date
-      }).select().single().then(function(res){
-        saveBtn.disabled = false;
-        if (res.error){
-          if (statusEl) statusEl.textContent = res.error.message;
-          return;
-        }
-        currentGigs.push({ id: res.data.id, artist: res.data.artist, venue: res.data.venue, date: res.data.date_text });
+      if (isSignedIn()){
+        saveBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Saving…';
+        window.mmSupabase.from('gig_log').insert({
+          user_id: window.mmAuth.getUser().id,
+          artist: artist, venue: venue, date_text: date
+        }).select().single().then(function(res){
+          saveBtn.disabled = false;
+          if (res.error){
+            if (statusEl) statusEl.textContent = res.error.message;
+            return;
+          }
+          currentGigs.push({ id: res.data.id, artist: res.data.artist, venue: res.data.venue, date: res.data.date_text });
+          renderGigLog(currentGigs);
+          resetForm();
+          if (window.refreshRealXP) window.refreshRealXP();
+        });
+      } else {
+        currentGigs.push({ artist: artist, venue: venue, date: date });
+        saveGigLogLocal(currentGigs);
         renderGigLog(currentGigs);
         resetForm();
-        if (window.refreshRealXP) window.refreshRealXP();
-      });
-    } else {
-      currentGigs.push({ artist: artist, venue: venue, date: date });
-      saveGigLogLocal(currentGigs);
-      renderGigLog(currentGigs);
-      resetForm();
-    }
-  });
+      }
+    });
+  }
 
   // ===== following =====
   var FOLLOW_KEY = 'fan-following';
@@ -256,12 +263,12 @@
   function resolvePersonMeta(id){
     var sample = window.getSamplePersonBySlug && window.getSamplePersonBySlug(id);
     if (sample) return Promise.resolve(sample);
-    return window.mmSupabase.from('profiles').select('name,role_label,avatar_color').eq('id', id).maybeSingle()
+    return window.mmSupabase.from('profiles').select('name,role_label,avatar_color,avatar_url').eq('id', id).maybeSingle()
       .then(function(res){
-        if (res.error || !res.data) return { name: id, role: '', loc: '', color: '#2BE8D9' };
-        return { name: res.data.name, role: res.data.role_label, loc: '', color: res.data.avatar_color };
+        if (res.error || !res.data) return { name: id, role: '', loc: '', color: '#2BE8D9', avatarUrl: null };
+        return { name: res.data.name, role: res.data.role_label, loc: '', color: res.data.avatar_color, avatarUrl: res.data.avatar_url };
       })
-      .catch(function(){ return { name: id, role: '', loc: '', color: '#2BE8D9' }; });
+      .catch(function(){ return { name: id, role: '', loc: '', color: '#2BE8D9', avatarUrl: null }; });
   }
 
   function loadFollowingRemote(){
@@ -294,6 +301,7 @@
 
   function renderFollowList(){
     var list = document.getElementById('follow-list');
+    if (!list) return;
     var empty = followEmptyEl;
     var ids = Object.keys(followingMap);
     document.getElementById('fan-follow-count').textContent = ids.length + (ids.length === 1 ? ' artist' : ' artists');
@@ -311,13 +319,11 @@
         '<div class="follow-avatar"></div>' +
         '<div class="follow-meta"><h5>' + escapeHtml(person.name) + '</h5><p>' + escapeHtml(person.role) + '</p></div>' +
         '<button class="unfollow-btn">Unfollow</button>';
-      // person.color can come from a real profiles row (resolvePersonMeta),
-      // which is remote, other-user-controlled data — set it via the style
-      // API instead of interpolating into innerHTML, and validate the
-      // shape so a malicious value can't do anything but fall back to a
-      // default color.
-      var safeColor = /^#[0-9a-f]{3,8}$/i.test(person.color) ? person.color : '#2BE8D9';
-      item.querySelector('.follow-avatar').style.background = 'linear-gradient(135deg, ' + safeColor + ', var(--yellow))';
+      // person.color/avatarUrl can come from a real profiles row
+      // (resolvePersonMeta), which is remote, other-user-controlled data —
+      // mmRenderAvatar only ever assigns it via img.src / a regex-validated
+      // color, never string-concatenates it into innerHTML or a CSS value.
+      if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.follow-avatar'), person.avatarUrl, person.color, person.name);
       item.querySelector('.unfollow-btn').addEventListener('click', function(){
         window.toggleFollow(id, person);
       });
@@ -344,7 +350,15 @@
           // revert the optimistic update if the write failed
           if (wasFollowing) followingMap[personId] = person; else delete followingMap[personId];
           renderFollowList();
+          return;
         }
+        // Only a genuine new follow of a real registered profile reaches
+        // here without an error — following a sample/demo profile (see
+        // js/profile-modal.js) fails this insert first, since its id isn't
+        // a real auth.users row the follows.following_id FK accepts.
+        if (!wasFollowing && window.mmNotify) window.mmNotify(personId, 'new_follower', function(name){
+          return name + ' started following you.';
+        }, 'profile', uid);
       });
     } else {
       saveFollowingLocal(followingMap);

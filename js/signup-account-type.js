@@ -15,25 +15,32 @@
       submitLabel: 'Create free profile'
     },
     educator: {
-      note: '$12/mo — post lessons, manage students, accept bookings. Subscription starts after signup.',
+      note: 'Free forever — post lessons, manage students, and accept bookings.',
       roleLabel: 'What do you teach?',
       rolePlaceholder: 'e.g. Vocal coaching, Guitar, Music theory',
       roleRequired: true,
-      submitLabel: 'Continue to educator subscription'
+      submitLabel: 'Create free educator profile'
     },
     venue: {
-      note: '$29/mo — post gigs, manage bookings, get priority placement. Subscription starts after signup.',
+      note: 'Free forever — post gigs and manage bookings.',
       roleLabel: 'Business type',
       rolePlaceholder: 'e.g. Live music venue, Recording studio, Label',
       roleRequired: true,
-      submitLabel: 'Continue to booker subscription'
+      submitLabel: 'Create free profile'
     },
     publicspace: {
-      note: '$39/mo — book live music directly for your space. Subscription starts after signup.',
+      note: 'Free forever — book live music directly for your space.',
       roleLabel: 'What kind of space is this?',
       rolePlaceholder: 'e.g. Café, Gym, Hotel lobby, Retail store',
       roleRequired: true,
-      submitLabel: 'Continue to Public Space subscription'
+      submitLabel: 'Create free profile'
+    },
+    shop: {
+      note: 'Free forever — post priced quotes with photos on fundraising campaigns so backers know the material is real.',
+      roleLabel: 'What do you sell?',
+      rolePlaceholder: 'e.g. Guitars, Drum kits, Studio gear, PA systems',
+      roleRequired: true,
+      submitLabel: 'Create free shop profile'
     }
   };
   var currentAccountType = 'fan';
@@ -50,9 +57,10 @@
       document.getElementById('signup-role-label').textContent = cfg.roleLabel;
       document.getElementById('signup-role').placeholder = cfg.rolePlaceholder;
       document.getElementById('signup-role-field').style.display = currentAccountType === 'fan' ? 'block' : 'block';
-      // A fan is always a personal profile — the Personal/Band choice only
-      // makes sense for the roles that can actually be a group act.
-      document.getElementById('profile-kind-field').style.display = currentAccountType === 'fan' ? 'none' : 'block';
+      // Only a musician can be a "band" — a venue, shop, public space, or
+      // educator is a single business/institution, not a group act that
+      // other members unify with.
+      document.getElementById('profile-kind-field').style.display = currentAccountType === 'musician' ? 'block' : 'none';
       updateSubmitLabel();
     });
   });
@@ -79,9 +87,9 @@
     var btn = document.querySelector('.account-type-btn[data-type="' + type + '"]');
     if (btn) btn.click();
   };
-  // A fan can never be a band profile, regardless of what was selected
-  // before switching account type back to fan.
-  window.getCurrentProfileKind = function(){ return currentAccountType === 'fan' ? 'personal' : currentProfileKind; };
+  // Only a musician can be a band profile, regardless of what was selected
+  // before switching to a different account type.
+  window.getCurrentProfileKind = function(){ return currentAccountType === 'musician' ? currentProfileKind : 'personal'; };
 
   // Sync the role field to the default (Fan) state on load, since the HTML
   // ships with musician-oriented copy as a static fallback.

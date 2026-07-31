@@ -45,6 +45,9 @@
       }
       alert('Request sent to ' + bandProfile.name + ' — you\'ll get edit access once they approve it.');
       refreshMyMemberships();
+      if (window.mmNotify) window.mmNotify(bandProfile.id, 'band_join_requested', function(name){
+        return name + ' wants to unify with your band.';
+      }, 'band_manage');
     });
   };
 
@@ -145,12 +148,18 @@
           window.mmSupabase.from('band_members').update({ status: 'approved', role: role, decided_at: new Date().toISOString() }).eq('id', m.id).then(function(res){
             if (res.error){ alert(res.error.message); return; }
             refreshBandManagement();
+            if (window.mmNotify) window.mmNotify(m.member_user_id, 'band_join_approved', function(name){
+              return name + ' approved your request to unify.';
+            }, 'my_memberships');
           });
         });
         item.querySelector('.decline-btn').addEventListener('click', function(){
           window.mmSupabase.from('band_members').update({ status: 'declined', decided_at: new Date().toISOString() }).eq('id', m.id).then(function(res){
             if (res.error){ alert(res.error.message); return; }
             refreshBandManagement();
+            if (window.mmNotify) window.mmNotify(m.member_user_id, 'band_join_declined', function(name){
+              return name + ' declined your request to unify.';
+            }, 'my_memberships');
           });
         });
         pendingList.appendChild(item);

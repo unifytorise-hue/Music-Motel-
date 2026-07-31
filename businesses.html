@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Businesses — Music Motel</title>
+<meta name="description" content="Book real musicians directly for your restaurant, cafe, bar, hotel, gym, or retail space — no agency markup, no cold emails. Free to set up.">
+<meta property="og:title" content="For Businesses — Music Motel">
+<meta property="og:description" content="Find and book working musicians for your space — no agency markup, no cold emails.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unifytorise-hue.github.io/Music-Motel-/img/logo.png">
+<meta name="theme-color" content="#0E0D12">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo-mark"><a href="index.html"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></a></div>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#roles">Who's on it</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="profile.html">My profile</a>
+      <a href="profile.html#my-rate">My Rate</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="index.html" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta" id="open-signup-nav">Create profile</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <div class="nav-notif-wrap">
+          <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="nav-bell-dot" id="nav-bell-dot" style="display:none;"></span>
+          </button>
+          <div class="nav-notif-panel" id="nav-notif-panel" style="display:none;">
+            <div class="nav-notif-panel-head">
+              <span>Notifications</span>
+              <button type="button" id="nav-notif-markall-btn">Mark all read</button>
+            </div>
+            <div class="nav-notif-list" id="nav-notif-list">
+              <div class="nav-notif-empty" id="nav-notif-empty">Nothing yet.</div>
+            </div>
+          </div>
+        </div>
+        <span class="nav-avatar" id="nav-avatar"></span>
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta-compact" id="open-signup-nav-compact">Sign up</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <a href="profile.html">My profile</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#roles">Who's on it</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="profile.html#my-rate">My Rate</a>
+    <a href="funding.html">Fund a project</a>
+    <a href="businesses.html">For businesses</a>
+    <a href="gear.html">Donate gear</a>
+    <a href="sponsor.html">Advertise</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
+    <a href="index.html" class="mobile-cta" id="open-signup-mobile">Create profile</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <a href="profile.html#activity-card" class="mobile-switch-link" id="mobile-notif-link">Notifications<span id="mobile-notif-count"></span></a>
+      <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/focus-trap.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/nav.js"></script>
+
+<section class="section public-spaces-section" id="public-spaces" style="padding-top:150px;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--orange);">/ For businesses that play music</span>
+        <h2 class="display">Book real musicians, live.</h2>
+      </div>
+      <p>Find and book working musicians for your space — no agency markup, no cold emails.</p>
+    </div>
+
+    <div class="pubspace-grid single">
+      <div class="pubspace-card" style="--ps-color:var(--green);">
+        <div class="pubspace-icon" data-icon="mic"></div>
+        <h3>Sunday brunch. Friday nights. Anytime.</h3>
+        <p>Want a live duo or a DJ on rotation? Search the same directory everyone else uses — real musicians, direct contact, no markup.</p>
+      </div>
+    </div>
+
+    <div class="pubspace-cta-row">
+      <a href="index.html?signup=publicspace" class="btn-primary" id="pubspace-cta-btn">Set up your Public Space profile</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
+        <p>The directory for the music industry.<br>Since 2014.<br>Search by instrument and location, then connect directly.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="index.html#about">About</a>
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#roles">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h5>Get involved</h5>
+          <a href="index.html#cta">Create profile</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
+      <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<script src="js/real-xp.js"></script>
+<script src="js/notifications.js"></script>
+
+<script>
+  // Same dead-button workaround as sponsor.html/gear.html: these share IDs
+  // with index.html so auth.js's signed-in/out reactivity still works, but
+  // their real modal targets don't exist here, so a second listener
+  // redirects to index.html instead of silently doing nothing.
+  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile', 'open-signin-nav-compact', 'open-signup-nav-compact'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
+  });
+
+  // "Switch account" (in the signed-in nav-account/mobile-account block)
+  // calls window.openSignin() directly rather than clicking a link — same
+  // reasoning as the dead-button workaround above, just for a function
+  // call instead of a click target.
+  document.addEventListener('DOMContentLoaded', function(){
+    window.openSignin = function(){ window.location.href = 'index.html?signin=1'; };
+    window.openSignup = function(){ window.location.href = 'index.html'; };
+  });
+</script>
+
+</body>
+</html>

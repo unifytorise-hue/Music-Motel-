@@ -3,6 +3,8 @@
   var client = window.mmSupabase;
   var currentUser = null;
   var currentProfileName = null; // profiles.name — shown in the nav instead of the raw email
+  var currentAvatarUrl = null;
+  var currentAvatarColor = null;
   var readyResolve;
 
   // Other modules (gig log, following, referrals) need to know whether a
@@ -17,9 +19,15 @@
   window.mmAuth = {
     isConfigured: function(){ return configured; },
     getUser: function(){ return currentUser; },
+    // emailRedirectTo matters only when the Supabase project has "Confirm
+    // email" turned on (Authentication -> Providers -> Email, dashboard-
+    // only setting, same category as Site URL/Redirect URLs) — that's what
+    // the confirmation link in the verification email points back to.
+    // Without it, Supabase falls back to its default Site URL instead of
+    // this app.
     signUp: function(email, password){
       if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
-      return client.auth.signUp({ email: email, password: password });
+      return client.auth.signUp({ email: email, password: password, options: { emailRedirectTo: window.location.origin } });
     },
     signIn: function(email, password){
       if (!configured) return Promise.reject(new Error('Backend not configured yet.'));
@@ -53,22 +61,34 @@
     }
   };
 
-  // Google sign-in skips the multi-step signup form entirely (no
-  // account_type/location/etc. ever gets collected), so a user can land
-  // back here signed in with zero rows in public.profiles. Detected once
-  // per sign-in transition and handled by prompting the same signup form,
-  // just without the now-irrelevant email/password fields — see
+  // A user can land here signed in with zero rows in public.profiles two
+  // ways: Google sign-in (skips the multi-step signup form entirely — no
+  // account_type/location/etc. ever gets collected), or email/password
+  // signup with "Confirm email" on (the profiles insert can't happen
+  // before a session exists, so it's deferred until they click the
+  // emailed link and land back here already authenticated). Detected
+  // once per sign-in transition and handled by prompting the same signup
+  // form, just without the now-irrelevant email/password fields — see
   // window.openProfileCompletion in js/signup-location.js. Also picks up
   // profiles.name for the nav display while it's already fetching the row.
   function refreshOwnProfile(user){
     if (!user || !configured) return;
-    client.from('profiles').select('id,name').eq('id', user.id).maybeSingle().then(function(res){
+    client.from('profiles').select('id,name,avatar_url,avatar_color').eq('id', user.id).maybeSingle().then(function(res){
       if (res.error) return;
       if (!res.data){
+        // js/auth.js loads near the top of the page, js/signup-location.js
+        // (which defines this) near the bottom — this callback can resolve
+        // before that script has run, same race already fixed for
+        // PASSWORD_RECOVERY in js/password-reset.js. Flag it instead of
+        // silently dropping it; signup-location.js checks this itself
+        // once it's actually ready.
         if (window.openProfileCompletion) window.openProfileCompletion(user);
+        else window.__mmPendingProfileCompletion = user;
         return;
       }
       currentProfileName = res.data.name || null;
+      currentAvatarUrl = res.data.avatar_url || null;
+      currentAvatarColor = res.data.avatar_color || null;
       renderAuthUI();
     }).catch(function(){});
   }
@@ -82,12 +102,16 @@
 
     var signinNav = document.getElementById('open-signin-nav');
     var signupNav = document.getElementById('open-signup-nav');
+    var signinNavCompact = document.getElementById('open-signin-nav-compact');
+    var signupNavCompact = document.getElementById('open-signup-nav-compact');
     var accountEl = document.getElementById('nav-account');
     var accountEmail = document.getElementById('nav-account-email');
+    var navAvatar = document.getElementById('nav-avatar');
     var signinMobile = document.getElementById('open-signin-mobile');
     var signupMobile = document.getElementById('open-signup-mobile');
     var accountMobile = document.getElementById('mobile-account');
     var accountMobileEmail = document.getElementById('mobile-account-email');
+    var mobileAvatar = document.getElementById('mobile-avatar');
     var authFields = document.getElementById('signup-auth-fields');
     var signupHero = document.getElementById('open-signup-hero');
     var signupFinal = document.getElementById('open-signup-final');
@@ -105,7 +129,9 @@
     var displayName = (currentProfileName || (currentUser && currentUser.email) || '');
     if (signinNav) signinNav.style.display = signedIn ? 'none' : '';
     if (signupNav) signupNav.style.display = signedIn ? 'none' : '';
-    // Two more "Create your profile" CTAs live further down the page (hero,
+    if (signinNavCompact) signinNavCompact.style.display = signedIn ? 'none' : '';
+    if (signupNavCompact) signupNavCompact.style.display = signedIn ? 'none' : '';
+    // Two more "Create your free profile" CTAs live further down the page (hero,
     // bottom cta-section) — pointless to show someone who already has a
     // profile, same reasoning as hiding the nav version above.
     if (signupHero) signupHero.style.display = signedIn ? 'none' : '';
@@ -116,33 +142,58 @@
     if (signupMobile) signupMobile.style.display = signedIn ? 'none' : '';
     if (accountMobile) accountMobile.style.display = signedIn ? 'block' : 'none';
     if (accountMobileEmail) accountMobileEmail.textContent = signedIn ? displayName : '';
+    if (signedIn && window.mmRenderAvatar){
+      window.mmRenderAvatar(navAvatar, currentAvatarUrl, currentAvatarColor, displayName);
+      window.mmRenderAvatar(mobileAvatar, currentAvatarUrl, currentAvatarColor, displayName);
+    }
   }
 
   function setCurrentUser(user){
     var wasSignedOut = !currentUser;
     currentUser = user || null;
-    if (!currentUser) currentProfileName = null;
+    if (!currentUser){ currentProfileName = null; currentAvatarUrl = null; currentAvatarColor = null; }
     renderAuthUI();
     if (currentUser && wasSignedOut) refreshOwnProfile(currentUser);
   }
 
+  // Guards against opening the "set a new password" modal twice — both
+  // call sites below (the initial getSession() and onAuthStateChange) can
+  // independently decide this is a recovery landing.
+  var recoveryModalTriggered = false;
+  function maybeTriggerRecoveryModal(event, session){
+    if (!session || recoveryModalTriggered) return;
+    // event === 'PASSWORD_RECOVERY' is the documented signal, but Supabase's
+    // JS client is known to sometimes fire a plain SIGNED_IN/INITIAL_SESSION
+    // instead when landing from a recovery link (supabase-js#836, supabase
+    // discussion #18059) — window.__mmUrlIsPasswordRecovery (set by the
+    // inline script at the very top of <head>, before this client could
+    // touch the URL) is the reliable fallback signal.
+    if (event !== 'PASSWORD_RECOVERY' && !window.__mmUrlIsPasswordRecovery) return;
+    recoveryModalTriggered = true;
+    // js/auth.js loads near the top of the page, js/password-reset.js
+    // (which defines this) near the bottom — Supabase's redirect-driven
+    // session detection can resolve before the rest of the page has
+    // finished loading, so window.openSetNewPassword may not exist yet.
+    // Flag it instead of silently dropping the event; password-reset.js
+    // checks this flag itself once it's actually ready.
+    if (window.openSetNewPassword) window.openSetNewPassword();
+    else window.__mmPendingPasswordRecovery = true;
+  }
+
   if (configured){
     client.auth.getSession().then(function(res){
-      setCurrentUser(res.data && res.data.session ? res.data.session.user : null);
+      var session = res.data && res.data.session;
+      setCurrentUser(session ? session.user : null);
+      // Covers the case where onAuthStateChange's listener (registered
+      // just below) subscribed a beat too late to catch the client's own
+      // internal initial event — getSession() always reflects the real
+      // session regardless of that timing.
+      maybeTriggerRecoveryModal('INITIAL_LOAD', session);
       readyResolve();
     }).catch(function(){ readyResolve(); });
     client.auth.onAuthStateChange(function(event, session){
       setCurrentUser(session ? session.user : null);
-      if (event === 'PASSWORD_RECOVERY'){
-        // js/auth.js loads near the top of the page, js/password-reset.js
-        // (which defines this) near the bottom — Supabase's redirect-driven
-        // session detection can resolve before the rest of the page has
-        // finished loading, so window.openSetNewPassword may not exist yet.
-        // Flag it instead of silently dropping the event; password-reset.js
-        // checks this flag itself once it's actually ready.
-        if (window.openSetNewPassword) window.openSetNewPassword();
-        else window.__mmPendingPasswordRecovery = true;
-      }
+      maybeTriggerRecoveryModal(event, session);
     });
   } else {
     readyResolve();
@@ -171,7 +222,7 @@
     }
     window.openSignin = openSignin;
 
-    ['open-signin-nav', 'open-signin-mobile'].forEach(function(id){
+    ['open-signin-nav', 'open-signin-mobile', 'open-signin-nav-compact'].forEach(function(id){
       var el = document.getElementById(id);
       if (el) el.addEventListener('click', function(e){
         e.preventDefault();
@@ -227,6 +278,20 @@
     ['nav-signout-btn', 'mobile-signout-btn'].forEach(function(id){
       var btn = document.getElementById(id);
       if (btn) btn.addEventListener('click', function(){ window.mmAuth.signOut(); });
+    });
+
+    // "Switch account" — for a band admin/editor who also has their own
+    // personal login (or anyone juggling more than one account): signs out
+    // of the current one and goes straight into the sign-in flow, instead
+    // of leaving them on a signed-out page to find "Sign in" themselves.
+    ['nav-switch-account-btn', 'mobile-switch-account-btn'].forEach(function(id){
+      var btn = document.getElementById(id);
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        window.mmAuth.signOut().then(function(){
+          if (typeof window.openSignin === 'function') window.openSignin();
+        });
+      });
     });
 
     ['google-signup-btn', 'google-signin-btn'].forEach(function(id){

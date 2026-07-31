@@ -43,7 +43,15 @@
     if (meta && !nameField.value) nameField.value = meta.full_name || meta.name || '';
     openSignup();
   };
-  ['open-signup-nav','open-signup-hero','open-signup-final','open-signup-mobile'].forEach(function(id){
+  // Catches a signed-in-but-no-profile-row check that resolved in
+  // js/auth.js before this script had loaded (see the comment next to
+  // where that flag is set).
+  if (window.__mmPendingProfileCompletion){
+    var pendingUser = window.__mmPendingProfileCompletion;
+    window.__mmPendingProfileCompletion = null;
+    window.openProfileCompletion(pendingUser);
+  }
+  ['open-signup-nav','open-signup-hero','open-signup-final','open-signup-mobile','open-signup-nav-compact'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function(e){ e.preventDefault(); closeMobileMenu(); openSignup(); });
   });
@@ -329,21 +337,11 @@
   }
 
   // ===== submit =====
-  var PAID_TIERS = {
-    educator: { label: 'Educator', price: '$12/mo' },
-    venue: { label: 'Talent Booker', price: '$29/mo' },
-    publicspace: { label: 'Public Space', price: '$39/mo' }
-  };
-
   // No backend configured yet: keep the original preview-only flow exactly
   // as it was, so the demo experience is unchanged until a real anon key
   // is wired up in js/supabase-client.js.
   function submitPreviewOnly(name, loc, type, role){
-    if (PAID_TIERS[type]){
-      var tier = PAID_TIERS[type];
-      alert('Account draft ready:\n\n' + name + ' (' + tier.label + ')\n' + loc + (role ? '\n' + role : '') +
-        '\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar — everything above this point is already captured.)');
-    } else if (type === 'fan'){
+    if (type === 'fan'){
       alert('Fan profile ready:\n\n' + name + '\n' + loc + (role ? '\nInterests: ' + role : '') +
         '\n\n(Hook this up to your backend next — fans get a gig log and a following feed once that exists.)');
     } else {
@@ -378,10 +376,6 @@
       document.getElementById('signup-email').value = '';
       document.getElementById('signup-password').value = '';
       closeSignup();
-      if (PAID_TIERS[type]){
-        var tier = PAID_TIERS[type];
-        alert('Profile created for ' + name + ' (' + tier.label + ').\n\nNext step would be subscription checkout at ' + tier.price + ' via your payment provider.\n(Hook this up to Stripe Billing or similar.)');
-      }
     });
   }
 
@@ -423,8 +417,22 @@
     window.mmAuth.signUp(email, password).then(function(res){
       if (res.error) throw res.error;
       var user = res.data && res.data.user;
+      var session = res.data && res.data.session;
       if (!user){
-        throw new Error('Check your email to confirm your account, then sign in.');
+        throw new Error('Something went wrong creating your account.');
+      }
+      // With "Confirm email" on, signUp() still returns a user record but
+      // no session — there's no auth.uid() yet for the profiles insert's
+      // RLS check to pass, and nothing to actually sign them in with. The
+      // name/location/role typed here aren't saved yet; once they click
+      // the emailed link, refreshOwnProfile() (js/auth.js) finds no
+      // profiles row for the now-confirmed user and reopens this same
+      // form via window.openProfileCompletion — same path a first-time
+      // Google sign-in already takes.
+      if (!session){
+        submitBtn.disabled = false;
+        statusEl.textContent = "Almost there — we've sent a confirmation link to " + email + '. Check your inbox, click it, and we\'ll bring you right back here to finish your profile.';
+        return;
       }
       return insertProfileForUser(user, name, loc, type, role, statusEl, submitBtn);
     }).catch(function(err){

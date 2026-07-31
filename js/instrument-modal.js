@@ -171,7 +171,11 @@
           pill.className = 'instr-pill';
           pill.textContent = item;
           pill.setAttribute('data-name', item);
-          pill.setAttribute('data-search', item.toLowerCase());
+          // Includes the category/subgroup names, not just the item itself
+          // — otherwise searching "keyboard" finds nothing, since no
+          // individual instrument in the Keyboard Instruments category is
+          // literally named "Keyboard" (Piano, Organ, Synthesizer, etc.).
+          pill.setAttribute('data-search', (cat.name + ' ' + group.label + ' ' + item).toLowerCase());
           pill.setAttribute('role', 'button');
           pill.setAttribute('tabindex', '0');
           pills.appendChild(pill);
@@ -227,7 +231,12 @@
 
   renderInstruments();
 
-  document.getElementById('open-instruments-btn').addEventListener('click', openModal);
+  // The roles/categories section used to have its own "see all 100+
+  // instruments" entry point into this same modal — removed since it read
+  // as an unrelated reference tool out there, when this has always
+  // actually been the personal "pick what you play" picker (see
+  // toggleInstrument below). #edit-instruments-btn, in the fan dashboard's
+  // own "Your instruments" card, is the one real entry point now.
   var editBtn = document.getElementById('edit-instruments-btn');
   if (editBtn) editBtn.addEventListener('click', openModal);
   document.getElementById('modal-close-btn').addEventListener('click', closeModal);

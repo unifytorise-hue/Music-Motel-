@@ -93,10 +93,25 @@
   }
 
   function initRateCard(){
-    if (!isSignedIn()){ renderGate(); return; }
-    loadMyRateCard().then(function(card){
-      myRateCard = card;
+    var section = document.getElementById('my-rate');
+    if (!isSignedIn()){
+      if (section) section.style.display = 'block';
       renderGate();
+      return;
+    }
+    (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+      // A fan has no service to sell — the whole "set your rate / become a
+      // booking agent client" flow doesn't apply, so the section hides
+      // entirely rather than just showing an empty gate.
+      if (accountType === 'fan'){
+        if (section) section.style.display = 'none';
+        return;
+      }
+      if (section) section.style.display = 'block';
+      loadMyRateCard().then(function(card){
+        myRateCard = card;
+        renderGate();
+      });
     });
   }
 

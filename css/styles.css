@@ -1,4 +1,5 @@
   .icon{ vertical-align:-0.15em; flex-shrink:0; }
+  .avatar-fallback-icon{ width:55%; height:55%; color:rgba(14,13,18,0.5); flex-shrink:0; }
 
   :root{
     --black:#0E0D12;
@@ -137,10 +138,135 @@
     display:inline-block;
   }
   .nav-cta:hover{ background:var(--yellow); transform:translateY(-1px); }
+  .nav-switch-link{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    color:var(--cream-dim); text-decoration:underline; text-underline-offset:2px;
+    background:none; padding:0; white-space:nowrap;
+  }
+  .nav-switch-link:hover{ color:var(--cream); }
+  .mobile-switch-link{
+    display:block; width:100%; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    color:var(--cream-dim); text-decoration:underline; text-underline-offset:2px;
+    background:none; padding:8px 0; margin-top:2px;
+  }
+  .mobile-switch-link:hover{ color:var(--cream); }
+  .nav-avatar{
+    width:24px; height:24px; border-radius:7px; flex-shrink:0;
+    display:inline-block; border:1px solid var(--line);
+  }
+  .mobile-avatar{
+    width:44px; height:44px; border-radius:10px;
+    margin-bottom:10px; border:1px solid var(--line);
+  }
+
+  /* ===== notification bell (desktop nav only — .nav-account itself hides
+     below 900px, see the mobile breakpoint override further down; mobile
+     gets a plain "Notifications" link inside the burger menu instead) ===== */
+  .nav-notif-wrap{ position:relative; }
+  .nav-bell-btn{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    width:34px; height:34px; border-radius:50%;
+    color:var(--cream-dim); border:1px solid var(--line);
+    transition:color 0.2s, border-color 0.2s;
+  }
+  .nav-bell-btn:hover, .nav-bell-btn[aria-expanded="true"]{ color:var(--cream); border-color:var(--cream); }
+  .nav-bell-btn .icon{ width:16px; height:16px; }
+  .nav-bell-dot{
+    position:absolute; top:-3px; right:-3px;
+    min-width:15px; height:15px; padding:0 3px; border-radius:999px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--pink); color:var(--cream);
+    font-family:'JetBrains Mono', monospace; font-size:9.5px; font-weight:700;
+    border:1.5px solid var(--black-2);
+  }
+  .nav-notif-panel{
+    position:absolute; top:calc(100% + 10px); right:0;
+    width:320px; max-width:calc(100vw - 32px);
+    background:var(--black-2); border:1px solid var(--line); border-radius:12px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.4);
+    z-index:200;
+  }
+  .nav-notif-panel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px; border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em; color:var(--cream);
+  }
+  .nav-notif-panel-head button{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:400;
+    text-transform:none; letter-spacing:0; color:var(--cyan);
+    text-decoration:underline; text-underline-offset:2px; background:none;
+  }
+  .nav-notif-list{ max-height:360px; overflow-y:auto; }
+  .nav-notif-empty{
+    padding:20px 14px; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--cream-dim);
+  }
+
+  .notif-row{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:12px 14px; border-bottom:1px solid var(--line);
+    text-decoration:none; transition:background 0.15s;
+  }
+  .notif-row:last-child{ border-bottom:none; }
+  .notif-row:hover{ background:rgba(255,255,255,0.03); }
+  .notif-row.unread{ background:rgba(43,232,217,0.05); }
+  .notif-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .notif-row-body p{ font-size:13px; color:var(--cream); line-height:1.4; margin-bottom:3px; }
+  .notif-row-time{ font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--cream-dim); }
+
+  #mobile-notif-count{ color:var(--pink); font-weight:700; }
+
+  /* Compact "Sign in"/"Sign up" pair shown only next to the burger, once
+     .nav-cta (the full-size version) hides below — otherwise a signed-out
+     mobile visitor has no way to sign in without opening the menu first. */
+  .nav-cta-compact{
+    display:none;
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    padding:7px 10px; border-radius:6px;
+    white-space:nowrap;
+  }
+  #open-signup-nav-compact{ background:var(--cream); color:var(--black); }
+  #open-signin-nav-compact{ border:1px solid var(--line); color:var(--cream); }
 
   @media (max-width:900px){
     .nav-links{ display:none; }
     .nav-cta{ display:none; }
+    .nav-right{ gap:8px; }
+    .nav-cta-compact{ display:inline-block; }
+    /* The logo's glow (drop-shadow, 8px blur) visually extends past its own
+       box — with the header's side padding already trimmed for the burger
+       fix above, that glow was close enough to the XP badge to look like
+       it was touching it, even though the actual box gap was ~7px.
+       Shrinking the logo a little and softening its glow on mobile clears
+       that up, and the narrower logo hands the burger fix more headroom
+       too. */
+    header .logo-img{ height:44px; filter:drop-shadow(0 0 5px rgba(155,63,196,0.55)); }
+    /* The signed-in block (avatar, name, sign out) already lives in the
+       burger menu's .mobile-account — showing it a second time here, next
+       to the logo and XP badge, is what made the bar feel cramped.
+       .nav-account's display is toggled inline by JS (flex/none), so
+       overriding it needs !important at this breakpoint. */
+    .nav-account{ display:none !important; }
+    /* Tested against a fresh "0 XP" account, this row fit fine — but a
+       real account's "235 XP" (wider digits) pushed the burger button
+       half off the edge of narrow phone screens. Trimming the header's
+       own side padding (unlike .wrap elsewhere, which needs the extra
+       breathing room for body copy) buys back the space this row needs. */
+    header .wrap{ padding:0 16px; }
+  }
+  @media (max-width:420px){
+    .nav-right{ gap:6px; }
+    .nav-score{ padding:6px 8px; font-size:11px; }
+    .nav-cta-compact{ padding:6px 8px; font-size:10px; }
+  }
+  @media (max-width:340px){
+    header .wrap{ padding:0 12px; }
+    .nav-right{ gap:4px; }
+    .nav-score{ padding:5px 6px; }
+    .nav-cta-compact{ padding:5px 6px; }
   }
 
   .nav-burger{
@@ -459,6 +585,100 @@
   .section-head h2{ font-size:clamp(32px,4.2vw,52px); max-width:660px; }
   .section-head p{ max-width:380px; color:var(--cream-dim); font-size:15px; line-height:1.6; }
 
+  /* ===== sponsorship (sponsor.html) ===== */
+  .sponsor-band{ background:linear-gradient(135deg, rgba(255,45,120,0.1), rgba(43,232,217,0.07)); }
+  .sponsor-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+  @media (max-width:880px){ .sponsor-grid{ grid-template-columns:1fr; } }
+  .sponsor-card{
+    position:relative;
+    background:var(--black-2); border:1px solid var(--line);
+    border-radius:14px; padding:32px;
+    border-top:4px solid var(--sp-color, var(--cyan));
+  }
+  .sponsor-card .tier-name{ font-family:'Anton', sans-serif; font-size:25px; text-transform:uppercase; margin-bottom:6px; color:var(--sp-color, var(--cream)); }
+  .sponsor-card.feat::before{
+    content:"MOST IMPACT"; position:absolute; top:-13px; right:24px;
+    background:var(--pink); color:var(--cream);
+    font-family:'JetBrains Mono', monospace; font-size:10px;
+    letter-spacing:0.08em; padding:5px 10px; border-radius:999px; font-weight:700;
+  }
+  .sponsor-slots-badge{
+    display:inline-block; margin-left:8px; vertical-align:middle;
+    font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--sp-color, var(--yellow)); border:1px solid var(--sp-color, var(--yellow));
+    border-radius:999px; padding:3px 9px;
+  }
+  .sponsor-price{ margin:2px 0 14px; }
+  .sponsor-price-amount{ font-family:'Anton', sans-serif; font-size:30px; color:var(--sp-color, var(--cream)); }
+  .sponsor-price-period{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--cream-dim); margin-left:4px; }
+  .sponsor-card p.desc{ color:var(--cream-dim); font-size:14px; line-height:1.6; margin:0 0 20px; }
+  .sponsor-card ul{ list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+  .sponsor-card li{ font-size:13.5px; color:var(--cream-dim); display:flex; gap:10px; }
+  .sponsor-card li::before{ content:"→"; color:var(--sp-color, var(--cyan)); flex-shrink:0; font-weight:700; }
+  .sponsor-cta-btn{
+    display:block; width:100%; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em;
+    background:var(--sp-color, var(--cyan)); color:var(--black);
+    padding:14px; border-radius:8px; border:none;
+    transition:transform 0.2s, opacity 0.2s;
+  }
+  .sponsor-cta-btn:hover{ transform:translateY(-2px); opacity:0.92; }
+  .sponsor-cta-btn:disabled{
+    background:#3a3742; color:#6b6774; cursor:not-allowed;
+  }
+  .sponsor-cta-btn:disabled:hover{ transform:none; opacity:1; }
+
+  /* Sponsorship applications aren't open yet, but the tier details
+     shouldn't be hidden — the whole card body is desaturated and dimmed
+     (still fully readable, just visibly inert) rather than blurred out,
+     with the glowing sign layered on top in full color so it's
+     unmistakably "not yet" rather than "broken". */
+  .sponsor-card-body{ filter:grayscale(1) opacity(0.55); }
+  .sponsor-coming-soon-overlay{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .sponsor-coming-soon-overlay span{
+    font-family:'Anton', sans-serif; font-size:26px;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--sp-color, var(--pink));
+    text-shadow:0 0 4px var(--sp-color, var(--pink)), 0 0 14px var(--sp-color, var(--pink)), 0 0 28px var(--sp-color, var(--pink));
+    border:2px solid var(--sp-color, var(--pink));
+    border-radius:10px;
+    padding:12px 26px;
+    transform:rotate(-6deg);
+    box-shadow:0 0 16px var(--sp-color, var(--pink)), inset 0 0 14px rgba(255,255,255,0.06);
+    animation:sponsor-neon-flicker 2.8s infinite;
+  }
+  @keyframes sponsor-neon-flicker{
+    0%, 19%, 21%, 23%, 54%, 56%, 100%{ opacity:1; }
+    20%, 22%, 55%{ opacity:0.75; }
+  }
+
+  /* ===== about — sliding neon instrument icons ===== */
+  .icon-marquee{ overflow:hidden; margin:48px 0; }
+  .icon-marquee-track{ display:flex; gap:28px; width:max-content; animation:icon-scroll 26s linear infinite; }
+  @keyframes icon-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .imarq-icon{
+    width:64px; height:64px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    border:1.5px solid currentColor;
+    background:rgba(255,255,255,0.02);
+    font-size:26px;
+  }
+  .imarq-icon svg{ filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 0 10px currentColor); }
+  .imarq-icon.c1{ color:var(--pink); }
+  .imarq-icon.c2{ color:var(--cyan); }
+  .imarq-icon.c3{ color:var(--yellow); }
+  .imarq-icon.c4{ color:var(--green); }
+  @media (max-width:640px){
+    .imarq-icon{ width:52px; height:52px; font-size:21px; }
+    .icon-marquee{ margin:32px 0; }
+  }
+
   /* ===== about ===== */
   .about-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:start; }
   .about-text p{ font-size:17px; line-height:1.75; color:var(--cream-dim); margin-bottom:20px; }
@@ -485,6 +705,20 @@
     .stat-card .num{ font-size:26px; margin-bottom:4px; }
     .stat-card .lbl{ font-size:11px; line-height:1.35; }
   }
+
+  /* Verifiable-fact "proof" row — deliberately not testimonials, since the
+     platform has no real user reviews to show yet and inventing some would
+     be dishonest. Same border-left color-coded card language as
+     .stat-card/.role-cell, just longer copy instead of a number. */
+  .proof-pillars{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:32px; }
+  @media (max-width:880px){ .proof-pillars{ grid-template-columns:1fr; } }
+  .pillar-card{
+    border:1px solid var(--line); border-radius:10px;
+    padding:22px; background:var(--black-2);
+    border-left:4px solid var(--pillar-color, var(--pink));
+  }
+  .pillar-card h4{ font-family:'Anton', sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:0.02em; color:var(--cream); margin-bottom:8px; }
+  .pillar-card p{ font-family:'JetBrains Mono', monospace; font-size:12.5px; line-height:1.6; color:var(--cream-dim); }
 
   /* ===== patch bay ===== */
   .patchbay{ background:var(--black-2); }
@@ -517,6 +751,29 @@
     gap:16px;
     flex-wrap:wrap;
     margin-bottom:14px;
+  }
+  @media (max-width:640px){
+    /* Wrapping 5 tabs onto 3 ragged rows above a boxed "sort by distance"
+       button read as cluttered on a narrow screen — a single horizontally
+       scrollable strip (the same pattern as a native app's filter bar)
+       reads cleaner than the wrap, and stacking the button below full-
+       width gives it equal visual weight instead of shrink-wrapping. */
+    .patch-controls{ flex-direction:column; align-items:stretch; flex-wrap:nowrap; }
+    #patch-tabs{
+      flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; -ms-overflow-style:none;
+      margin:0 -20px; padding:0 20px 4px;
+      /* align-items:stretch alone wasn't reliably constraining this to the
+         parent's width (a flex item's cross-size can still end up sized
+         to its content in edge cases), so it's pinned explicitly — without
+         it, the nowrap tabs just grew the box wider than its container and
+         spilled the last tab out past the edge instead of scrolling. */
+      width:100%;
+      min-width:0;
+    }
+    #patch-tabs::-webkit-scrollbar{ display:none; }
+    #patch-tabs .patch-tab{ flex-shrink:0; }
+    .patch-nearme-btn{ justify-content:center; }
   }
   .patch-nearme-btn{
     display:flex; align-items:center; gap:8px;
@@ -562,7 +819,7 @@
     font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.04em;
     padding:9px 16px; border-radius:999px;
-    border:1.5px solid var(--line); color:var(--cream-dim);
+    border:1.5px solid var(--tab-color, var(--line)); color:var(--tab-color, var(--cream-dim));
     transition:all 0.2s;
   }
   .patch-tab:hover{ border-color:var(--cream); color:var(--cream); }
@@ -577,10 +834,23 @@
   @media (max-width:880px){ .patch-row{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:520px){ .patch-row{ grid-template-columns:1fr; } }
   .jack{
+    position:relative;
     border:1px solid var(--line); border-radius:8px;
-    padding:18px 16px; background:rgba(255,255,255,0.015);
+    padding:32px 16px 18px; background:rgba(255,255,255,0.015);
     transition:all 0.2s; cursor:pointer;
     opacity:1;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .jack-example-tape{
+    position:absolute; top:0; left:0; right:0; height:18px;
+    display:flex; align-items:center; justify-content:center;
+    background:repeating-linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35) 8px, rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 16px);
+    border-bottom:1px solid var(--line);
+    border-radius:7px 7px 0 0;
+    font-family:'JetBrains Mono', monospace;
+    font-size:9.5px; font-weight:700;
+    letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--cream);
   }
   .jack.dim{ opacity:0.3; }
   .jack:hover, .jack.match{
@@ -588,6 +858,17 @@
     transform:translateY(-3px);
     background:rgba(255,255,255,0.03);
   }
+  .jack-main{ flex:1; min-width:0; }
+  .jack-avatar{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.04);
+    border:1.5px solid var(--jack-color, var(--line));
+    color:var(--jack-color, var(--cream-dim));
+    overflow:hidden;
+  }
+  .jack-avatar img{ width:100%; height:100%; object-fit:cover; }
+  .jack-avatar .icon{ width:52%; height:52%; }
   .jack .jhead{ display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
   .jack .jplug{
     width:10px; height:10px; border-radius:50%;
@@ -730,11 +1011,15 @@
   }
   .fan-card-head{
     display:flex;
+    flex-wrap:wrap;
     justify-content:space-between;
     align-items:center;
+    gap:10px 14px;
     margin-bottom:20px;
   }
   .fan-card-head h3{ font-size:18px; font-weight:700; }
+  .fan-card-head .fan-add-btn{ flex-shrink:0; }
+  .avatar-signed-out-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
   .fan-add-btn{
     font-family:'JetBrains Mono', monospace;
     font-size:11.5px; font-weight:700;
@@ -746,6 +1031,19 @@
     transition:all 0.2s;
   }
   .fan-add-btn:hover{ background:rgba(166,107,255,0.12); }
+  .avatar-upload-row{ display:flex; align-items:center; gap:16px; }
+  .avatar-upload-preview{
+    width:72px; height:72px; border-radius:14px; flex-shrink:0;
+    border:1px solid var(--line);
+    background:linear-gradient(135deg, var(--cyan), var(--yellow));
+  }
+  .avatar-upload-actions{ display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+  .avatar-remove-btn{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--cream-dim); transition:color 0.2s;
+  }
+  .avatar-remove-btn:hover{ color:var(--red); }
   .requests-subhead{
     font-family:'JetBrains Mono', monospace;
     font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
@@ -812,6 +1110,10 @@
     background:var(--purple);
     margin-top:6px; flex-shrink:0;
   }
+  .player-avatar{
+    width:36px; height:36px; border-radius:9px; flex-shrink:0;
+    display:block; border:1px solid var(--line);
+  }
   .gig-log-item h5{ font-size:14.5px; font-weight:700; margin-bottom:3px; }
   .gig-log-item p{ font-size:12.5px; color:var(--cream-dim); }
   .gig-log-remove{
@@ -864,7 +1166,8 @@
     border-radius:999px;
     padding:8px 16px;
     transition:all 0.2s;
-    margin-top:8px;
+    margin-top:14px;
+    margin-bottom:10px;
   }
   .follow-btn-profile:hover{ background:rgba(166,107,255,0.12); }
   .follow-btn-profile.following{
@@ -968,6 +1271,33 @@
     padding:12px 14px;
     margin-bottom:20px;
   }
+
+  .msg-list{
+    display:flex; flex-direction:column; gap:8px;
+    max-height:320px; overflow-y:auto;
+    padding-right:4px;
+  }
+  .msg-bubble{
+    max-width:80%;
+    padding:9px 13px;
+    border-radius:14px;
+    font-size:13.5px; line-height:1.5;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .msg-bubble.theirs{
+    align-self:flex-start;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--cream);
+    border-bottom-left-radius:4px;
+  }
+  .msg-bubble.mine{
+    align-self:flex-end;
+    background:rgba(43,232,217,0.14);
+    border:1px solid rgba(43,232,217,0.3);
+    color:var(--cream);
+    border-bottom-right-radius:4px;
+  }
   .booking-status-track{
     display:flex;
     justify-content:space-between;
@@ -1045,26 +1375,18 @@
   .pubspace-card p{ font-size:13.5px; line-height:1.65; color:var(--cream-dim); }
   .pubspace-cta-row{
     display:flex; gap:16px; flex-wrap:wrap;
-    margin-bottom:40px;
   }
-  .pubspace-types{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    border-top:1px solid var(--line);
-    padding-top:24px;
-  }
-  .pubspace-types-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em;
-    color:var(--cream-dim);
-    margin-right:4px;
-  }
-  .pubspace-type-pill{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11.5px;
-    padding:7px 14px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    color:var(--cream-dim);
+  @media (max-width:640px){
+    /* On narrow screens this button's text wraps to two lines — inline-block
+       sizing left it hugging the wrapped text off-center with cramped
+       leading, so give it room to breathe and center both lines. */
+    .pubspace-cta-row .btn-primary{
+      display:block;
+      width:100%;
+      text-align:center;
+      line-height:1.5;
+      padding:18px 24px;
+    }
   }
 
   /* ===== gear donation board ===== */
@@ -1125,6 +1447,13 @@
     color:var(--orange);
     margin-bottom:10px;
   }
+  .real-artist-card-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+  }
+  .real-artist-avatar{
+    width:44px; height:44px; border-radius:10px; flex-shrink:0;
+    border:1px solid var(--line);
+  }
   .gear-card h4{ font-size:16px; font-weight:700; margin-bottom:6px; }
   .gear-card-condition{ font-size:13px; color:var(--cream-dim); margin-bottom:12px; line-height:1.5; }
   .gear-card-foot{
@@ -1153,6 +1482,133 @@
   .gear-footnote p{ font-size:13px; line-height:1.7; color:var(--cream-dim); max-width:760px; }
   .gear-footnote strong{ color:var(--cream); }
 
+  /* ===== funding campaigns ===== */
+  .campaign-card{ border-top:3px solid var(--camp-color, var(--orange)); }
+  .campaign-card .gear-card-cat{ color:var(--camp-color, var(--orange)); }
+  .campaign-progress-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    margin-bottom:8px;
+  }
+  .campaign-progress-raised{ color:var(--cream); font-weight:700; }
+  .campaign-progress-goal{ color:var(--cream-dim); }
+  .campaign-progress-pct{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    color:var(--cream-dim); margin-top:8px;
+  }
+  .campaign-story{ font-size:14px; line-height:1.65; color:var(--cream-dim); white-space:pre-wrap; }
+  .campaign-story-label{
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--cream-dim); margin-bottom:6px;
+  }
+  .campaign-photo{
+    margin-bottom:20px; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line); background:var(--black-2);
+  }
+  .campaign-photo img{ width:100%; max-height:420px; object-fit:cover; display:block; }
+  .campaign-gallery{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-bottom:20px; max-width:640px;
+  }
+  .campaign-gallery img{
+    width:100px; height:100px; object-fit:cover;
+    border-radius:8px; border:1px solid var(--line);
+  }
+  .campaign-card-photo{
+    width:100%; height:150px; object-fit:cover; display:block;
+    border-radius:8px; margin-bottom:14px;
+  }
+  .gear-card-photo{
+    width:100%; height:150px; object-fit:cover; display:block;
+    border-radius:8px; margin-bottom:14px;
+  }
+  .campaign-owner-row{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .campaign-owner-avatar{ width:36px; height:36px; border-radius:8px; flex-shrink:0; }
+  .campaign-owner-name{ font-size:13.5px; font-weight:700; }
+  .campaign-owner-role{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--cream-dim); }
+  .campaign-supporter-item{
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .campaign-supporter-item:last-child{ border-bottom:none; }
+  .campaign-supporter-amount{ font-family:'JetBrains Mono', monospace; color:var(--green); font-weight:700; flex-shrink:0; }
+  .campaign-supporter-message{ color:var(--cream-dim); font-size:12.5px; margin-top:2px; }
+
+  .quick-amount-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .quick-amount-btn{
+    flex:1;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    border:1.5px solid var(--line); border-radius:8px; padding:9px 0;
+    color:var(--cream-dim); transition:all 0.2s;
+  }
+  .quick-amount-btn:hover{ border-color:var(--green); color:var(--cream); }
+  .quick-amount-btn.active{ border-color:var(--green); background:rgba(74,222,128,0.12); color:var(--green); }
+
+  .policy-box{
+    border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; margin-bottom:12px;
+    background:rgba(255,255,255,0.015);
+  }
+  .policy-box-title{
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--cream-dim); margin-bottom:6px;
+  }
+  .policy-box p{ font-size:12.5px; line-height:1.55; color:var(--cream-dim); }
+  .policy-box p + p{ margin-top:8px; }
+
+  .verification-badge{
+    display:inline-block; margin:0 0 14px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em;
+    padding:3px 9px; border-radius:999px;
+    border:1px solid var(--line); color:var(--cream-dim);
+    vertical-align:middle;
+  }
+  .verification-badge:empty{ display:none; }
+  .verification-badge.verified{ border-color:var(--green); color:var(--green); }
+
+  .item-link-bar{
+    display:block; margin-bottom:20px;
+    border:1.5px solid var(--cyan); border-radius:10px;
+    padding:12px 16px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    color:var(--cyan); text-align:center;
+    transition:all 0.2s;
+  }
+  .item-link-bar:hover{ background:rgba(43,232,217,0.1); }
+
+  .campaign-quote-item{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .campaign-quote-item:last-child{ border-bottom:none; }
+  .campaign-quote-photo{
+    width:56px; height:56px; border-radius:8px; object-fit:cover;
+    flex-shrink:0; border:1px solid var(--line);
+  }
+  .campaign-quote-body{ flex:1; min-width:0; }
+  .campaign-quote-item-name{ font-size:13.5px; font-weight:700; }
+  .campaign-quote-seller{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--cream-dim); margin-top:2px; }
+  .campaign-quote-price{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--green); font-weight:700; margin-top:4px; }
+  .campaign-quote-status{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em; color:var(--cream-dim);
+    margin-top:4px;
+  }
+  .campaign-quote-status.accepted{ color:var(--green); }
+  .campaign-quote-status.declined{ color:var(--red); }
+  .campaign-quote-actions{ display:flex; gap:8px; margin-top:8px; }
+  .campaign-quote-actions button{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    border-radius:999px; padding:5px 12px; border:1.5px solid var(--line);
+    color:var(--cream-dim); transition:all 0.2s;
+  }
+  .campaign-quote-actions button.accept-quote-btn:hover{ border-color:var(--green); color:var(--green); }
+  .campaign-quote-actions button.decline-quote-btn:hover{ border-color:var(--red); color:var(--red); }
+
   /* ===== real artist directory ===== */
   .real-artist-grid{
     display:grid;
@@ -1179,34 +1635,6 @@
   }
 
   /* ===== pricing ===== */
-  .billing-toggle{
-    display:inline-flex;
-    border:1.5px solid var(--line);
-    border-radius:999px;
-    padding:4px;
-    margin-bottom:40px;
-    gap:4px;
-  }
-  .billing-toggle-btn{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12.5px; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.03em;
-    padding:9px 18px;
-    border-radius:999px;
-    color:var(--cream-dim);
-    display:flex; align-items:center; gap:8px;
-    transition:all 0.2s;
-  }
-  .billing-toggle-btn.active{ background:var(--cream); color:var(--black); }
-  .save-badge{
-    background:var(--green);
-    color:var(--black);
-    font-size:9.5px;
-    padding:2px 7px;
-    border-radius:999px;
-  }
-  .billing-toggle-btn.active .save-badge{ background:var(--black); color:var(--green); }
-
   .pricing-grid{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -1214,8 +1642,10 @@
     margin-bottom:40px;
     align-items:start;
   }
-  .pricing-grid-4{ grid-template-columns:repeat(4, 1fr); }
-  @media (max-width:1080px){ .pricing-grid-4{ grid-template-columns:repeat(2, 1fr); } }
+  /* Single free tier — no other plans to compare it against, so it's
+     centered and width-capped instead of stretched across a multi-column
+     grid built for comparing several cards side by side. */
+  .pricing-grid-1{ grid-template-columns:1fr; max-width:440px; margin-left:auto; margin-right:auto; }
   @media (max-width:880px){ .pricing-grid{ grid-template-columns:1fr; } }
   .price-card{
     background:var(--black-2);
@@ -1225,29 +1655,13 @@
     overflow:hidden;
     transition:border-color 0.2s;
   }
-  /* The card's own overflow:hidden (for clipping the accordion body's
-     rounded corners) was also clipping this badge, since it sits above
-     the card's top edge. The accordion still clips correctly via
-     .price-card-body's own overflow:hidden below. */
-  .price-card.featured{ position:relative; overflow:visible; }
-  .price-card.featured::before{
-    content:"MOST POPULAR";
-    position:absolute; top:-13px; right:24px;
-    background:var(--pink); color:var(--cream);
-    font-family:'JetBrains Mono', monospace; font-size:10px;
-    letter-spacing:0.08em; padding:5px 10px; border-radius:999px; font-weight:700;
-    z-index:2;
-  }
   .price-card-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:12px;
     padding:28px 32px;
-    cursor:pointer;
-    transition:background 0.2s;
   }
-  .price-card-header:hover{ background:rgba(255,255,255,0.02); }
   .price-card.open .price-card-header{ padding-bottom:18px; }
   .price-card-header-left{ min-width:0; }
   .price-tier-name{
@@ -1260,13 +1674,6 @@
   }
   .price-num{ font-family:'Anton', sans-serif; font-size:34px; color:var(--cream); }
   .price-period{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--cream-dim); }
-  .price-card-chevron{
-    font-size:18px;
-    color:var(--cream-dim);
-    flex-shrink:0;
-    transition:transform 0.3s;
-  }
-  .price-card.open .price-card-chevron{ transform:rotate(180deg); color:var(--pc-color, var(--cream)); }
   .price-card-body{
     max-height:0;
     overflow:hidden;
@@ -1274,10 +1681,6 @@
   }
   .price-card.open .price-card-body{ max-height:600px; }
   .price-card-body-inner{ padding:0 32px 32px; }
-  .price-yearly-note{
-    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--cream-dim);
-    margin:6px 0 0;
-  }
   .price-desc{ font-size:14px; line-height:1.6; color:var(--cream-dim); margin:14px 0 20px; }
   .price-features{
     list-style:none;
@@ -1552,6 +1955,12 @@
   .form-field input[type="text"],
   .form-field input[type="date"],
   .form-field input[type="time"],
+  .form-field input[type="email"],
+  .form-field input[type="url"],
+  .form-field input[type="password"],
+  .form-field input[type="number"],
+  .form-field input[type="tel"],
+  .form-field textarea,
   .form-field select{
     width:100%;
     background:var(--black-3);
@@ -1566,8 +1975,15 @@
   .form-field input[type="text"]:focus,
   .form-field input[type="date"]:focus,
   .form-field input[type="time"]:focus,
+  .form-field input[type="email"]:focus,
+  .form-field input[type="url"]:focus,
+  .form-field input[type="password"]:focus,
+  .form-field input[type="number"]:focus,
+  .form-field input[type="tel"]:focus,
+  .form-field textarea:focus,
   .form-field select:focus{ border-color:var(--cyan); outline:none; }
-  .form-field input::placeholder{ color:var(--cream-dim); opacity:0.7; }
+  .form-field input::placeholder,
+  .form-field textarea::placeholder{ color:var(--cream-dim); opacity:0.7; }
   /* Date/time inputs render their calendar/clock picker icon in a fixed
      dark glyph that's unreadable against this dark theme by default. */
   .form-field input[type="date"]::-webkit-calendar-picker-indicator,
@@ -1619,33 +2035,16 @@
   .terms-check input{ margin-top:3px; flex-shrink:0; accent-color:var(--pink); }
   .terms-check strong{ color:var(--cream); }
 
+  .filter-check-row{ display:flex; flex-wrap:wrap; gap:10px 18px; }
+  .filter-check-row .terms-check.filter-check{ margin-bottom:0; align-items:center; font-size:13px; }
+
+  .rate-card-actions{
+    display:flex; align-items:center; flex-wrap:wrap; gap:12px;
+    margin-top:16px;
+  }
+
   .rate-toggle-list{ margin:18px 0; }
   .rate-toggle-list .terms-check{ margin-bottom:12px; }
-
-  .converter-box{
-    margin-top:20px; padding-top:20px;
-    border-top:1px solid var(--line);
-  }
-  .converter-row{
-    display:flex; align-items:center; gap:8px;
-    flex-wrap:wrap;
-  }
-  .converter-row input{
-    flex:1 1 90px; min-width:0;
-    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
-    padding:11px 12px; color:var(--cream);
-    font-family:'Space Grotesk', sans-serif; font-size:14px;
-  }
-  .converter-row select{
-    flex:1 1 100px; min-width:0;
-    background:var(--black-3); border:1.5px solid var(--line); border-radius:8px;
-    padding:11px 8px; color:var(--cream);
-    font-family:'Space Grotesk', sans-serif; font-size:13px;
-  }
-  .converter-arrow{ color:var(--cream-dim); flex-shrink:0; }
-  .converter-result{
-    margin-top:12px; font-size:17px; font-weight:700; color:var(--cream);
-  }
 
   .account-type-grid{
     display:grid;
@@ -1655,9 +2054,6 @@
   }
   @media (max-width:480px){
     .account-type-grid{ grid-template-columns:repeat(2,1fr); }
-    /* 5 buttons in a 2-col grid leaves the last one stranded alone with
-       empty space beside it — span it across both columns instead. */
-    .account-type-btn:last-child{ grid-column:1 / -1; }
   }
   .account-type-btn, .profile-kind-btn{
     font-family:'JetBrains Mono', monospace;
@@ -1886,6 +2282,146 @@
   }
   .signup-divider::before, .signup-divider::after{
     content:''; flex:1; height:1px; background:var(--line);
+  }
+
+  /* ===== media portfolio (Spotify/YouTube/SoundCloud/etc. embeds) ===== */
+  .media-embed-frame{ width:100%; border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--line); }
+  .media-embed-frame iframe{ width:100%; border:none; display:block; }
+  .media-embed-linkcard{
+    display:block; text-align:center; text-decoration:none;
+    padding:14px; margin-bottom:14px;
+    border:1px solid var(--line); border-radius:10px;
+    color:var(--cream); font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700;
+    transition:border-color 0.2s;
+  }
+  .media-embed-linkcard:hover{ border-color:var(--cyan); }
+  .media-feature-btn{ color:var(--yellow); }
+
+  /* ===== availability status pill ===== */
+  .availability-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em;
+    padding:5px 12px; border-radius:999px;
+    margin-bottom:12px;
+  }
+  .availability-pill::before{ content:''; width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .availability-pill.avail-available_sessions,
+  .availability-pill.avail-remote_only{ color:var(--green); border:1px solid rgba(74,222,128,0.4); }
+  .availability-pill.avail-touring,
+  .availability-pill.avail-teaching{ color:var(--cyan); border:1px solid rgba(43,232,217,0.35); }
+  .availability-pill.avail-booked_until{ color:var(--cream-dim); border:1px solid var(--line); }
+
+  /* ===== verification tiers ===== */
+  .boost-badge{
+    display:inline-flex; align-items:center; gap:4px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--yellow);
+    border:1px solid var(--yellow);
+    border-radius:999px;
+    padding:3px 9px;
+    background:rgba(255,209,25,0.08);
+  }
+
+  .verification-tier-list{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .verification-tier-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em;
+    padding:6px 12px; border-radius:999px;
+    border:1px solid var(--line); color:var(--cream-dim);
+  }
+  .verification-tier-pill.earned{ color:var(--green); border-color:rgba(74,222,128,0.4); }
+  .verification-tier-pill .tier-dot{ width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+  .verification-subsection{ border-top:1px solid var(--line); margin-top:18px; padding-top:18px; }
+  .verification-subsection h4{ font-size:14px; margin-bottom:10px; color:var(--cream); }
+
+  .verify-platform-code-text{
+    font-size:20px; font-weight:700; letter-spacing:0.08em; font-family:'JetBrains Mono', monospace;
+    padding:10px; text-align:center; border:1px dashed var(--line); border-radius:8px;
+    color:var(--yellow); margin:8px 0;
+  }
+
+  .verification-badge-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .verification-badge-row .verification-tier-pill{ font-size:10px; padding:4px 10px; }
+
+  /* ===== ID + liveness wizard =====
+     Camera frames never leave the browser in this preview — see the
+     consent copy in profile.html and js/id-liveness.js for exactly what
+     that means and what a real launch would need instead. */
+  .liveness-consent-list{ list-style:none; padding:0; margin:0 0 18px; display:flex; flex-direction:column; gap:10px; }
+  .liveness-consent-list li{ font-size:13px; line-height:1.5; color:var(--cream-dim); padding-left:16px; position:relative; }
+  .liveness-consent-list li::before{ content:'—'; position:absolute; left:0; color:var(--cyan); }
+
+  .liveness-camera-wrap{
+    position:relative; width:100%; aspect-ratio:4/3; border-radius:12px; overflow:hidden;
+    background:var(--black-3); border:1px solid var(--line); margin-bottom:16px;
+  }
+  .liveness-camera-wrap video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .liveness-prompt{
+    text-align:center; font-family:'Anton', sans-serif; font-size:20px;
+    text-transform:uppercase; color:var(--cream); margin-bottom:12px;
+  }
+  .liveness-progress{ display:flex; justify-content:center; gap:8px; margin-bottom:8px; }
+  .liveness-progress .liveness-dot{ width:10px; height:10px; border-radius:50%; background:var(--line); transition:background 0.2s; }
+  .liveness-progress .liveness-dot.done{ background:var(--green); }
+  .liveness-progress .liveness-dot.active{ background:var(--cyan); }
+
+  .liveness-result-icon{ font-size:44px; margin-bottom:10px; }
+  .liveness-result-meta{ font-size:11px; color:var(--cream-dim); margin:12px 0; word-break:break-all; }
+
+  /* Cosmetic-only overlays — pure CSS shapes, not real face/document
+     detection. See js/id-liveness.js for why: no custom biometric
+     anti-spoofing is built here, only visual affordances that guide
+     framing the same way a real provider's SDK camera view would. */
+  .liveness-frame-guide{
+    position:absolute; inset:14% 8%;
+    border:2px dashed var(--cyan); border-radius:10px;
+    pointer-events:none;
+  }
+  .liveness-face-guide{
+    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+    width:56%; aspect-ratio:3/4;
+    border:2px dashed var(--pink); border-radius:50%;
+    pointer-events:none;
+  }
+  #liveness-id-preview{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .consent-legal-details{
+    margin-bottom:18px;
+    border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px;
+    background:var(--black-3);
+  }
+  .consent-legal-details summary{
+    cursor:pointer; font-family:'JetBrains Mono', monospace;
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--cyan);
+  }
+  .consent-legal-details[open] summary{ margin-bottom:12px; }
+  .consent-legal-body p{ font-size:12.5px; line-height:1.6; color:var(--cream-dim); margin-bottom:12px; }
+  .consent-legal-body p:last-child{ margin-bottom:0; }
+  .consent-legal-body strong{ color:var(--cream); }
+
+  .fan-add-btn.danger{ color:var(--red); border-color:var(--red); }
+  .fan-add-btn.danger:hover{ background:rgba(255,77,77,0.12); }
+
+  /* ===== avatar lightbox (tap any profile pic to enlarge) ===== */
+  .avatar-lightbox-overlay{ align-items:center; }
+  .avatar-lightbox-card{
+    max-width:320px; padding:36px; text-align:center; position:relative;
+  }
+  .avatar-lightbox-card .modal-close{ position:absolute; top:16px; right:16px; }
+  .avatar-lightbox-photo{
+    width:220px; height:220px; max-width:60vw; max-height:60vw;
+    border-radius:20px; margin:8px auto 20px;
+    border:1px solid var(--line);
+  }
+  .avatar-lightbox-name{
+    font-family:'Anton', sans-serif; font-size:22px; text-transform:uppercase;
+    color:var(--cream);
   }
 
   /* ===== profile detail modal ===== */

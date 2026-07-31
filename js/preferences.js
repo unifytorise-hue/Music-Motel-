@@ -18,16 +18,74 @@
     NGN: { symbol: '₦', rate: 1550, label: 'Nigerian Naira' },
     KES: { symbol: 'KSh', rate: 129, label: 'Kenyan Shilling' },
     GHS: { symbol: 'GH₵', rate: 15.5, label: 'Ghanaian Cedi' },
+    EGP: { symbol: 'E£', rate: 49, label: 'Egyptian Pound' },
+    MAD: { symbol: 'DH', rate: 10, label: 'Moroccan Dirham' },
+    TZS: { symbol: 'TSh', rate: 2600, label: 'Tanzanian Shilling' },
+    UGX: { symbol: 'USh', rate: 3750, label: 'Ugandan Shilling' },
+    ZMW: { symbol: 'ZK', rate: 26, label: 'Zambian Kwacha' },
     INR: { symbol: '₹', rate: 83.5, label: 'Indian Rupee' },
+    PKR: { symbol: 'Rs', rate: 278, label: 'Pakistani Rupee' },
+    BDT: { symbol: '৳', rate: 110, label: 'Bangladeshi Taka' },
+    CNY: { symbol: '¥', rate: 7.24, label: 'Chinese Yuan' },
+    JPY: { symbol: '¥', rate: 151, label: 'Japanese Yen' },
+    KRW: { symbol: '₩', rate: 1330, label: 'South Korean Won' },
+    IDR: { symbol: 'Rp', rate: 15700, label: 'Indonesian Rupiah' },
+    PHP: { symbol: '₱', rate: 56, label: 'Philippine Peso' },
+    VND: { symbol: '₫', rate: 24500, label: 'Vietnamese Dong' },
+    THB: { symbol: '฿', rate: 36, label: 'Thai Baht' },
+    MYR: { symbol: 'RM', rate: 4.7, label: 'Malaysian Ringgit' },
+    SGD: { symbol: 'S$', rate: 1.34, label: 'Singapore Dollar' },
+    HKD: { symbol: 'HK$', rate: 7.82, label: 'Hong Kong Dollar' },
     AUD: { symbol: 'A$', rate: 1.52, label: 'Australian Dollar' },
-    CAD: { symbol: 'C$', rate: 1.36, label: 'Canadian Dollar' }
+    NZD: { symbol: 'NZ$', rate: 1.64, label: 'New Zealand Dollar' },
+    CAD: { symbol: 'C$', rate: 1.36, label: 'Canadian Dollar' },
+    MXN: { symbol: 'MX$', rate: 17, label: 'Mexican Peso' },
+    BRL: { symbol: 'R$', rate: 5, label: 'Brazilian Real' },
+    ARS: { symbol: 'AR$', rate: 880, label: 'Argentine Peso' },
+    COP: { symbol: 'COL$', rate: 3900, label: 'Colombian Peso' },
+    CLP: { symbol: 'CL$', rate: 940, label: 'Chilean Peso' },
+    CHF: { symbol: 'CHF', rate: 0.88, label: 'Swiss Franc' },
+    SEK: { symbol: 'kr', rate: 10.4, label: 'Swedish Krona' },
+    NOK: { symbol: 'kr', rate: 10.6, label: 'Norwegian Krone' },
+    DKK: { symbol: 'kr', rate: 6.9, label: 'Danish Krone' },
+    PLN: { symbol: 'zł', rate: 4, label: 'Polish Złoty' },
+    TRY: { symbol: '₺', rate: 32, label: 'Turkish Lira' },
+    AED: { symbol: 'AED', rate: 3.67, label: 'UAE Dirham' },
+    SAR: { symbol: 'SR', rate: 3.75, label: 'Saudi Riyal' },
+    ILS: { symbol: '₪', rate: 3.7, label: 'Israeli Shekel' }
   };
   var CURRENCY_CODES = Object.keys(CURRENCIES);
+  window.mmCurrencyCodes = CURRENCY_CODES;
+  window.mmCurrencyLabel = function(code){
+    var c = CURRENCIES[code];
+    return c ? (code + ' — ' + c.label) : code;
+  };
 
   function convert(amountUsd, toCode){
     var c = CURRENCIES[toCode] || CURRENCIES.USD;
     return amountUsd * c.rate;
   }
+
+  // Inverse of convert() — for entry points where someone types an amount
+  // in their own currency (a campaign goal, a pledge, a rate) rather than
+  // just viewing a USD amount converted for display. Everything is still
+  // stored in USD, matching the "one canonical unit" approach used
+  // everywhere else on the site — this only converts at the edge, on the
+  // way in instead of on the way out.
+  window.mmConvertToUsd = function(amount, fromCode){
+    var c = CURRENCIES[fromCode] || CURRENCIES.USD;
+    return amount / c.rate;
+  };
+
+  // Forward direction of the same conversion — for quick-amount presets
+  // that are defined in USD (e.g. "$10") but need to be dropped into an
+  // input field that's currently in some other currency.
+  window.mmConvertFromUsd = function(amountUsd, toCode){
+    return convert(amountUsd, toCode);
+  };
+  window.mmGetPreferredCurrency = function(){
+    return (myPrefs && myPrefs.currency) || 'USD';
+  };
 
   function formatCurrency(amount, code){
     var c = CURRENCIES[code] || CURRENCIES.USD;
@@ -78,75 +136,46 @@
     return window.mmSupabase.from('profiles').update(prefs).eq('id', currentUser().id).then(function(){});
   }
 
-  function populateCurrencySelects(){
-    ['pref-currency', 'converter-from', 'converter-to'].forEach(function(id){
-      var sel = document.getElementById(id);
-      if (!sel || sel.children.length) return;
-      CURRENCY_CODES.forEach(function(code){
-        var opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = code + ' — ' + CURRENCIES[code].label;
-        sel.appendChild(opt);
-      });
+  // Distance unit lives only next to the nearby-players radius filter (the
+  // "band member search radius" control) — that's the one place a unit
+  // toggle is actually relevant to what's on screen. Currency has no
+  // standalone picker at all: it's chosen right where it's spent, in each
+  // payment-related field (campaign goal/pledge/quote amounts), via
+  // window.mmCurrencyCodes/mmCurrencyLabel directly — not mirrored here.
+  var DISTANCE_UNIT_IDS = ['nearby-distance-unit'];
+
+  function applyPrefsToForm(){
+    DISTANCE_UNIT_IDS.forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.value = myPrefs.distance_unit;
     });
   }
 
-  function applyPrefsToForm(){
-    document.getElementById('pref-distance-unit').value = myPrefs.distance_unit;
-    document.getElementById('pref-currency').value = myPrefs.currency;
-    document.getElementById('converter-from').value = 'USD';
-    document.getElementById('converter-to').value = myPrefs.currency === 'USD' ? 'ZAR' : myPrefs.currency;
-  }
-
   function initPrefs(){
-    populateCurrencySelects();
-    document.getElementById('prefs-signed-out-note').style.display = isSignedIn() ? 'none' : 'block';
     var loader = isSignedIn() ? loadPrefsRemote() : loadPrefsLocal();
     loader.then(function(saved){
       if (saved) myPrefs = { distance_unit: saved.distance_unit || 'km', currency: saved.currency || 'USD' };
       applyPrefsToForm();
-      runConverter();
       if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
       if (window.refreshNearbyPlayers) window.refreshNearbyPlayers();
     });
   }
 
-  function savePrefs(){
-    myPrefs.distance_unit = document.getElementById('pref-distance-unit').value;
-    myPrefs.currency = document.getElementById('pref-currency').value;
-    var statusEl = document.getElementById('prefs-status');
+  function savePrefs(e){
+    var target = e && e.target;
+    if (target && DISTANCE_UNIT_IDS.indexOf(target.id) > -1) myPrefs.distance_unit = target.value;
+    applyPrefsToForm(); // mirror the change across every copy of this select
     if (isSignedIn()){
-      statusEl.textContent = 'Saving…';
-      savePrefsRemote({ distance_unit: myPrefs.distance_unit, currency: myPrefs.currency }).then(function(){
-        statusEl.textContent = 'Saved.';
-      });
+      savePrefsRemote({ distance_unit: myPrefs.distance_unit, currency: myPrefs.currency });
     } else {
       savePrefsLocal(myPrefs);
-      statusEl.textContent = 'Saved on this device.';
     }
-    runConverter();
     if (window.refreshRealArtistDirectory) window.refreshRealArtistDirectory();
+    if (window.refreshNearbyPlayers) window.refreshNearbyPlayers();
   };
-  document.getElementById('pref-distance-unit').addEventListener('change', savePrefs);
-  document.getElementById('pref-currency').addEventListener('change', savePrefs);
-
-  // ===== standalone converter (independent of the saved preference —
-  // convert between any two of the listed currencies) =====
-  function runConverter(){
-    var amount = parseFloat(document.getElementById('converter-amount').value);
-    var from = document.getElementById('converter-from').value;
-    var to = document.getElementById('converter-to').value;
-    var resultEl = document.getElementById('converter-result');
-    if (isNaN(amount)){
-      resultEl.textContent = '';
-      return;
-    }
-    var usd = amount / (CURRENCIES[from] || CURRENCIES.USD).rate;
-    var result = convert(usd, to);
-    resultEl.textContent = formatCurrency(amount, from) + ' ≈ ' + formatCurrency(result, to);
-  }
-  ['converter-amount', 'converter-from', 'converter-to'].forEach(function(id){
-    document.getElementById(id).addEventListener('input', runConverter);
+  DISTANCE_UNIT_IDS.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', savePrefs);
   });
 
   authReady.then(initPrefs);

@@ -81,6 +81,12 @@
 
     document.getElementById('profile-unify-btn').addEventListener('click', function(){
       closeProfileModal();
+      // This card is sample/preview data (see .profile-fake-note above) —
+      // there's no real person here to send a request to, so the button
+      // instead starts a profile in the same role. Without this toast that
+      // reads as a silent, unexplained redirect away from "unify with
+      // this person" into an unrelated signup form.
+      if (window.showToast) window.showToast(p.name.split(' ')[0] + ' is a preview profile — let\'s set up your own ' + p.role + ' profile instead.');
       if (typeof window.openSignupWithRole === 'function'){
         window.openSignupWithRole(p.role);
       }
@@ -99,7 +105,7 @@
 
     var isBand = profile.profile_kind === 'band';
     var locBits = [];
-    if (profile.location_label) locBits.push(profile.location_label);
+    if (profile.location_label && !profile.hide_exact_location) locBits.push(profile.location_label);
     if (distanceKm != null && window.mmFormatDistanceKm) locBits.push(window.mmFormatDistanceKm(distanceKm));
 
     var instrumentsHtml = (profile.instruments && profile.instruments.length)
@@ -108,27 +114,38 @@
         }).join('') + '</div>'
       : '';
 
-    var avatarGradient = 'linear-gradient(135deg, ' + (profile.avatar_color || '#2BE8D9') + ', var(--yellow))';
+    var availLabel = window.mmAvailabilityLabel ? window.mmAvailabilityLabel(profile.availability_status, profile.availability_until) : '';
 
     document.getElementById('profile-modal-body').innerHTML =
       '<div class="profile-modal-header">' +
-        '<div class="profile-modal-avatar" style="background:' + avatarGradient + ';"></div>' +
+        '<div class="profile-modal-avatar" id="profile-modal-avatar-el"></div>' +
         '<div class="profile-modal-meta">' +
           '<div class="profile-modal-name">' + escapeHtmlProfile(profile.name) + (isBand ? ' · BAND' : '') + '</div>' +
-          '<div class="profile-modal-role">' + escapeHtmlProfile(profile.role_label || profile.account_type || '') + '</div>' +
+          '<div class="profile-modal-role">' + escapeHtmlProfile(window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(profile) : (profile.role_label || '')) + '</div>' +
           (locBits.length ? '<div class="profile-modal-loc"><span class="pindot"></span>' + escapeHtmlProfile(locBits.join(' · ')) + '</div>' : '') +
         '</div>' +
       '</div>' +
+      (availLabel ? '<div class="availability-pill avail-' + escapeHtmlProfile(profile.availability_status) + '">' + escapeHtmlProfile(availLabel) + '</div>' : '') +
       (profile.bio ? '<p class="profile-bio">' + escapeHtmlProfile(profile.bio) + '</p>' : '') +
       instrumentsHtml +
+      '<a class="invite-copy-btn" id="profile-view-full-btn" style="display:block; text-align:center; text-decoration:none; margin-bottom:12px;">View full profile</a>' +
       '<button class="follow-btn-profile" id="profile-follow-btn">+ Follow</button>' +
       (profile.account_type !== 'fan' ? '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Request a quote</button>' : '') +
       (isBand ? '<button class="profile-unify-btn" id="profile-unify-btn">Unify with ' + escapeHtmlProfile(profile.name || 'this band') + '</button>' : '');
 
+    // profile.avatar_color/avatar_url are remote, other-user-controlled data
+    // — mmRenderAvatar assigns them via img.src / a regex-validated color
+    // rather than interpolating into the innerHTML string above.
+    if (window.mmRenderAvatar) window.mmRenderAvatar(document.getElementById('profile-modal-avatar-el'), profile.avatar_url, profile.avatar_color, profile.name);
+
+    document.getElementById('profile-view-full-btn').href = window.mmProfileShareUrl
+      ? window.mmProfileShareUrl(profile.id)
+      : ('profile.html?id=' + encodeURIComponent(profile.id));
+
     var followBtn = document.getElementById('profile-follow-btn');
     refreshFollowButton(followBtn, profile.id);
     followBtn.addEventListener('click', function(){
-      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.location_label, color: profile.avatar_color });
+      toggleFollow(profile.id, { name: profile.name, role: profile.role_label, loc: profile.hide_exact_location ? '' : profile.location_label, color: profile.avatar_color, avatarUrl: profile.avatar_url });
       refreshFollowButton(followBtn, profile.id);
     });
 

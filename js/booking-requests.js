@@ -20,12 +20,27 @@
 
   // ===== real artist directory =====
   function loadRealArtists(){
-    return window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind')
-      .then(function(res){
-        if (res.error || !res.data) return [];
-        return res.data.filter(function(p){ return p.account_type !== 'fan'; });
-      })
-      .catch(function(){ return []; });
+    return Promise.all([
+      window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,profile_visibility,hide_exact_location,hide_rate,boosted_until'),
+      window.mmLoadMyFollowSets ? window.mmLoadMyFollowSets() : Promise.resolve(null)
+    ]).then(function(results){
+      var res = results[0];
+      var followSets = results[1];
+      if (res.error || !res.data) return [];
+      var myId = currentUser() && currentUser().id;
+      var visible = res.data.filter(function(p){
+        if (p.account_type === 'fan') return false;
+        return window.mmCanViewProfile ? window.mmCanViewProfile(p, myId, followSets) : true;
+      });
+      // Boosted profiles (monetization layer — see js/boost.js) lead the
+      // directory; everyone else keeps whatever order the query returned.
+      visible.sort(function(a, b){
+        var aBoosted = window.mmIsBoosted ? window.mmIsBoosted(a) : false;
+        var bBoosted = window.mmIsBoosted ? window.mmIsBoosted(b) : false;
+        return aBoosted === bBoosted ? 0 : (aBoosted ? -1 : 1);
+      });
+      return visible;
+    }).catch(function(){ return []; });
   }
 
   function loadRateCards(){
@@ -81,18 +96,23 @@
     artists.forEach(function(p){
       var isBand = p.profile_kind === 'band';
       var instrumentsText = (p.instruments && p.instruments.length) ? 'Plays: ' + p.instruments.join(', ') : '';
-      var rateShort = window.formatRateCardShort ? window.formatRateCardShort(rateCards[p.id]) : null;
+      var rateShort = (window.formatRateCardShort && !p.hide_rate) ? window.formatRateCardShort(rateCards[p.id]) : null;
       var card = document.createElement('div');
       card.className = 'gear-card';
       card.innerHTML =
-        '<div class="gear-card-cat">' + escapeHtml(p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
-        '<h4>' + escapeHtml(p.name) + '</h4>' +
+        '<div class="real-artist-card-head">' +
+          '<div>' +
+            '<div class="gear-card-cat">' + escapeHtml(window.mmAccountTypeLabel ? window.mmAccountTypeLabel(p.account_type) : p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
+            '<h4>' + (window.mmIsBoosted && window.mmIsBoosted(p) ? '<span class="boost-badge">⚡ Boosted</span> ' : '') + escapeHtml(p.name) + '</h4>' +
+          '</div>' +
+          '<span class="real-artist-avatar"></span>' +
+        '</div>' +
         '<p class="gear-card-condition">' + escapeHtml(p.role_label || 'No role listed yet') + '</p>' +
         (instrumentsText ? '<p class="gear-card-condition">' + escapeHtml(instrumentsText) + '</p>' : '') +
         (rateShort ? '<p class="gear-card-condition">From ' + escapeHtml(rateShort) + ', apart from travel</p>' : '') +
         '<p class="gear-card-condition">' + escapeHtml(reviewSummaryText(reviewSummaries[p.id])) + '</p>' +
         '<div class="gear-card-foot">' +
-          '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.location_label || 'Location not set') + '</span>' +
+          '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.hide_exact_location ? 'Location hidden' : (p.location_label || 'Location not set')) + '</span>' +
           '<div class="gear-card-actions">' +
             (isBand ? '<button class="request-quote-btn unify-band-btn">Unify</button>' : '') +
             '<button class="request-quote-btn">Request a quote</button>' +
@@ -105,6 +125,7 @@
       if (unifyBtn) unifyBtn.addEventListener('click', function(){
         if (window.requestJoinBand) window.requestJoinBand(p);
       });
+      if (window.mmRenderAvatar) window.mmRenderAvatar(card.querySelector('.real-artist-avatar'), p.avatar_url, p.avatar_color, p.name);
       grid.appendChild(card);
     });
   }
@@ -122,7 +143,11 @@
   // ===== quote request modal (client -> artist) =====
   var quoteTargetArtist = null;
 
-  window.openQuoteRequest = function(artist){
+  // prefill is optional — {eventType, details} — used when the request
+  // originates from a specific listing (see js/listings.js's "Request to
+  // book" button) so the event type and details arrive already filled in
+  // instead of the client having to retype what the listing already said.
+  window.openQuoteRequest = function(artist, prefill){
     if (!currentUser()){
       if (window.openSignup) window.openSignup();
       return;
@@ -131,16 +156,17 @@
     document.getElementById('quote-modal-title').textContent = 'Request ' + artist.name.split(' ')[0];
     document.getElementById('quote-intro').textContent =
       'Are you available for a gig on your date, ' + artist.name.split(' ')[0] + ', and what’s your estimate apart from travel?';
+    document.getElementById('quote-event-type').value = (prefill && prefill.eventType) || 'Home gig / private event';
     document.getElementById('quote-date').value = '';
     document.getElementById('quote-time').value = '';
     document.getElementById('quote-location').value = '';
-    document.getElementById('quote-details').value = '';
+    document.getElementById('quote-details').value = (prefill && prefill.details) || '';
     document.getElementById('quote-budget').value = '';
     document.getElementById('quote-status').textContent = '';
 
     var previewEl = document.getElementById('quote-rate-preview');
     previewEl.style.display = 'none';
-    if (configured()){
+    if (configured() && !artist.hide_rate){
       window.mmSupabase.from('artist_rate_cards').select('*').eq('user_id', artist.id).maybeSingle().then(function(res){
         if (quoteTargetArtist !== artist) return; // modal moved on to a different artist
         var card = (res.error || !res.data) ? null : res.data;
@@ -213,6 +239,9 @@
       statusEl.textContent = '';
       closeQuoteModal();
       refreshRequests();
+      if (window.mmNotify) window.mmNotify(quoteTargetArtist.id, 'booking_requested', function(name){
+        return name + ' requested a quote for a ' + eventType + '.';
+      }, 'requests');
     });
   });
 
@@ -257,51 +286,66 @@
 
   function initRates(){
     if (!(configured() && currentUser())) return;
-    loadMyRates().then(function(rates){
-      myRates = rates;
-      renderRates();
+    var card = document.getElementById('rates-card');
+    (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+      // Quick-reply price presets exist to answer booking requests — a fan
+      // never receives any, so there's nothing for this card to do.
+      if (accountType === 'fan'){
+        if (card) card.style.display = 'none';
+        return;
+      }
+      loadMyRates().then(function(rates){
+        myRates = rates;
+        renderRates();
+      });
     });
   }
 
-  document.getElementById('rates-add-btn').addEventListener('click', function(){
-    document.getElementById('rate-label').value = '';
-    document.getElementById('rate-amount').value = '';
-    document.getElementById('rate-status').textContent = '';
-    var modal = document.getElementById('add-rate-modal');
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    if (window.trapFocus) window.trapFocus(modal);
-  });
-  function closeAddRate(){
-    var modal = document.getElementById('add-rate-modal');
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    if (window.releaseFocusTrap) window.releaseFocusTrap();
-  }
-  document.getElementById('add-rate-close-btn').addEventListener('click', closeAddRate);
-  document.getElementById('add-rate-modal').addEventListener('click', function(e){
-    if (e.target.id === 'add-rate-modal') closeAddRate();
-  });
-  document.getElementById('rate-save-btn').addEventListener('click', function(){
-    var label = document.getElementById('rate-label').value.trim();
-    var amount = parseFloat(document.getElementById('rate-amount').value);
-    var statusEl = document.getElementById('rate-status');
-    if (!label || isNaN(amount) || amount <= 0){
-      statusEl.textContent = 'Add a label and a price greater than 0.';
-      return;
-    }
-    window.mmSupabase.from('artist_rates').insert({
-      user_id: currentUser().id, label: label, amount: amount
-    }).select().single().then(function(res){
-      if (res.error){
-        statusEl.textContent = res.error.message;
+  // The rates-card ("Your rates" quick-reply presets) only exists in the
+  // fan dashboard, which lives on profile.html only — guarded so this file
+  // can still load on index.html (for the real-artist directory / quote
+  // request flow above, which IS needed there) without crashing.
+  if (document.getElementById('rates-add-btn')){
+    document.getElementById('rates-add-btn').addEventListener('click', function(){
+      document.getElementById('rate-label').value = '';
+      document.getElementById('rate-amount').value = '';
+      document.getElementById('rate-status').textContent = '';
+      var modal = document.getElementById('add-rate-modal');
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if (window.trapFocus) window.trapFocus(modal);
+    });
+    var closeAddRate = function(){
+      var modal = document.getElementById('add-rate-modal');
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.releaseFocusTrap) window.releaseFocusTrap();
+    };
+    document.getElementById('add-rate-close-btn').addEventListener('click', closeAddRate);
+    document.getElementById('add-rate-modal').addEventListener('click', function(e){
+      if (e.target.id === 'add-rate-modal') closeAddRate();
+    });
+    document.getElementById('rate-save-btn').addEventListener('click', function(){
+      var label = document.getElementById('rate-label').value.trim();
+      var amount = parseFloat(document.getElementById('rate-amount').value);
+      var statusEl = document.getElementById('rate-status');
+      if (!label || isNaN(amount) || amount <= 0){
+        statusEl.textContent = 'Add a label and a price greater than 0.';
         return;
       }
-      myRates.push(res.data);
-      renderRates();
-      closeAddRate();
+      window.mmSupabase.from('artist_rates').insert({
+        user_id: currentUser().id, label: label, amount: amount
+      }).select().single().then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        myRates.push(res.data);
+        renderRates();
+        closeAddRate();
+      });
     });
-  });
+  }
 
   // ===== booking requests: incoming (artist) + sent (client) =====
   var incomingRequests = [];
@@ -365,6 +409,72 @@
     '</div>';
   }
 
+  // ===== escrow (UI/UX scaffolding only — see js/id-liveness.js for the
+  // same "simulate, don't fake production-grade" pattern applied to
+  // biometric verification). No real payment processor is connected: the
+  // client's "Fund escrow" click only writes escrow_status='held' to
+  // booking_requests, and the artist never gets marked paid until the
+  // client's "Release funds" click writes escrow_status='released'. A real
+  // launch would swap these two writes for a Stripe Connect (or similar)
+  // hold-then-transfer call.
+  //
+  // role is 'artist' (viewing incoming-requests) or 'client' (viewing
+  // sent-requests) — same booking_request row renders a different message
+  // and action on each side, since only the client can fund/release and
+  // only the artist can mark the gig complete.
+  function renderEscrowBanner(r, role){
+    if (!r.quote_amount || (r.status !== 'accepted' && r.status !== 'completed')) return '';
+    var amount = money(r.quote_amount);
+
+    if (r.status === 'accepted'){
+      if (r.escrow_status === 'held'){
+        return '<div class="escrow-note">Escrow funded — ' + amount + ' held (simulated). ' +
+          (role === 'artist' ? 'Mark the gig complete once it’s done.' : 'Funds release once the gig is marked complete.') + '</div>';
+      }
+      if (role === 'client'){
+        return '<div class="escrow-note">Fund escrow to secure this booking — simulated, no real payment is captured yet.<br>' +
+          '<button class="request-action-btn fund-escrow-btn" type="button" style="margin-top:8px;">Fund escrow (simulated)</button></div>';
+      }
+      return '<div class="escrow-note">Waiting for the client to fund escrow before you start the gig.</div>';
+    }
+
+    // status === 'completed'
+    if (r.escrow_status === 'released'){
+      return '<div class="escrow-note">✓ Funds released — ' + amount + ' paid out (simulated).</div>';
+    }
+    if (r.escrow_status === 'held'){
+      if (role === 'client'){
+        return '<div class="escrow-note">Gig marked complete.<br>' +
+          '<button class="request-action-btn release-escrow-btn" type="button" style="margin-top:8px;">Release funds (simulated)</button></div>';
+      }
+      return '<div class="escrow-note">Gig marked complete — waiting for the client to release the escrowed funds.</div>';
+    }
+    return '<div class="escrow-note">Gig marked complete — no escrow was held for this booking.</div>';
+  }
+
+  function fundEscrow(r, onDone){
+    window.mmSupabase.from('booking_requests').update({ escrow_status: 'held', escrow_held_at: new Date().toISOString() }).eq('id', r.id).then(function(res){
+      if (res.error) return;
+      r.escrow_status = 'held';
+      r.escrow_held_at = new Date().toISOString();
+      onDone();
+      if (window.mmNotify) window.mmNotify(r.artist_id, 'escrow_funded', function(name){
+        return name + ' funded escrow for your ' + r.event_type + ' (simulated).';
+      }, 'requests');
+    });
+  }
+  function releaseEscrow(r, onDone){
+    window.mmSupabase.from('booking_requests').update({ escrow_status: 'released', escrow_released_at: new Date().toISOString() }).eq('id', r.id).then(function(res){
+      if (res.error) return;
+      r.escrow_status = 'released';
+      r.escrow_released_at = new Date().toISOString();
+      onDone();
+      if (window.mmNotify) window.mmNotify(r.artist_id, 'escrow_released', function(name){
+        return name + ' released the escrowed funds for your ' + r.event_type + ' (simulated).';
+      }, 'requests');
+    });
+  }
+
   function renderIncoming(){
     var list = document.getElementById('incoming-requests-list');
     var empty = incomingEmptyEl;
@@ -381,7 +491,7 @@
       var actionsHtml = '';
       if (r.status === 'requested'){
         actionsHtml = '<button class="request-action-btn quote-btn">Send quote</button>';
-      } else if (r.status === 'accepted'){
+      } else if (r.status === 'accepted' && r.escrow_status === 'held'){
         actionsHtml = '<button class="request-action-btn complete-btn">Mark complete</button>';
       }
       item.innerHTML =
@@ -390,9 +500,11 @@
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
           (r.budget_amount ? '<p>Their budget: ' + money(r.budget_amount) + '</p>' : '') +
           renderFeeBreakdown(r) +
+          renderEscrowBanner(r, 'artist') +
         '</div>' +
         '<div class="request-item-actions">' +
           '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
+          '<button class="request-action-btn message-btn" type="button">Messages</button>' +
           actionsHtml +
         '</div>';
       var quoteBtn = item.querySelector('.quote-btn');
@@ -403,7 +515,17 @@
           if (res.error) return;
           r.status = 'completed';
           renderIncoming();
+          if (window.mmNotify) window.mmNotify(r.client_id, 'booking_completed', function(name){
+            return name + ' marked your ' + r.event_type + ' booking complete.';
+          }, 'requests');
         });
+      });
+      item.querySelector('.message-btn').addEventListener('click', function(){ openMessages(r); });
+      item.querySelectorAll('.fund-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ fundEscrow(r, renderIncoming); });
+      });
+      item.querySelectorAll('.release-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ releaseEscrow(r, renderIncoming); });
       });
       list.appendChild(item);
     });
@@ -436,9 +558,11 @@
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
           (r.budget_amount ? '<p>Your budget: ' + money(r.budget_amount) + '</p>' : '') +
           renderFeeBreakdown(r) +
+          renderEscrowBanner(r, 'client') +
         '</div>' +
         '<div class="request-item-actions">' +
           '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
+          '<button class="request-action-btn message-btn" type="button">Messages</button>' +
           actionsHtml +
         '</div>';
       var acceptBtn = item.querySelector('.accept-btn');
@@ -447,6 +571,9 @@
           if (res.error) return;
           r.status = 'accepted';
           renderSent();
+          if (window.mmNotify) window.mmNotify(r.artist_id, 'booking_accepted', function(name){
+            return name + ' accepted your quote for their ' + r.event_type + '.';
+          }, 'requests');
         });
       });
       var declineBtn = item.querySelector('.decline-btn');
@@ -455,10 +582,20 @@
           if (res.error) return;
           r.status = 'declined';
           renderSent();
+          if (window.mmNotify) window.mmNotify(r.artist_id, 'booking_declined', function(name){
+            return name + ' declined your quote for their ' + r.event_type + '.';
+          }, 'requests');
         });
       });
       var reviewBtn = item.querySelector('.review-btn');
       if (reviewBtn) reviewBtn.addEventListener('click', function(){ openReviewModal(r); });
+      item.querySelector('.message-btn').addEventListener('click', function(){ openMessages(r); });
+      item.querySelectorAll('.fund-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ fundEscrow(r, renderSent); });
+      });
+      item.querySelectorAll('.release-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ releaseEscrow(r, renderSent); });
+      });
       list.appendChild(item);
     });
   }
@@ -467,7 +604,19 @@
     if (!(configured() && currentUser())) return;
     var requestsCard = document.getElementById('requests-card');
     if (requestsCard) requestsCard.style.display = 'block';
-    loadIncomingRequests().then(function(rows){ incomingRequests = rows; renderIncoming(); });
+    // "Requests for you" only makes sense for someone who can be booked —
+    // nobody sends a fan a quote request — so it hides for fan accounts
+    // while "Your sent requests" (a fan requesting a quote from an artist)
+    // stays visible either way.
+    var incomingSection = document.getElementById('incoming-requests-section');
+    (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+      if (accountType === 'fan'){
+        if (incomingSection) incomingSection.style.display = 'none';
+        return;
+      }
+      if (incomingSection) incomingSection.style.display = 'block';
+      loadIncomingRequests().then(function(rows){ incomingRequests = rows; renderIncoming(); });
+    });
     loadSentRequests().then(function(rows){ sentRequests = rows; renderSent(); });
     loadMyReviewedBookingIds().then(function(map){ reviewedBookingIds = map; renderSent(); });
   }
@@ -532,13 +681,20 @@
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
-  document.getElementById('respond-quote-close-btn').addEventListener('click', closeRespondQuote);
-  document.getElementById('respond-quote-modal').addEventListener('click', function(e){
-    if (e.target.id === 'respond-quote-modal') closeRespondQuote();
-  });
+  // respond-quote-modal only exists alongside the requests-card, which is
+  // fan-dashboard-only (now profile.html) — guarded so this file can still
+  // load on index.html for the real-artist directory above.
+  if (document.getElementById('respond-quote-close-btn')){
+    document.getElementById('respond-quote-close-btn').addEventListener('click', closeRespondQuote);
+    document.getElementById('respond-quote-modal').addEventListener('click', function(e){
+      if (e.target.id === 'respond-quote-modal') closeRespondQuote();
+    });
+  }
 
   function submitQuote(amount){
     if (!respondingTo) return;
+    var clientId = respondingTo.client_id;
+    var eventType = respondingTo.event_type;
     var statusEl = document.getElementById('respond-quote-status');
     statusEl.textContent = 'Sending…';
     window.mmSupabase.from('booking_requests').update({ status: 'quoted', quote_amount: amount }).eq('id', respondingTo.id)
@@ -550,17 +706,22 @@
         statusEl.textContent = '';
         closeRespondQuote();
         refreshRequests();
+        if (window.mmNotify) window.mmNotify(clientId, 'booking_quoted', function(name){
+          return name + ' sent you a quote for your ' + eventType + ' request.';
+        }, 'requests');
       });
   }
 
-  document.getElementById('respond-quote-submit-btn').addEventListener('click', function(){
-    var amount = parseFloat(document.getElementById('respond-quote-amount').value);
-    if (isNaN(amount) || amount <= 0){
-      document.getElementById('respond-quote-status').textContent = 'Enter a price greater than 0.';
-      return;
-    }
-    submitQuote(amount);
-  });
+  if (document.getElementById('respond-quote-submit-btn')){
+    document.getElementById('respond-quote-submit-btn').addEventListener('click', function(){
+      var amount = parseFloat(document.getElementById('respond-quote-amount').value);
+      if (isNaN(amount) || amount <= 0){
+        document.getElementById('respond-quote-status').textContent = 'Enter a price greater than 0.';
+        return;
+      }
+      submitQuote(amount);
+    });
+  }
 
   // ===== leave a review (client, on a completed booking) =====
   var reviewingBooking = null;
@@ -581,35 +742,132 @@
     document.body.style.overflow = '';
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
-  document.getElementById('review-close-btn').addEventListener('click', closeReviewModal);
-  document.getElementById('review-modal').addEventListener('click', function(e){
-    if (e.target.id === 'review-modal') closeReviewModal();
-  });
+  // review-modal is only reachable from the requests-card's sent-requests
+  // list, which is fan-dashboard-only (now profile.html) — guarded so this
+  // file can still load on index.html for the real-artist directory above.
+  if (document.getElementById('review-close-btn')){
+    document.getElementById('review-close-btn').addEventListener('click', closeReviewModal);
+    document.getElementById('review-modal').addEventListener('click', function(e){
+      if (e.target.id === 'review-modal') closeReviewModal();
+    });
 
-  document.getElementById('review-submit-btn').addEventListener('click', function(){
-    if (!reviewingBooking) return;
-    var rating = parseInt(document.getElementById('review-rating').value, 10);
-    var comment = document.getElementById('review-comment').value.trim();
-    var statusEl = document.getElementById('review-status');
-    statusEl.textContent = 'Submitting…';
-    window.mmSupabase.from('booking_reviews').insert({
-      booking_request_id: reviewingBooking.id,
-      reviewer_id: currentUser().id,
-      reviewee_id: reviewingBooking.artist_id,
-      rating: rating,
-      comment: comment
-    }).then(function(res){
-      if (res.error){
-        statusEl.textContent = res.error.message;
+    document.getElementById('review-submit-btn').addEventListener('click', function(){
+      if (!reviewingBooking) return;
+      var rating = parseInt(document.getElementById('review-rating').value, 10);
+      var comment = document.getElementById('review-comment').value.trim();
+      var statusEl = document.getElementById('review-status');
+      statusEl.textContent = 'Submitting…';
+      window.mmSupabase.from('booking_reviews').insert({
+        booking_request_id: reviewingBooking.id,
+        reviewer_id: currentUser().id,
+        reviewee_id: reviewingBooking.artist_id,
+        rating: rating,
+        comment: comment
+      }).then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        statusEl.textContent = '';
+        reviewedBookingIds[reviewingBooking.id] = true;
+        closeReviewModal();
+        renderSent();
+        initRealArtists();
+      });
+    });
+  }
+
+  // ===== per-booking messaging thread =====
+  // booking_messages RLS (see the add_booking_escrow_and_messages migration)
+  // only lets the client and artist on a given booking_requests row read or
+  // insert into its thread, so this never needs its own client-side gate.
+  var messagingBooking = null;
+
+  function openMessages(request){
+    messagingBooking = request;
+    document.getElementById('booking-messages-title').textContent = 'Messages — ' + request.event_type;
+    document.getElementById('booking-message-input').value = '';
+    document.getElementById('booking-message-status').textContent = '';
+    loadAndRenderMessages(request.id);
+    var modal = document.getElementById('booking-messages-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeMessages(){
+    var modal = document.getElementById('booking-messages-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+
+  var messagesEmptyEl = document.getElementById('booking-messages-empty');
+
+  function loadAndRenderMessages(bookingRequestId){
+    var list = document.getElementById('booking-messages-list');
+    list.innerHTML = '';
+    list.appendChild(messagesEmptyEl);
+    window.mmSupabase.from('booking_messages').select('*').eq('booking_request_id', bookingRequestId).order('created_at')
+      .then(function(res){
+        if (!messagingBooking || messagingBooking.id !== bookingRequestId) return; // modal moved on
+        var rows = res.data || [];
+        if (!rows.length){
+          list.innerHTML = '';
+          list.appendChild(messagesEmptyEl);
+          return;
+        }
+        var myId = currentUser().id;
+        list.innerHTML = '';
+        rows.forEach(function(m){
+          var bubble = document.createElement('div');
+          bubble.className = 'msg-bubble ' + (m.sender_id === myId ? 'mine' : 'theirs');
+          bubble.textContent = m.body;
+          list.appendChild(bubble);
+        });
+        list.scrollTop = list.scrollHeight;
+      }).catch(function(){});
+  }
+
+  if (document.getElementById('booking-messages-close-btn')){
+    document.getElementById('booking-messages-close-btn').addEventListener('click', closeMessages);
+    document.getElementById('booking-messages-modal').addEventListener('click', function(e){
+      if (e.target.id === 'booking-messages-modal') closeMessages();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.getElementById('booking-messages-modal').classList.contains('open')) closeMessages();
+    });
+
+    document.getElementById('booking-message-send-btn').addEventListener('click', function(){
+      if (!messagingBooking) return;
+      var input = document.getElementById('booking-message-input');
+      var body = input.value.trim();
+      var statusEl = document.getElementById('booking-message-status');
+      if (!body){
+        statusEl.textContent = 'Write something before sending.';
         return;
       }
-      statusEl.textContent = '';
-      reviewedBookingIds[reviewingBooking.id] = true;
-      closeReviewModal();
-      renderSent();
-      initRealArtists();
+      var bookingId = messagingBooking.id;
+      var eventType = messagingBooking.event_type;
+      var recipientId = currentUser().id === messagingBooking.client_id ? messagingBooking.artist_id : messagingBooking.client_id;
+      statusEl.textContent = 'Sending…';
+      window.mmSupabase.from('booking_messages').insert({
+        booking_request_id: bookingId,
+        sender_id: currentUser().id,
+        body: body
+      }).then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        statusEl.textContent = '';
+        input.value = '';
+        loadAndRenderMessages(bookingId);
+        if (window.mmNotify) window.mmNotify(recipientId, 'booking_message', function(name){
+          return name + ' sent you a message about the ' + eventType + ' booking.';
+        }, 'requests');
+      });
     });
-  });
+  }
 
   // ===== boot =====
   authReady.then(function(){

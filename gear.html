@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donate Gear — Music Motel</title>
+<meta name="description" content="List an instrument or piece of gear you're not using — Music Motel matches it to a musician who needs it. Free to list, always.">
+<meta property="og:title" content="Donate Gear — Music Motel">
+<meta property="og:description" content="List gear you're not using. We'll match it to a musician who needs it.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unifytorise-hue.github.io/Music-Motel-/img/logo.png">
+<meta name="theme-color" content="#0E0D12">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="toast" id="toast"><span class="tdot"></span><span id="toast-text">Added!</span></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo-mark"><a href="index.html"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></a></div>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#roles">Who's on it</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="profile.html">My profile</a>
+      <a href="profile.html#my-rate">My Rate</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="index.html" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta" id="open-signup-nav">Create profile</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <div class="nav-notif-wrap">
+          <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="nav-bell-dot" id="nav-bell-dot" style="display:none;"></span>
+          </button>
+          <div class="nav-notif-panel" id="nav-notif-panel" style="display:none;">
+            <div class="nav-notif-panel-head">
+              <span>Notifications</span>
+              <button type="button" id="nav-notif-markall-btn">Mark all read</button>
+            </div>
+            <div class="nav-notif-list" id="nav-notif-list">
+              <div class="nav-notif-empty" id="nav-notif-empty">Nothing yet.</div>
+            </div>
+          </div>
+        </div>
+        <span class="nav-avatar" id="nav-avatar"></span>
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta-compact" id="open-signup-nav-compact">Sign up</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <a href="profile.html">My profile</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#roles">Who's on it</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="profile.html#my-rate">My Rate</a>
+    <a href="funding.html">Fund a project</a>
+    <a href="businesses.html">For businesses</a>
+    <a href="gear.html">Donate gear</a>
+    <a href="sponsor.html">Advertise</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
+    <a href="index.html" class="mobile-cta" id="open-signup-mobile">Create profile</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <a href="profile.html#activity-card" class="mobile-switch-link" id="mobile-notif-link">Notifications<span id="mobile-notif-count"></span></a>
+      <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/focus-trap.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/nav.js"></script>
+
+<section class="section gear-section" id="gear" style="padding-top:150px;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--orange);">/ Donate gear</span>
+        <h2 class="display">Someone's old amp is someone else's first gig.</h2>
+      </div>
+      <p>List gear you're not using. We'll match it to a musician who needs it.</p>
+    </div>
+
+    <div class="gear-controls">
+      <div class="gear-filter-tabs" id="gear-filter-tabs"></div>
+      <button class="gear-list-btn" id="gear-list-btn">+ List an item</button>
+    </div>
+
+    <div class="gear-grid" id="gear-grid"></div>
+
+    <div class="gear-footnote">
+      <p>Always free — no fee, ever. Pickup only; the item must be collected by the person who wants it, not shipped. This is a way of giving into your own community, so listings are best matched locally. <strong>Kids get preference.</strong></p>
+    </div>
+  </div>
+</section>
+
+<div class="signup-overlay" id="gear-list-modal" role="dialog" aria-modal="true" aria-labelledby="gear-list-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--orange);">/ Donate gear</span>
+        <h2 class="display" id="gear-list-title" style="font-size:26px;">List an item</h2>
+      </div>
+      <button class="modal-close" id="gear-list-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="form-field">
+        <label for="gear-item-name">Item</label>
+        <input type="text" id="gear-item-name" placeholder="e.g. Fender Squier Stratocaster">
+      </div>
+      <div class="form-field">
+        <label for="gear-item-category">Category</label>
+        <input type="text" id="gear-item-category" placeholder="e.g. Guitar, Amp, Drum kit, Mic">
+      </div>
+      <div class="form-field">
+        <label for="gear-item-condition">Condition</label>
+        <input type="text" id="gear-item-condition" placeholder="e.g. Good — minor wear, fully working">
+      </div>
+      <div class="form-field">
+        <label for="gear-item-loc">Your city</label>
+        <input type="text" id="gear-item-loc" placeholder="e.g. Austin, US">
+      </div>
+      <div class="form-field">
+        <label for="gear-photo-input">A photo (optional)</label>
+        <div class="avatar-upload-row">
+          <div class="avatar-upload-preview" id="gear-photo-preview" style="border-radius:10px;"></div>
+          <div class="avatar-upload-actions">
+            <input type="file" id="gear-photo-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+            <button class="fan-add-btn" id="gear-photo-btn" type="button">Add a photo</button>
+          </div>
+        </div>
+        <p class="invite-desc" style="margin-top:8px;">A real photo of the item — listings with a photo get claimed faster.</p>
+      </div>
+      <div class="loc-search-status" id="gear-list-status" role="status"></div>
+      <button class="signup-submit" id="gear-list-save-btn">List for donation</button>
+    </div>
+  </div>
+</div>
+
+<div class="signup-overlay avatar-lightbox-overlay" id="avatar-lightbox" role="dialog" aria-modal="true" aria-labelledby="avatar-lightbox-name">
+  <div class="signup-card avatar-lightbox-card">
+    <button class="modal-close" id="avatar-lightbox-close-btn" aria-label="Close">✕</button>
+    <div class="avatar-lightbox-photo" id="avatar-lightbox-photo"></div>
+    <div class="avatar-lightbox-name" id="avatar-lightbox-name"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
+        <p>The directory for the music industry.<br>Since 2014.<br>Search by instrument and location, then connect directly.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="index.html#about">About</a>
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#roles">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h5>Get involved</h5>
+          <a href="index.html#cta">Create profile</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
+      <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<script src="js/real-xp.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/avatar-lightbox.js"></script>
+<script src="js/gear-board.js"></script>
+
+<script>
+  // Same dead-button workaround as sponsor.html: these share IDs with
+  // index.html so auth.js's signed-in/out reactivity still works, but
+  // their real modal targets don't exist here, so a second listener
+  // redirects to index.html instead of silently doing nothing.
+  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile', 'open-signin-nav-compact', 'open-signup-nav-compact'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
+  });
+
+  // gear-board.js calls window.openSignin() when a signed-out visitor tries
+  // to claim or list a real item — auth.js defines that function (once its
+  // own DOMContentLoaded handler runs) to open #signin-modal, which doesn't
+  // exist on this page, so it would otherwise silently no-op. Registering
+  // our own DOMContentLoaded listener after auth.js's script tag means ours
+  // fires after auth.js's and safely overrides it, well before any click.
+  document.addEventListener('DOMContentLoaded', function(){
+    window.openSignin = function(){ window.location.href = 'index.html?signin=1'; };
+    window.openSignup = function(){ window.location.href = 'index.html'; };
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sponsorship — Music Motel</title>
+<meta name="description" content="Back the platform that's wiring the music industry together. Sponsorship and advertising tiers for Music Motel — Supporter, Partner, and Founding Investor.">
+<meta property="og:title" content="Sponsorship — Music Motel">
+<meta property="og:description" content="Sponsorship grows the directory, funds acquisition, and puts your brand in front of every working music professional on the platform.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unifytorise-hue.github.io/Music-Motel-/img/logo.png">
+<meta name="theme-color" content="#0E0D12">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo-mark"><a href="index.html"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></a></div>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#roles">Who's on it</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="profile.html">My profile</a>
+      <a href="profile.html#my-rate">My Rate</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="index.html" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta" id="open-signup-nav">Create profile</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <div class="nav-notif-wrap">
+          <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="nav-bell-dot" id="nav-bell-dot" style="display:none;"></span>
+          </button>
+          <div class="nav-notif-panel" id="nav-notif-panel" style="display:none;">
+            <div class="nav-notif-panel-head">
+              <span>Notifications</span>
+              <button type="button" id="nav-notif-markall-btn">Mark all read</button>
+            </div>
+            <div class="nav-notif-list" id="nav-notif-list">
+              <div class="nav-notif-empty" id="nav-notif-empty">Nothing yet.</div>
+            </div>
+          </div>
+        </div>
+        <span class="nav-avatar" id="nav-avatar"></span>
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact" style="display:none;">Sign in</a>
+      <a href="index.html" class="nav-cta-compact" id="open-signup-nav-compact">Sign up</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <a href="index.html#about">About</a>
+    <a href="index.html#roles">Who's on it</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="profile.html">My profile</a>
+    <a href="profile.html#my-rate">My Rate</a>
+    <a href="funding.html">Fund a project</a>
+    <a href="businesses.html">For businesses</a>
+    <a href="gear.html">Donate gear</a>
+    <a href="sponsor.html">Advertise</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
+    <a href="index.html" class="mobile-cta" id="open-signup-mobile">Create profile</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <a href="profile.html#activity-card" class="mobile-switch-link" id="mobile-notif-link">Notifications<span id="mobile-notif-count"></span></a>
+      <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/focus-trap.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/nav.js"></script>
+
+<section class="section sponsor-band" id="sponsor" style="padding-top:150px;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--green);">/ Advertise</span>
+        <h2 class="display">Back the platform that's wiring the industry together.</h2>
+      </div>
+      <p>Sponsorship grows the directory, funds acquisition, and puts your brand in front of every working music professional on the platform.</p>
+    </div>
+    <div class="sponsor-grid">
+      <div class="sponsor-card" style="--sp-color:var(--cyan);">
+        <div class="sponsor-card-body">
+          <div class="tier-name">Supporter</div>
+          <div class="sponsor-price"><span class="sponsor-price-amount">R450</span><span class="sponsor-price-period">/ mo</span></div>
+          <p class="desc">For studios, repair shops, and local services wanting steady visibility in the ecosystem their customers use daily.</p>
+          <ul>
+            <li>Logo placement in platform footer</li>
+            <li>Listing in the sponsor directory</li>
+            <li>Verified Supporter badge on listing</li>
+          </ul>
+          <button class="sponsor-cta-btn" type="button" disabled>Become a Supporter</button>
+        </div>
+        <div class="sponsor-coming-soon-overlay"><span>Coming Soon</span></div>
+      </div>
+      <div class="sponsor-card feat" style="--sp-color:var(--pink);">
+        <div class="sponsor-card-body">
+          <div class="tier-name">Partner</div>
+          <div class="sponsor-price"><span class="sponsor-price-amount">R3,500</span><span class="sponsor-price-period">/ mo</span></div>
+          <p class="desc">For instrument brands, audio companies, and venues wanting sustained placement across the user journey.</p>
+          <ul>
+            <li>Homepage &amp; search-result placement</li>
+            <li>Co-branded category sponsorship</li>
+            <li>Monthly impression &amp; click analytics report</li>
+          </ul>
+          <button class="sponsor-cta-btn" type="button" disabled>Become a Partner</button>
+        </div>
+        <div class="sponsor-coming-soon-overlay"><span>Coming Soon</span></div>
+      </div>
+      <div class="sponsor-card" style="--sp-color:var(--yellow);">
+        <div class="sponsor-card-body">
+          <div class="tier-name">Founding Sponsor <span class="sponsor-slots-badge">3 slots remaining</span></div>
+          <div class="sponsor-price"><span class="sponsor-price-amount">R20,000</span><span class="sponsor-price-period">/ mo</span></div>
+          <p class="desc">For strategic industry partners who want to shape the platform direction as Music Motel scales.</p>
+          <ul>
+            <li>Strategic input on platform roadmap</li>
+            <li>Exclusive category naming rights (competitor lockout)</li>
+            <li>Priority access to aggregated market growth data</li>
+          </ul>
+          <button class="sponsor-cta-btn" type="button" disabled>Apply for Sponsorship</button>
+        </div>
+        <div class="sponsor-coming-soon-overlay"><span>Coming Soon</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
+        <p>The social directory for the music industry.<br>Since 2014.<br>Built to unify musicians, engineers, managers, and every role between.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="index.html#about">About</a>
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#roles">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h5>Get involved</h5>
+          <a href="index.html#cta">Create profile</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
+      <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<script src="js/real-xp.js"></script>
+<script src="js/notifications.js"></script>
+
+<script>
+  // #open-signin-nav / #open-signup-nav / #open-signin-mobile / #open-signup-mobile
+  // keep the same IDs as index.html so js/auth.js's renderAuthUI() can still
+  // correctly hide/show them based on signed-in state on this page. But
+  // auth.js's own click handler calls e.preventDefault() and then tries to
+  // open a modal that doesn't exist here (openSignin()/openSignup() both
+  // no-op if the modal element is missing) — so without this, these would be
+  // dead links. A second, independent listener still fires after the first
+  // one's preventDefault(), since preventDefault only suppresses the
+  // browser's default navigation, not other JS listeners on the same element.
+  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile', 'open-signin-nav-compact', 'open-signup-nav-compact'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
+  });
+
+  // "Switch account" (in the signed-in nav-account/mobile-account block)
+  // calls window.openSignin() directly rather than clicking a link — same
+  // reasoning as the dead-button workaround above, just for a function
+  // call instead of a click target.
+  document.addEventListener('DOMContentLoaded', function(){
+    window.openSignin = function(){ window.location.href = 'index.html?signin=1'; };
+    window.openSignup = function(){ window.location.href = 'index.html'; };
+  });
+</script>
+
+</body>
+</html>
