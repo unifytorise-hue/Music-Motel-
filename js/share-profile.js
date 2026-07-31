@@ -315,6 +315,80 @@
     document.getElementById('public-profile-private').style.display = 'block';
   }
 
+  // ===== Similar profiles =====
+  // Scored purely on overlap with the viewed profile's own fields (account
+  // type, genres, instruments, role_label) — no click-through or booking
+  // history involved, so this can't leak anything the visitor couldn't
+  // already see on each candidate's own public profile.
+  var SIMILAR_MAX = 5;
+
+  function similarityScore(target, candidate){
+    var score = 0;
+    if (candidate.account_type && candidate.account_type === target.account_type) score += 3;
+    if (target.role_label && candidate.role_label && candidate.role_label.toLowerCase() === target.role_label.toLowerCase()) score += 2;
+    function overlapCount(a, b){
+      if (!Array.isArray(a) || !Array.isArray(b) || !a.length || !b.length) return 0;
+      var bLower = b.map(function(v){ return String(v).toLowerCase(); });
+      return a.filter(function(v){ return bLower.indexOf(String(v).toLowerCase()) > -1; }).length;
+    }
+    score += overlapCount(target.genres, candidate.genres) * 2;
+    score += overlapCount(target.instruments, candidate.instruments) * 2;
+    score += overlapCount(target.gear_list, candidate.gear_list);
+    score += overlapCount(target.languages, candidate.languages);
+    return score;
+  }
+
+  function renderSimilarProfiles(target, followSets){
+    var box = document.getElementById('public-profile-similar-box');
+    var list = document.getElementById('public-profile-similar-list');
+    if (!box || !list || !configured()) return;
+    window.mmSupabase.from('profiles')
+      .select('id,name,account_type,role_label,bio,location_label,avatar_color,avatar_url,profile_kind,instruments,genres,gear_list,languages,profile_visibility,hide_exact_location')
+      .neq('id', target.id)
+      .then(function(res){
+        var rows = res.data || [];
+        var viewerId = (currentUser() || {}).id;
+        var scored = rows
+          .filter(function(r){ return window.mmCanViewProfile ? window.mmCanViewProfile(r, viewerId, followSets) : true; })
+          .map(function(r){ return { profile: r, score: similarityScore(target, r) }; })
+          .filter(function(s){ return s.score > 0; })
+          .sort(function(a, b){ return b.score - a.score; })
+          .slice(0, SIMILAR_MAX);
+
+        if (!scored.length){ box.style.display = 'none'; return; }
+        box.style.display = 'block';
+        list.innerHTML = '';
+        scored.forEach(function(s){
+          var p = s.profile;
+          var isBand = p.profile_kind === 'band';
+          var subBits = [];
+          var roleAndType = window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(p) : '';
+          if (roleAndType) subBits.push(roleAndType);
+          if (p.location_label && !p.hide_exact_location) subBits.push(p.location_label);
+
+          var item = document.createElement('div');
+          item.className = 'gig-log-item tappable';
+          item.setAttribute('tabindex', '0');
+          item.setAttribute('role', 'button');
+          item.setAttribute('aria-label', 'View profile for ' + p.name);
+          item.innerHTML =
+            '<span class="player-avatar"></span>' +
+            '<div style="flex:1;"><h5>' + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
+            '<p>' + escapeHtml(subBits.join(' · ')) + '</p></div>' +
+            '<span class="gig-log-chevron">→</span>';
+          if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), p.avatar_url, p.avatar_color, p.name);
+          function activate(){
+            if (window.openRealProfile) window.openRealProfile(p, null);
+          }
+          item.addEventListener('click', activate);
+          item.addEventListener('keydown', function(e){
+            if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activate(); }
+          });
+          list.appendChild(item);
+        });
+      }).catch(function(){});
+  }
+
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
@@ -324,11 +398,12 @@
         if (res.error || !res.data){ renderNotFound(); return; }
         var profile = res.data;
         var user = currentUser();
-        if (user && user.id === profile.id){ renderProfile(profile); return; }
         (window.mmLoadMyFollowSets ? window.mmLoadMyFollowSets() : Promise.resolve(null)).then(function(followSets){
+          if (user && user.id === profile.id){ renderProfile(profile); renderSimilarProfiles(profile, followSets); return; }
           var canView = window.mmCanViewProfile ? window.mmCanViewProfile(profile, user && user.id, followSets) : true;
           if (!canView){ renderPrivate(); return; }
           renderProfile(profile);
+          renderSimilarProfiles(profile, followSets);
         });
       })
       .catch(function(){ renderNotFound(); });
