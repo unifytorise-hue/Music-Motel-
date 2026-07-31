@@ -48,7 +48,8 @@
     booking_declined: 'var(--red)', booking_completed: 'var(--green)', booking_message: 'var(--purple)',
     escrow_funded: 'var(--yellow)', escrow_released: 'var(--yellow)',
     new_follower: 'var(--pink)', band_join_requested: 'var(--purple)',
-    band_join_approved: 'var(--green)', band_join_declined: 'var(--red)'
+    band_join_approved: 'var(--green)', band_join_declined: 'var(--red)',
+    roster_requested: 'var(--purple)', roster_approved: 'var(--green)', roster_declined: 'var(--red)'
   };
 
   function timeAgo(iso){
@@ -67,6 +68,8 @@
     if (n.link_type === 'requests') return 'profile.html#requests-card';
     if (n.link_type === 'band_manage') return 'profile.html#band-manage-card';
     if (n.link_type === 'my_memberships') return 'profile.html#my-memberships-card';
+    if (n.link_type === 'roster_manage') return 'profile.html#roster-manage-card';
+    if (n.link_type === 'my_representation') return 'profile.html#my-representation-card';
     return 'profile.html';
   }
 

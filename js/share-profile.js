@@ -245,6 +245,14 @@
           if (window.requestJoinBand) window.requestJoinBand(profile);
         });
       }
+
+      var requestRepBtn = document.getElementById('public-profile-request-rep-btn');
+      if (template === 'manager_agent'){
+        requestRepBtn.style.display = '';
+        requestRepBtn.addEventListener('click', function(){
+          if (window.requestRepresentation) window.requestRepresentation(profile);
+        });
+      }
     }
 
     if (!configured()) return;
@@ -311,6 +319,46 @@
         }).join('');
       }).catch(function(){});
     }
+
+    // Represented artists (this profile is the manager/agent) and
+    // represented-by (this profile is the artist) are independent
+    // queries — a profile could in principle show both, though in
+    // practice only one direction will ever have rows for a given account.
+    window.mmSupabase.from('manager_roster').select('artist_id').eq('manager_id', profile.id).eq('status', 'approved').then(function(res){
+      var rows = res.data || [];
+      if (!rows.length) return;
+      window.mmSupabase.from('profiles').select('id,name,role_label,avatar_color,avatar_url,profile_kind').in('id', rows.map(function(r){ return r.artist_id; })).then(function(res2){
+        var artists = res2.data || [];
+        if (!artists.length) return;
+        var box = document.getElementById('public-profile-roster-box');
+        var list = document.getElementById('public-profile-roster-list');
+        box.style.display = 'block';
+        list.innerHTML = '';
+        artists.forEach(function(a){
+          var item = document.createElement('a');
+          item.href = window.mmProfileShareUrl ? window.mmProfileShareUrl(a.id) : ('profile.html?id=' + encodeURIComponent(a.id));
+          item.className = 'gig-log-item tappable';
+          item.innerHTML =
+            '<span class="player-avatar"></span>' +
+            '<div style="flex:1;"><h5>' + escapeHtml(a.name) + '</h5>' +
+            '<p>' + escapeHtml(window.mmRoleAndTypeLabel ? window.mmRoleAndTypeLabel(a) : (a.role_label || '')) + '</p></div>';
+          if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), a.avatar_url, a.avatar_color, a.name);
+          list.appendChild(item);
+        });
+      }).catch(function(){});
+    }).catch(function(){});
+
+    window.mmSupabase.from('manager_roster').select('manager_id').eq('artist_id', profile.id).eq('status', 'approved').then(function(res){
+      var rows = res.data || [];
+      if (!rows.length) return;
+      window.mmSupabase.from('profiles').select('id,name').in('id', rows.map(function(r){ return r.manager_id; })).then(function(res2){
+        var managers = res2.data || [];
+        if (!managers.length) return;
+        var el = document.getElementById('public-profile-represented-by');
+        el.style.display = 'block';
+        el.textContent = 'Represented by ' + managers.map(function(m){ return m.name; }).join(', ') + '.';
+      }).catch(function(){});
+    }).catch(function(){});
   }
 
   function renderPrivate(){

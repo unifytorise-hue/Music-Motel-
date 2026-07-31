@@ -154,7 +154,14 @@
           <button class="follow-btn-profile" id="public-profile-follow-btn" style="display:block; margin-bottom:12px;">+ Follow</button>
           <button class="profile-book-btn" id="public-profile-book-btn" style="display:none;">Request a quote</button>
           <button class="profile-unify-btn" id="public-profile-unify-btn" style="display:none;">Unify with this band</button>
+          <button class="profile-unify-btn" id="public-profile-request-rep-btn" style="display:none;">Request representation</button>
         </div>
+        <p class="rate-card-note" id="public-profile-represented-by" style="display:none; margin-top:10px;"></p>
+      </div>
+
+      <div class="content-box" id="public-profile-roster-box" style="display:none; max-width:560px; margin-top:16px;">
+        <h3 style="margin-bottom:10px;">Represented artists</h3>
+        <div class="gig-log-list" id="public-profile-roster-list"></div>
       </div>
 
       <div class="content-box" id="public-profile-featured-box" style="display:none; max-width:560px; margin-top:16px;">
@@ -755,6 +762,29 @@
           <div class="gig-log-empty" id="band-approved-empty">No approved members yet.</div>
         </div>
       </div>
+
+      <div class="fan-card" id="my-representation-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>My representation</h3>
+        </div>
+        <p class="invite-desc">Managers and agents you've requested to represent you, or who already do.</p>
+        <div class="gig-log-list" id="my-representation-list"></div>
+      </div>
+
+      <div class="fan-card" id="roster-manage-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>My roster</h3>
+        </div>
+        <p class="invite-desc">Artists who've asked you to represent them — this only appears for Manager/Agent profiles.</p>
+        <div class="requests-subhead">Pending requests</div>
+        <div class="gig-log-list" id="roster-pending-list">
+          <div class="gig-log-empty" id="roster-pending-empty">No pending requests.</div>
+        </div>
+        <div class="requests-subhead">Your roster</div>
+        <div class="gig-log-list" id="roster-approved-list">
+          <div class="gig-log-empty" id="roster-approved-empty">No one on your roster yet.</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1184,6 +1214,7 @@
 <script src="js/rate-card.js"></script>
 <script src="js/booking-requests.js"></script>
 <script src="js/band-members.js"></script>
+<script src="js/manager-roster.js"></script>
 <script src="js/nearby-players.js"></script>
 <script src="js/share-profile.js"></script>
 <script src="js/funding.js"></script>
