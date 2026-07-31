@@ -97,6 +97,10 @@
     filter:drop-shadow(0 0 8px rgba(155,63,196,0.55));
   }
   .footer-brand .logo-img{ height:50px; }
+  .footer-unify-badge{
+    height:20px; width:auto; display:block; margin:2px 0 14px;
+    filter:drop-shadow(0 0 6px rgba(255,45,120,0.35));
+  }
   .hero-logo-badge{
     position:relative; z-index:1;
     display:block;
