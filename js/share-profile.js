@@ -106,6 +106,11 @@
     document.getElementById('public-profile-body').style.display = 'block';
     document.title = profile.name + ' — Music Motel';
 
+    // Exposed so js/one-sheet.js can reuse this already-fetched, already
+    // visibility-checked profile row instead of querying it again — this
+    // function only ever runs once mmCanViewProfile has already passed.
+    window.mmCurrentProfile = profile;
+
     var user = currentUser();
     var isOwnProfile = !!(user && user.id === profile.id);
 
