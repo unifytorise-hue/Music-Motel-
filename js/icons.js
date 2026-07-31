@@ -191,6 +191,16 @@
     ];
   };
 
+  // Monetization layer, UI/UX scaffolding only (same pattern as escrow and
+  // ID verification) — "buying" a boost just writes boosted_until into the
+  // future; no payment processor is connected. Shared here so every surface
+  // that sorts or badges profiles (nearby-players, real-artist directory,
+  // similar profiles, public profile page) agrees on what "currently
+  // boosted" means without each re-deriving it from a raw timestamp.
+  window.mmIsBoosted = function(profile){
+    return !!(profile && profile.boosted_until && new Date(profile.boosted_until) > new Date());
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

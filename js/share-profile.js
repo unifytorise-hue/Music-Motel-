@@ -134,6 +134,9 @@
       locRow.style.display = 'none';
     }
 
+    var boostBadgeEl = document.getElementById('public-profile-boost-badge');
+    boostBadgeEl.style.display = (window.mmIsBoosted && window.mmIsBoosted(profile)) ? 'inline-flex' : 'none';
+
     var availEl = document.getElementById('public-profile-availability');
     var availLabel = window.mmAvailabilityLabel ? window.mmAvailabilityLabel(profile.availability_status, profile.availability_until) : '';
     if (availLabel){
@@ -335,6 +338,10 @@
     score += overlapCount(target.instruments, candidate.instruments) * 2;
     score += overlapCount(target.gear_list, candidate.gear_list);
     score += overlapCount(target.languages, candidate.languages);
+    // A paid boost (monetization layer — see js/boost.js) nudges ranking
+    // among otherwise-relevant candidates; it never surfaces a profile with
+    // no genuine overlap, since callers still filter on score > 0 first.
+    if (window.mmIsBoosted && window.mmIsBoosted(candidate)) score += 1;
     return score;
   }
 
@@ -343,7 +350,7 @@
     var list = document.getElementById('public-profile-similar-list');
     if (!box || !list || !configured()) return;
     window.mmSupabase.from('profiles')
-      .select('id,name,account_type,role_label,bio,location_label,avatar_color,avatar_url,profile_kind,instruments,genres,gear_list,languages,profile_visibility,hide_exact_location')
+      .select('id,name,account_type,role_label,bio,location_label,avatar_color,avatar_url,profile_kind,instruments,genres,gear_list,languages,profile_visibility,hide_exact_location,boosted_until')
       .neq('id', target.id)
       .then(function(res){
         var rows = res.data || [];
@@ -366,6 +373,8 @@
           if (roleAndType) subBits.push(roleAndType);
           if (p.location_label && !p.hide_exact_location) subBits.push(p.location_label);
 
+          var boostBadgeHtml = window.mmIsBoosted && window.mmIsBoosted(p) ? '<span class="boost-badge">⚡ Boosted</span> ' : '';
+
           var item = document.createElement('div');
           item.className = 'gig-log-item tappable';
           item.setAttribute('tabindex', '0');
@@ -373,7 +382,7 @@
           item.setAttribute('aria-label', 'View profile for ' + p.name);
           item.innerHTML =
             '<span class="player-avatar"></span>' +
-            '<div style="flex:1;"><h5>' + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
+            '<div style="flex:1;"><h5>' + boostBadgeHtml + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
             '<p>' + escapeHtml(subBits.join(' · ')) + '</p></div>' +
             '<span class="gig-log-chevron">→</span>';
           if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), p.avatar_url, p.avatar_color, p.name);
@@ -392,7 +401,7 @@
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template,profile_visibility,hide_rate,hide_exact_location,phone_verified_at,id_verified_at,id_verification_confidence,pro_membership_org,pro_membership_number')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template,profile_visibility,hide_rate,hide_exact_location,phone_verified_at,id_verified_at,id_verification_confidence,pro_membership_org,pro_membership_number,boosted_until')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }

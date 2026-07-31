@@ -21,17 +21,25 @@
   // ===== real artist directory =====
   function loadRealArtists(){
     return Promise.all([
-      window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,profile_visibility,hide_exact_location,hide_rate'),
+      window.mmSupabase.from('profiles').select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,profile_visibility,hide_exact_location,hide_rate,boosted_until'),
       window.mmLoadMyFollowSets ? window.mmLoadMyFollowSets() : Promise.resolve(null)
     ]).then(function(results){
       var res = results[0];
       var followSets = results[1];
       if (res.error || !res.data) return [];
       var myId = currentUser() && currentUser().id;
-      return res.data.filter(function(p){
+      var visible = res.data.filter(function(p){
         if (p.account_type === 'fan') return false;
         return window.mmCanViewProfile ? window.mmCanViewProfile(p, myId, followSets) : true;
       });
+      // Boosted profiles (monetization layer — see js/boost.js) lead the
+      // directory; everyone else keeps whatever order the query returned.
+      visible.sort(function(a, b){
+        var aBoosted = window.mmIsBoosted ? window.mmIsBoosted(a) : false;
+        var bBoosted = window.mmIsBoosted ? window.mmIsBoosted(b) : false;
+        return aBoosted === bBoosted ? 0 : (aBoosted ? -1 : 1);
+      });
+      return visible;
     }).catch(function(){ return []; });
   }
 
@@ -95,7 +103,7 @@
         '<div class="real-artist-card-head">' +
           '<div>' +
             '<div class="gear-card-cat">' + escapeHtml(window.mmAccountTypeLabel ? window.mmAccountTypeLabel(p.account_type) : p.account_type) + (isBand ? ' · BAND' : '') + '</div>' +
-            '<h4>' + escapeHtml(p.name) + '</h4>' +
+            '<h4>' + (window.mmIsBoosted && window.mmIsBoosted(p) ? '<span class="boost-badge">⚡ Boosted</span> ' : '') + escapeHtml(p.name) + '</h4>' +
           '</div>' +
           '<span class="real-artist-avatar"></span>' +
         '</div>' +

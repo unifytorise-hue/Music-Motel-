@@ -127,6 +127,7 @@
             <div class="profile-modal-loc" id="public-profile-loc" style="display:none;"><span class="pindot"></span><span id="public-profile-loc-text"></span></div>
           </div>
         </div>
+        <span class="boost-badge" id="public-profile-boost-badge" style="display:none; margin-bottom:8px;">⚡ Boosted</span>
         <div class="availability-pill" id="public-profile-availability" style="display:none;"></div>
         <div class="verification-badge-row" id="public-profile-verification-badges"></div>
         <p class="profile-bio" id="public-profile-bio" style="display:none;"></p>
@@ -570,6 +571,24 @@
         <div class="gig-log-list" id="rates-list">
           <div class="gig-log-empty" id="rates-empty">No rates saved yet — add one to enable quick replies.</div>
         </div>
+      </div>
+
+      <div class="fan-card" id="boost-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Boost your profile</h3>
+        </div>
+        <p class="invite-desc">A boosted profile is shown first in search, the artist directory, and similar-profile suggestions for the duration you pick.</p>
+        <div class="rate-card-note" id="boost-status" role="status" style="margin-bottom:14px;"></div>
+        <div class="form-field">
+          <label for="boost-duration-select">Duration</label>
+          <select id="boost-duration-select">
+            <option value="7">7 days — $9</option>
+            <option value="14">14 days — $15</option>
+            <option value="30">30 days — $25</option>
+          </select>
+        </div>
+        <button class="fan-add-btn" id="boost-confirm-btn" type="button">Confirm boost (simulated)</button>
+        <div class="escrow-note" style="margin-top:14px;">This simulates paying to boost your profile — no real payment is captured. Connecting a payment processor (e.g. Stripe) would be needed to charge real money here.</div>
       </div>
 
       <div class="fan-card">
@@ -1099,6 +1118,7 @@
 <script src="js/privacy.js"></script>
 <script src="js/id-liveness.js"></script>
 <script src="js/verification.js"></script>
+<script src="js/boost.js"></script>
 <script src="js/invite-gig-follow.js"></script>
 <script src="js/preferences.js"></script>
 <script src="js/avatar-upload.js"></script>

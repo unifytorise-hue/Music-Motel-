@@ -77,7 +77,7 @@
   function loadProfiles(){
     if (!currentUser()) return Promise.resolve([]);
     return window.mmSupabase.from('profiles')
-      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments,availability_status,availability_until,profile_visibility,hide_exact_location,hide_rate,genres,gear_list,languages,touring_level,pro_membership_number,phone_verified_at,id_verified_at')
+      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments,availability_status,availability_until,profile_visibility,hide_exact_location,hide_rate,genres,gear_list,languages,touring_level,pro_membership_number,phone_verified_at,id_verified_at,boosted_until')
       .then(function(res){ return res.data || []; })
       .catch(function(){ return []; });
   }
@@ -141,15 +141,24 @@
         p._tiers = window.mmVerificationTiers ? window.mmVerificationTiers(p, signals) : [];
         p._rateAmount = p.hide_rate ? null : (signals.rateAmount != null ? signals.rateAmount : null);
       });
-      if (myLocation){
-        allProfiles.sort(function(a, b){
-          if (a._distanceKm == null) return 1;
-          if (b._distanceKm == null) return -1;
-          return a._distanceKm - b._distanceKm;
-        });
-      } else {
-        allProfiles.sort(function(a, b){ return (a.name || '').localeCompare(b.name || ''); });
-      }
+      var byDistanceOrName = myLocation
+        ? function(a, b){
+            if (a._distanceKm == null) return 1;
+            if (b._distanceKm == null) return -1;
+            return a._distanceKm - b._distanceKm;
+          }
+        : function(a, b){ return (a.name || '').localeCompare(b.name || ''); };
+      // Boosted profiles (monetization layer, UI/UX scaffolding — see
+      // js/boost.js) sort ahead of everyone else, same tie-break rule
+      // applied in js/booking-requests.js's real-artist directory and
+      // js/share-profile.js's similar-profiles ranking, so a paid boost
+      // means the same thing everywhere a profile can be discovered.
+      allProfiles.sort(function(a, b){
+        var aBoosted = window.mmIsBoosted ? window.mmIsBoosted(a) : false;
+        var bBoosted = window.mmIsBoosted ? window.mmIsBoosted(b) : false;
+        if (aBoosted !== bBoosted) return aBoosted ? -1 : 1;
+        return byDistanceOrName(a, b);
+      });
 
       populateRadiusFilter();
       populateVerificationChecks();
@@ -239,6 +248,8 @@
           }).join('') + '</div>'
         : '';
 
+      var boostBadgeHtml = window.mmIsBoosted && window.mmIsBoosted(p) ? '<span class="boost-badge">⚡ Boosted</span> ' : '';
+
       var item = document.createElement('div');
       item.className = 'gig-log-item tappable';
       item.setAttribute('tabindex', '0');
@@ -246,7 +257,7 @@
       item.setAttribute('aria-label', 'View profile for ' + p.name);
       item.innerHTML =
         '<span class="player-avatar"></span>' +
-        '<div style="flex:1;"><h5>' + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
+        '<div style="flex:1;"><h5>' + boostBadgeHtml + escapeHtml(p.name) + (isBand ? ' · BAND' : '') + '</h5>' +
         '<p>' + escapeHtml(subBits.join(' · ')) + '</p>' + badgesHtml + '</div>' +
         '<span class="gig-log-chevron">→</span>';
       if (window.mmRenderAvatar) window.mmRenderAvatar(item.querySelector('.player-avatar'), p.avatar_url, p.avatar_color, p.name);
