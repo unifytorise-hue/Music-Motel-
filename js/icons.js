@@ -170,6 +170,27 @@
     return true;
   };
 
+  // Tiered verification badges — each tier is optional and has a free
+  // path, per the site's "free forever" policy. `signals` carries the
+  // pieces this can't compute on its own (rows from other tables), so this
+  // stays a pure function with no Supabase calls of its own:
+  //   { hasVerifiedPlatformLink, hasCreditsOrTouring, completedBookingCount, hasPositiveReview }
+  window.mmVerificationTiers = function(profile, signals){
+    signals = signals || {};
+    var basicDone = !!(profile && profile.phone_verified_at);
+    var idDone = !!(profile && profile.id_verified_at);
+    var platformDone = !!signals.hasVerifiedPlatformLink;
+    var creditsDone = !!signals.hasCreditsOrTouring;
+    var trustedDone = !!(signals.completedBookingCount > 0 && signals.hasPositiveReview);
+    return [
+      { key: 'basic', label: 'Basic', desc: 'Email confirmed and phone verified.', done: basicDone },
+      { key: 'id_verified', label: 'ID Verified', desc: 'Government ID + liveness check.', done: idDone },
+      { key: 'platform_linked', label: 'Platform Linked', desc: 'Claimed a Spotify/Apple/SoundCloud/Bandcamp/YouTube profile.', done: platformDone },
+      { key: 'credits_verified', label: 'Credits / Touring Verified', desc: 'Has real credits, touring level, or a PRO membership on file.', done: creditsDone },
+      { key: 'trusted', label: 'Trusted', desc: 'Completed bookings with positive reviews.', done: trustedDone }
+    ];
+  };
+
   // Shared by every place that shows a profile picture (nav, nearby-players
   // list, follow list, profile modal, the upload preview itself) — avatarUrl
   // is remote, other-user-controlled data, so it's only ever assigned via

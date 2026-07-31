@@ -288,6 +288,26 @@
         return '<div class="gig-log-item"><span class="gig-log-dot"></span><div style="flex:1;"><h5>' + titleHtml + '</h5><p>' + detail + '</p></div></div>';
       }).join('');
     }).catch(function(){});
+
+    if (window.mmVerificationTiers){
+      Promise.all([
+        window.mmSupabase.from('profile_platform_links').select('verified_at').eq('user_id', profile.id),
+        window.mmSupabase.from('profile_credits').select('id').eq('user_id', profile.id),
+        window.mmSupabase.from('booking_requests').select('id').eq('artist_id', profile.id).eq('status', 'completed'),
+        window.mmSupabase.from('booking_reviews').select('rating').eq('reviewee_id', profile.id)
+      ]).then(function(results){
+        var signals = {
+          hasVerifiedPlatformLink: (results[0].data || []).some(function(l){ return l.verified_at; }),
+          hasCreditsOrTouring: (results[1].data || []).length > 0 || !!profile.touring_level || !!profile.pro_membership_number,
+          completedBookingCount: (results[2].data || []).length,
+          hasPositiveReview: (results[3].data || []).some(function(r){ return r.rating >= 4; })
+        };
+        var earned = window.mmVerificationTiers(profile, signals).filter(function(t){ return t.done; });
+        document.getElementById('public-profile-verification-badges').innerHTML = earned.map(function(t){
+          return '<span class="verification-tier-pill earned" title="' + escapeHtml(t.desc) + '"><span class="tier-dot"></span>' + escapeHtml(t.label) + '</span>';
+        }).join('');
+      }).catch(function(){});
+    }
   }
 
   function renderPrivate(){
@@ -298,7 +318,7 @@
   authReady.then(function(){
     if (!configured()){ renderNotFound(); return; }
     window.mmSupabase.from('profiles')
-      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template,profile_visibility,hide_rate,hide_exact_location')
+      .select('id,name,role_label,location_label,account_type,instruments,profile_kind,avatar_url,avatar_color,bio,favorite_bands,favorite_songs,want_to_see_live,availability_status,availability_until,genres,software,languages,gear_list,touring_level,profile_template,profile_visibility,hide_rate,hide_exact_location,phone_verified_at,id_verified_at,id_verification_confidence,pro_membership_org,pro_membership_number')
       .eq('id', sharedId).maybeSingle()
       .then(function(res){
         if (res.error || !res.data){ renderNotFound(); return; }

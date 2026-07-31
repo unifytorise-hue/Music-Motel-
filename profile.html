@@ -128,6 +128,7 @@
           </div>
         </div>
         <div class="availability-pill" id="public-profile-availability" style="display:none;"></div>
+        <div class="verification-badge-row" id="public-profile-verification-badges"></div>
         <p class="profile-bio" id="public-profile-bio" style="display:none;"></p>
         <div class="profile-badge-row" id="public-profile-instruments"></div>
 
@@ -264,6 +265,76 @@
         <label class="terms-check"><input type="checkbox" id="privacy-hide-location-check"><span>Hide my exact location (people searching nearby still see a distance, not your location name)</span></label>
         <button class="fan-add-btn" id="privacy-save-btn" type="button" style="margin-top:10px;">Save</button>
         <div class="rate-card-note" id="privacy-status" role="status"></div>
+      </div>
+
+      <div class="fan-card" id="verification-card" style="display:none;">
+        <div class="fan-card-head">
+          <h3>Verification</h3>
+        </div>
+        <p class="invite-desc">Every tier below is optional and free — verifying builds trust with people who might book or follow you.</p>
+        <div class="verification-tier-list" id="verification-tier-list"></div>
+
+        <div class="verification-subsection">
+          <h4>Phone</h4>
+          <div class="form-field">
+            <label for="verify-phone-input">Phone number</label>
+            <input type="tel" id="verify-phone-input" placeholder="e.g. +1 555 123 4567">
+          </div>
+          <button class="fan-add-btn" id="verify-phone-send-btn" type="button">Send code</button>
+          <div class="form-field" id="verify-phone-code-field" style="display:none; margin-top:10px;">
+            <label for="verify-phone-code-input">Enter the code</label>
+            <input type="text" id="verify-phone-code-input" placeholder="6-digit code">
+          </div>
+          <button class="fan-add-btn" id="verify-phone-confirm-btn" type="button" style="display:none;">Verify</button>
+          <div class="rate-card-note" id="verify-phone-status" role="status"></div>
+        </div>
+
+        <div class="verification-subsection">
+          <h4>Government ID + liveness check</h4>
+          <p class="invite-desc" id="verify-id-status-text">Not verified yet.</p>
+          <button class="fan-add-btn" id="verify-id-start-btn" type="button">Start ID verification</button>
+        </div>
+
+        <div class="verification-subsection">
+          <h4>Link a platform profile</h4>
+          <div class="form-field">
+            <label for="verify-platform-select">Platform</label>
+            <select id="verify-platform-select">
+              <option value="spotify">Spotify</option>
+              <option value="apple_music">Apple Music</option>
+              <option value="soundcloud">SoundCloud</option>
+              <option value="bandcamp">Bandcamp</option>
+              <option value="youtube">YouTube</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="verify-platform-url-input">Your profile URL</label>
+            <input type="text" id="verify-platform-url-input" placeholder="e.g. https://open.spotify.com/artist/...">
+          </div>
+          <button class="fan-add-btn" id="verify-platform-generate-btn" type="button">Get verification code</button>
+          <div id="verify-platform-code-box" style="display:none; margin-top:10px;">
+            <div class="rate-card-note">Add this code anywhere in your profile bio on that platform, then confirm below:</div>
+            <div class="mono verify-platform-code-text" id="verify-platform-code-text"></div>
+            <button class="fan-add-btn" id="verify-platform-confirm-btn" type="button">I've added it — verify</button>
+          </div>
+          <div class="rate-card-note" id="verify-platform-status" role="status"></div>
+          <div class="gig-log-list" id="verify-platform-list" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="verification-subsection">
+          <h4>PRO membership (optional)</h4>
+          <p class="invite-desc">A performing-rights organization membership (ASCAP, BMI, PRS, SAMRO, etc.) counts toward Credits/Touring Verified.</p>
+          <div class="form-field">
+            <label for="verify-pro-org-input">Organization</label>
+            <input type="text" id="verify-pro-org-input" placeholder="e.g. ASCAP, BMI, PRS, SAMRO">
+          </div>
+          <div class="form-field">
+            <label for="verify-pro-number-input">Membership number</label>
+            <input type="text" id="verify-pro-number-input" placeholder="e.g. 12345678">
+          </div>
+          <button class="fan-add-btn" id="verify-pro-save-btn" type="button">Save</button>
+          <div class="rate-card-note" id="verify-pro-status" role="status"></div>
+        </div>
       </div>
 
       <div class="fan-card">
@@ -843,6 +914,58 @@
   </div>
 </div>
 
+<div class="signup-overlay" id="id-liveness-modal" role="dialog" aria-modal="true" aria-labelledby="id-liveness-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ ID Verified</span>
+        <h2 class="display" id="id-liveness-title" style="font-size:24px;">Verify your identity</h2>
+      </div>
+      <button class="modal-close" id="id-liveness-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+
+      <div id="liveness-step-consent">
+        <p class="rate-card-note" style="margin-bottom:14px;">Before we start, here's exactly what happens:</p>
+        <ul class="liveness-consent-list">
+          <li><strong>What we capture:</strong> a photo of an ID and a few seconds of camera video for a liveness check (look straight, turn left/right, smile).</li>
+          <li><strong>Why:</strong> to confirm you're a real person, earning the "ID Verified" badge other members can see and trust.</li>
+          <li><strong>Storage, in this preview:</strong> nothing is uploaded or saved anywhere — every frame stays in your browser and is discarded the moment this flow ends.</li>
+          <li><strong>In a real production launch:</strong> this step would hand off to a certified identity provider (e.g. AWS Rekognition Face Liveness, Persona, Onfido, Jumio, or iProov) under their own security and retention policy, not processed or stored on Music Motel's own servers.</li>
+          <li><strong>Your rights:</strong> you can cancel any time before finishing, and can retry for free if a check doesn't succeed.</li>
+        </ul>
+        <label class="terms-check"><input type="checkbox" id="liveness-consent-check"><span>I understand and consent to this camera-based check.</span></label>
+        <div class="rate-card-note" id="liveness-consent-status" role="status"></div>
+        <button class="signup-submit" id="liveness-consent-continue-btn" disabled>Continue</button>
+      </div>
+
+      <div id="liveness-step-camera" style="display:none;">
+        <div class="liveness-camera-wrap">
+          <video id="liveness-video" autoplay playsinline muted></video>
+          <canvas id="liveness-canvas" style="display:none;"></canvas>
+        </div>
+        <div class="liveness-prompt" id="liveness-prompt">Hold your ID up to the camera</div>
+        <div class="liveness-progress" id="liveness-progress"></div>
+        <div class="rate-card-note" id="liveness-camera-error" style="display:none;"></div>
+      </div>
+
+      <div id="liveness-step-processing" style="display:none; text-align:center;">
+        <p class="rate-card-note">Checking your scan…</p>
+      </div>
+
+      <div id="liveness-step-result" style="display:none; text-align:center;">
+        <div class="liveness-result-icon" id="liveness-result-icon"></div>
+        <h3 id="liveness-result-heading"></h3>
+        <p class="rate-card-note" id="liveness-result-detail"></p>
+        <div class="mono liveness-result-meta" id="liveness-result-meta"></div>
+        <button class="signup-submit" id="liveness-retry-btn" style="display:none;">Try again</button>
+        <button class="btn-secondary" id="liveness-done-btn" style="display:none; width:100%; margin-top:10px;">Done</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="wrap">
     <div class="footer-grid">
@@ -884,6 +1007,8 @@
 <script src="js/profile-modal.js"></script>
 <script src="js/referral.js"></script>
 <script src="js/privacy.js"></script>
+<script src="js/id-liveness.js"></script>
+<script src="js/verification.js"></script>
 <script src="js/invite-gig-follow.js"></script>
 <script src="js/preferences.js"></script>
 <script src="js/avatar-upload.js"></script>
