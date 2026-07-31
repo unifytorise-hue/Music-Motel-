@@ -104,6 +104,15 @@
     });
   });
 
+  // Called by js/musicbrainz-import.js after importing releases as credits,
+  // so the list above reflects them immediately without a page reload.
+  window.mmRefreshCredits = function(){
+    loadMine().then(function(rows){
+      myCredits = rows;
+      render();
+    });
+  };
+
   authReady.then(init);
   if (configured()){
     window.mmSupabase.auth.onAuthStateChange(function(){ init(); });

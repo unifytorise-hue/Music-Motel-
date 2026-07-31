@@ -552,6 +552,31 @@
         <div class="gig-log-list" id="credits-list" style="margin-top:14px;">
           <div class="gig-log-empty" id="credits-empty">No credits added yet.</div>
         </div>
+
+        <div class="verification-subsection">
+          <h4>Import from MusicBrainz</h4>
+          <p class="invite-desc">Search the free, open MusicBrainz music database and import matching releases as credits — no account needed.</p>
+          <div class="form-field">
+            <label for="mb-search-input">Artist name</label>
+            <input type="text" id="mb-search-input" placeholder="e.g. Radiohead">
+          </div>
+          <button class="fan-add-btn" id="mb-search-btn" type="button">Search MusicBrainz</button>
+          <div class="rate-card-note" id="mb-search-status" role="status"></div>
+
+          <div id="mb-artist-results" style="display:none; margin-top:12px;">
+            <div class="requests-subhead">Select the matching artist</div>
+            <div class="gig-log-list" id="mb-artist-list"></div>
+          </div>
+
+          <div id="mb-release-results" style="display:none; margin-top:12px;">
+            <div class="requests-subhead">Select releases to import as credits</div>
+            <div id="mb-release-list"></div>
+            <button class="fan-add-btn" id="mb-import-btn" type="button" style="margin-top:10px;">Import selected</button>
+            <div class="rate-card-note" id="mb-import-status" role="status"></div>
+          </div>
+
+          <div class="escrow-note" style="margin-top:14px;"><strong>About Discogs:</strong> a live Discogs import isn't included in this preview. Discogs' API terms require using a personal access token from a server, not embedded in client-side code the way this site is built — wiring it up for real would need a small server-side proxy (e.g. a Supabase Edge Function) to hold that token safely. MusicBrainz above needs no credentials at all, so it's fully live.</div>
+        </div>
       </div>
 
       <div class="fan-card" id="availability-card" style="display:none;">
@@ -1201,6 +1226,7 @@
 <script src="js/media-portfolio.js"></script>
 <script src="js/skills.js"></script>
 <script src="js/credits.js"></script>
+<script src="js/musicbrainz-import.js"></script>
 <script src="js/avatar-lightbox.js"></script>
 <script src="js/profile-modal.js"></script>
 <script src="js/referral.js"></script>
