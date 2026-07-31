@@ -143,7 +143,11 @@
   // ===== quote request modal (client -> artist) =====
   var quoteTargetArtist = null;
 
-  window.openQuoteRequest = function(artist){
+  // prefill is optional — {eventType, details} — used when the request
+  // originates from a specific listing (see js/listings.js's "Request to
+  // book" button) so the event type and details arrive already filled in
+  // instead of the client having to retype what the listing already said.
+  window.openQuoteRequest = function(artist, prefill){
     if (!currentUser()){
       if (window.openSignup) window.openSignup();
       return;
@@ -152,10 +156,11 @@
     document.getElementById('quote-modal-title').textContent = 'Request ' + artist.name.split(' ')[0];
     document.getElementById('quote-intro').textContent =
       'Are you available for a gig on your date, ' + artist.name.split(' ')[0] + ', and what’s your estimate apart from travel?';
+    document.getElementById('quote-event-type').value = (prefill && prefill.eventType) || 'Home gig / private event';
     document.getElementById('quote-date').value = '';
     document.getElementById('quote-time').value = '';
     document.getElementById('quote-location').value = '';
-    document.getElementById('quote-details').value = '';
+    document.getElementById('quote-details').value = (prefill && prefill.details) || '';
     document.getElementById('quote-budget').value = '';
     document.getElementById('quote-status').textContent = '';
 

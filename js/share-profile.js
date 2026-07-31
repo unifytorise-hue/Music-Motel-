@@ -359,6 +359,40 @@
         el.textContent = 'Represented by ' + managers.map(function(m){ return m.name; }).join(', ') + '.';
       }).catch(function(){});
     }).catch(function(){});
+
+    window.mmSupabase.from('listings').select('*').eq('user_id', profile.id).eq('active', true).order('created_at').then(function(res){
+      var rows = res.data || [];
+      var box = document.getElementById('public-profile-listings-box');
+      var list = document.getElementById('public-profile-listings-list');
+      if (!rows.length){ box.style.display = 'none'; return; }
+      box.style.display = 'block';
+      list.innerHTML = '';
+      rows.forEach(function(l){
+        var typeLabel = window.mmListingTypeLabel ? window.mmListingTypeLabel(l.listing_type) : l.listing_type;
+        var priceText = window.mmListingPriceText ? window.mmListingPriceText(l) : null;
+        var metaBits = [typeLabel];
+        if (priceText) metaBits.push(priceText);
+        if (l.location_label) metaBits.push(l.location_label);
+        var card = document.createElement('div');
+        card.className = 'content-box';
+        card.style.marginBottom = '12px';
+        card.innerHTML =
+          '<h4 style="margin-bottom:4px;">' + escapeHtml(l.title) + '</h4>' +
+          '<p class="rate-card-note" style="margin-bottom:8px;">' + escapeHtml(metaBits.join(' · ')) + '</p>' +
+          (l.description ? '<p class="profile-bio" style="margin-bottom:10px;">' + escapeHtml(l.description) + '</p>' : '') +
+          (isOwnProfile ? '' : '<button class="request-quote-btn book-listing-btn" type="button">Request to book</button>');
+        var bookBtn = card.querySelector('.book-listing-btn');
+        if (bookBtn){
+          bookBtn.addEventListener('click', function(){
+            if (window.openQuoteRequest) window.openQuoteRequest(profile, {
+              eventType: l.listing_type === 'space' ? 'Space rental' : 'Lesson / workshop',
+              details: l.title + (l.description ? ' — ' + l.description : '')
+            });
+          });
+        }
+        list.appendChild(card);
+      });
+    }).catch(function(){});
   }
 
   function renderPrivate(){
