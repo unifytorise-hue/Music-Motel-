@@ -910,6 +910,29 @@
   </div>
 </div>
 
+<div class="signup-overlay" id="booking-messages-modal" role="dialog" aria-modal="true" aria-labelledby="booking-messages-title">
+  <div class="signup-card" style="max-width:480px;">
+    <div class="signup-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ Messages</span>
+        <h2 class="display" id="booking-messages-title" style="font-size:26px;">Booking chat</h2>
+      </div>
+      <button class="modal-close" id="booking-messages-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="signup-body">
+      <div class="msg-list" id="booking-messages-list">
+        <div class="rate-card-note" id="booking-messages-empty">No messages yet — say hello.</div>
+      </div>
+      <div class="form-field" style="margin-top:14px; margin-bottom:10px;">
+        <label for="booking-message-input">Message</label>
+        <textarea id="booking-message-input" rows="2" placeholder="Write a message…"></textarea>
+      </div>
+      <div class="loc-search-status" id="booking-message-status" role="status"></div>
+      <button class="signup-submit" id="booking-message-send-btn">Send</button>
+    </div>
+  </div>
+</div>
+
 <div class="signup-overlay" id="add-gig-modal" role="dialog" aria-modal="true" aria-labelledby="add-gig-title">
   <div class="signup-card" style="max-width:480px;">
     <div class="signup-head">

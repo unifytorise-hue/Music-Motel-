@@ -1199,6 +1199,33 @@
     padding:12px 14px;
     margin-bottom:20px;
   }
+
+  .msg-list{
+    display:flex; flex-direction:column; gap:8px;
+    max-height:320px; overflow-y:auto;
+    padding-right:4px;
+  }
+  .msg-bubble{
+    max-width:80%;
+    padding:9px 13px;
+    border-radius:14px;
+    font-size:13.5px; line-height:1.5;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .msg-bubble.theirs{
+    align-self:flex-start;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--cream);
+    border-bottom-left-radius:4px;
+  }
+  .msg-bubble.mine{
+    align-self:flex-end;
+    background:rgba(43,232,217,0.14);
+    border:1px solid rgba(43,232,217,0.3);
+    color:var(--cream);
+    border-bottom-right-radius:4px;
+  }
   .booking-status-track{
     display:flex;
     justify-content:space-between;

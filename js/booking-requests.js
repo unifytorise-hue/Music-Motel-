@@ -393,6 +393,66 @@
     '</div>';
   }
 
+  // ===== escrow (UI/UX scaffolding only — see js/id-liveness.js for the
+  // same "simulate, don't fake production-grade" pattern applied to
+  // biometric verification). No real payment processor is connected: the
+  // client's "Fund escrow" click only writes escrow_status='held' to
+  // booking_requests, and the artist never gets marked paid until the
+  // client's "Release funds" click writes escrow_status='released'. A real
+  // launch would swap these two writes for a Stripe Connect (or similar)
+  // hold-then-transfer call.
+  //
+  // role is 'artist' (viewing incoming-requests) or 'client' (viewing
+  // sent-requests) — same booking_request row renders a different message
+  // and action on each side, since only the client can fund/release and
+  // only the artist can mark the gig complete.
+  function renderEscrowBanner(r, role){
+    if (!r.quote_amount || (r.status !== 'accepted' && r.status !== 'completed')) return '';
+    var amount = money(r.quote_amount);
+
+    if (r.status === 'accepted'){
+      if (r.escrow_status === 'held'){
+        return '<div class="escrow-note">Escrow funded — ' + amount + ' held (simulated). ' +
+          (role === 'artist' ? 'Mark the gig complete once it’s done.' : 'Funds release once the gig is marked complete.') + '</div>';
+      }
+      if (role === 'client'){
+        return '<div class="escrow-note">Fund escrow to secure this booking — simulated, no real payment is captured yet.<br>' +
+          '<button class="request-action-btn fund-escrow-btn" type="button" style="margin-top:8px;">Fund escrow (simulated)</button></div>';
+      }
+      return '<div class="escrow-note">Waiting for the client to fund escrow before you start the gig.</div>';
+    }
+
+    // status === 'completed'
+    if (r.escrow_status === 'released'){
+      return '<div class="escrow-note">✓ Funds released — ' + amount + ' paid out (simulated).</div>';
+    }
+    if (r.escrow_status === 'held'){
+      if (role === 'client'){
+        return '<div class="escrow-note">Gig marked complete.<br>' +
+          '<button class="request-action-btn release-escrow-btn" type="button" style="margin-top:8px;">Release funds (simulated)</button></div>';
+      }
+      return '<div class="escrow-note">Gig marked complete — waiting for the client to release the escrowed funds.</div>';
+    }
+    return '<div class="escrow-note">Gig marked complete — no escrow was held for this booking.</div>';
+  }
+
+  function fundEscrow(r, onDone){
+    window.mmSupabase.from('booking_requests').update({ escrow_status: 'held', escrow_held_at: new Date().toISOString() }).eq('id', r.id).then(function(res){
+      if (res.error) return;
+      r.escrow_status = 'held';
+      r.escrow_held_at = new Date().toISOString();
+      onDone();
+    });
+  }
+  function releaseEscrow(r, onDone){
+    window.mmSupabase.from('booking_requests').update({ escrow_status: 'released', escrow_released_at: new Date().toISOString() }).eq('id', r.id).then(function(res){
+      if (res.error) return;
+      r.escrow_status = 'released';
+      r.escrow_released_at = new Date().toISOString();
+      onDone();
+    });
+  }
+
   function renderIncoming(){
     var list = document.getElementById('incoming-requests-list');
     var empty = incomingEmptyEl;
@@ -409,7 +469,7 @@
       var actionsHtml = '';
       if (r.status === 'requested'){
         actionsHtml = '<button class="request-action-btn quote-btn">Send quote</button>';
-      } else if (r.status === 'accepted'){
+      } else if (r.status === 'accepted' && r.escrow_status === 'held'){
         actionsHtml = '<button class="request-action-btn complete-btn">Mark complete</button>';
       }
       item.innerHTML =
@@ -418,9 +478,11 @@
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
           (r.budget_amount ? '<p>Their budget: ' + money(r.budget_amount) + '</p>' : '') +
           renderFeeBreakdown(r) +
+          renderEscrowBanner(r, 'artist') +
         '</div>' +
         '<div class="request-item-actions">' +
           '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
+          '<button class="request-action-btn message-btn" type="button">Messages</button>' +
           actionsHtml +
         '</div>';
       var quoteBtn = item.querySelector('.quote-btn');
@@ -432,6 +494,13 @@
           r.status = 'completed';
           renderIncoming();
         });
+      });
+      item.querySelector('.message-btn').addEventListener('click', function(){ openMessages(r); });
+      item.querySelectorAll('.fund-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ fundEscrow(r, renderIncoming); });
+      });
+      item.querySelectorAll('.release-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ releaseEscrow(r, renderIncoming); });
       });
       list.appendChild(item);
     });
@@ -464,9 +533,11 @@
           '<p>' + escapeHtml(r.details) + (r.location_label ? ' · ' + escapeHtml(r.location_label) : '') + '</p>' +
           (r.budget_amount ? '<p>Your budget: ' + money(r.budget_amount) + '</p>' : '') +
           renderFeeBreakdown(r) +
+          renderEscrowBanner(r, 'client') +
         '</div>' +
         '<div class="request-item-actions">' +
           '<span class="request-status-pill status-' + r.status + '">' + statusLabel(r.status) + '</span>' +
+          '<button class="request-action-btn message-btn" type="button">Messages</button>' +
           actionsHtml +
         '</div>';
       var acceptBtn = item.querySelector('.accept-btn');
@@ -487,6 +558,13 @@
       });
       var reviewBtn = item.querySelector('.review-btn');
       if (reviewBtn) reviewBtn.addEventListener('click', function(){ openReviewModal(r); });
+      item.querySelector('.message-btn').addEventListener('click', function(){ openMessages(r); });
+      item.querySelectorAll('.fund-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ fundEscrow(r, renderSent); });
+      });
+      item.querySelectorAll('.release-escrow-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ releaseEscrow(r, renderSent); });
+      });
       list.appendChild(item);
     });
   }
@@ -659,6 +737,93 @@
         closeReviewModal();
         renderSent();
         initRealArtists();
+      });
+    });
+  }
+
+  // ===== per-booking messaging thread =====
+  // booking_messages RLS (see the add_booking_escrow_and_messages migration)
+  // only lets the client and artist on a given booking_requests row read or
+  // insert into its thread, so this never needs its own client-side gate.
+  var messagingBooking = null;
+
+  function openMessages(request){
+    messagingBooking = request;
+    document.getElementById('booking-messages-title').textContent = 'Messages — ' + request.event_type;
+    document.getElementById('booking-message-input').value = '';
+    document.getElementById('booking-message-status').textContent = '';
+    loadAndRenderMessages(request.id);
+    var modal = document.getElementById('booking-messages-modal');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (window.trapFocus) window.trapFocus(modal);
+  }
+  function closeMessages(){
+    var modal = document.getElementById('booking-messages-modal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (window.releaseFocusTrap) window.releaseFocusTrap();
+  }
+
+  var messagesEmptyEl = document.getElementById('booking-messages-empty');
+
+  function loadAndRenderMessages(bookingRequestId){
+    var list = document.getElementById('booking-messages-list');
+    list.innerHTML = '';
+    list.appendChild(messagesEmptyEl);
+    window.mmSupabase.from('booking_messages').select('*').eq('booking_request_id', bookingRequestId).order('created_at')
+      .then(function(res){
+        if (!messagingBooking || messagingBooking.id !== bookingRequestId) return; // modal moved on
+        var rows = res.data || [];
+        if (!rows.length){
+          list.innerHTML = '';
+          list.appendChild(messagesEmptyEl);
+          return;
+        }
+        var myId = currentUser().id;
+        list.innerHTML = '';
+        rows.forEach(function(m){
+          var bubble = document.createElement('div');
+          bubble.className = 'msg-bubble ' + (m.sender_id === myId ? 'mine' : 'theirs');
+          bubble.textContent = m.body;
+          list.appendChild(bubble);
+        });
+        list.scrollTop = list.scrollHeight;
+      }).catch(function(){});
+  }
+
+  if (document.getElementById('booking-messages-close-btn')){
+    document.getElementById('booking-messages-close-btn').addEventListener('click', closeMessages);
+    document.getElementById('booking-messages-modal').addEventListener('click', function(e){
+      if (e.target.id === 'booking-messages-modal') closeMessages();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.getElementById('booking-messages-modal').classList.contains('open')) closeMessages();
+    });
+
+    document.getElementById('booking-message-send-btn').addEventListener('click', function(){
+      if (!messagingBooking) return;
+      var input = document.getElementById('booking-message-input');
+      var body = input.value.trim();
+      var statusEl = document.getElementById('booking-message-status');
+      if (!body){
+        statusEl.textContent = 'Write something before sending.';
+        return;
+      }
+      var bookingId = messagingBooking.id;
+      statusEl.textContent = 'Sending…';
+      window.mmSupabase.from('booking_messages').insert({
+        booking_request_id: bookingId,
+        sender_id: currentUser().id,
+        body: body
+      }).then(function(res){
+        if (res.error){
+          statusEl.textContent = res.error.message;
+          return;
+        }
+        statusEl.textContent = '';
+        input.value = '';
+        loadAndRenderMessages(bookingId);
       });
     });
   }
