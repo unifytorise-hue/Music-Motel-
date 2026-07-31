@@ -621,8 +621,69 @@
           </div>
         </div>
         <div class="rate-card-note" id="nearby-no-location-note" style="display:none;">Set a location on your profile to sort this list by distance — showing everyone alphabetically for now.</div>
+
+        <div class="form-field" style="margin-top:14px;">
+          <label for="nearby-keyword-filter">Search by name, role, or bio</label>
+          <input type="text" id="nearby-keyword-filter" placeholder="e.g. drummer, mixing engineer">
+        </div>
+        <div class="rate-card-grid" style="margin-top:14px;">
+          <div class="form-field">
+            <label for="nearby-type-filter">Account type</label>
+            <select id="nearby-type-filter">
+              <option value="">All types</option>
+              <option value="musician">Musician</option>
+              <option value="educator">Educator</option>
+              <option value="venue">Talent Booker</option>
+              <option value="publicspace">Public Space</option>
+              <option value="shop">Shop / Seller</option>
+              <option value="fan">Fan</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="nearby-availability-filter">Availability</label>
+            <select id="nearby-availability-filter">
+              <option value="">Any</option>
+              <option value="available_sessions">Available for sessions</option>
+              <option value="touring">Touring</option>
+              <option value="teaching">Teaching</option>
+              <option value="remote_only">Remote friendly</option>
+              <option value="booked_until">Booked</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="nearby-genre-filter">Genre</label>
+            <input type="text" id="nearby-genre-filter" placeholder="e.g. Afrobeat">
+          </div>
+          <div class="form-field">
+            <label for="nearby-gear-filter">Gear</label>
+            <input type="text" id="nearby-gear-filter" placeholder="e.g. Neumann U87">
+          </div>
+          <div class="form-field">
+            <label for="nearby-language-filter">Language</label>
+            <input type="text" id="nearby-language-filter" placeholder="e.g. Portuguese">
+          </div>
+          <div class="form-field"></div>
+          <div class="form-field">
+            <label for="nearby-rate-min-filter">Min rate (USD)</label>
+            <input type="number" id="nearby-rate-min-filter" min="0" placeholder="0">
+          </div>
+          <div class="form-field">
+            <label for="nearby-rate-max-filter">Max rate (USD)</label>
+            <input type="number" id="nearby-rate-max-filter" min="0" placeholder="No max">
+          </div>
+        </div>
+        <div class="form-field" style="margin-top:10px;">
+          <label>Verification (must have all checked)</label>
+          <div class="filter-check-row" id="nearby-verification-checks"></div>
+        </div>
+        <div class="rate-card-actions">
+          <button class="fan-add-btn" id="nearby-clear-filters-btn" type="button">Clear filters</button>
+          <span class="rate-card-note" id="nearby-results-count" role="status"></span>
+        </div>
+
         <div class="gig-log-list" id="nearby-players-list">
           <div class="gig-log-empty" id="nearby-players-empty">No other registered profiles yet — invite people to unify with you.</div>
+          <div class="gig-log-empty" id="nearby-players-no-match">No matches — try widening or clearing your filters.</div>
         </div>
       </div>
 

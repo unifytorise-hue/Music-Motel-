@@ -1936,6 +1936,14 @@
   .terms-check input{ margin-top:3px; flex-shrink:0; accent-color:var(--pink); }
   .terms-check strong{ color:var(--cream); }
 
+  .filter-check-row{ display:flex; flex-wrap:wrap; gap:10px 18px; }
+  .filter-check-row .terms-check.filter-check{ margin-bottom:0; align-items:center; font-size:13px; }
+
+  .rate-card-actions{
+    display:flex; align-items:center; flex-wrap:wrap; gap:12px;
+    margin-top:16px;
+  }
+
   .rate-toggle-list{ margin:18px 0; }
   .rate-toggle-list .terms-check{ margin-bottom:12px; }
 
