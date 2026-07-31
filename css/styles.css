@@ -184,6 +184,23 @@
        .nav-account's display is toggled inline by JS (flex/none), so
        overriding it needs !important at this breakpoint. */
     .nav-account{ display:none !important; }
+    /* Tested against a fresh "0 XP" account, this row fit fine — but a
+       real account's "235 XP" (wider digits) pushed the burger button
+       half off the edge of narrow phone screens. Trimming the header's
+       own side padding (unlike .wrap elsewhere, which needs the extra
+       breathing room for body copy) buys back the space this row needs. */
+    header .wrap{ padding:0 16px; }
+  }
+  @media (max-width:420px){
+    .nav-right{ gap:6px; }
+    .nav-score{ padding:6px 8px; font-size:11px; }
+    .nav-cta-compact{ padding:6px 8px; font-size:10px; }
+  }
+  @media (max-width:340px){
+    header .wrap{ padding:0 12px; }
+    .nav-right{ gap:4px; }
+    .nav-score{ padding:5px 6px; }
+    .nav-cta-compact{ padding:5px 6px; }
   }
 
   .nav-burger{
