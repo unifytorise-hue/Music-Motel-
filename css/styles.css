@@ -178,6 +178,14 @@
     .nav-cta{ display:none; }
     .nav-right{ gap:8px; }
     .nav-cta-compact{ display:inline-block; }
+    /* The logo's glow (drop-shadow, 8px blur) visually extends past its own
+       box — with the header's side padding already trimmed for the burger
+       fix above, that glow was close enough to the XP badge to look like
+       it was touching it, even though the actual box gap was ~7px.
+       Shrinking the logo a little and softening its glow on mobile clears
+       that up, and the narrower logo hands the burger fix more headroom
+       too. */
+    header .logo-img{ height:44px; filter:drop-shadow(0 0 5px rgba(155,63,196,0.55)); }
     /* The signed-in block (avatar, name, sign out) already lives in the
        burger menu's .mobile-account — showing it a second time here, next
        to the logo and XP badge, is what made the bar feel cramped.
