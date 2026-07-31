@@ -350,7 +350,15 @@
           // revert the optimistic update if the write failed
           if (wasFollowing) followingMap[personId] = person; else delete followingMap[personId];
           renderFollowList();
+          return;
         }
+        // Only a genuine new follow of a real registered profile reaches
+        // here without an error — following a sample/demo profile (see
+        // js/profile-modal.js) fails this insert first, since its id isn't
+        // a real auth.users row the follows.following_id FK accepts.
+        if (!wasFollowing && window.mmNotify) window.mmNotify(personId, 'new_follower', function(name){
+          return name + ' started following you.';
+        }, 'profile', uid);
       });
     } else {
       saveFollowingLocal(followingMap);

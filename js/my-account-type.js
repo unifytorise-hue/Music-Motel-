@@ -19,7 +19,24 @@
     if (!cached) cached = authReady.then(fetchMyAccountType);
     return cached;
   };
+
+  // Shared by every module that writes a notification for someone else
+  // (js/notifications.js call sites in booking-requests.js,
+  // invite-gig-follow.js, band-members.js) to compose a body like "Eve
+  // Artist sent you a quote" — cached the same way as account type above.
+  var cachedName = null;
+  function fetchMyName(){
+    if (!configured() || !currentUser()) return Promise.resolve(null);
+    return window.mmSupabase.from('profiles').select('name').eq('id', currentUser().id).maybeSingle()
+      .then(function(res){ return (res.data && res.data.name) || null; })
+      .catch(function(){ return null; });
+  }
+  window.mmMyName = function(){
+    if (!cachedName) cachedName = authReady.then(fetchMyName);
+    return cachedName;
+  };
+
   if (configured()){
-    window.mmSupabase.auth.onAuthStateChange(function(){ cached = null; });
+    window.mmSupabase.auth.onAuthStateChange(function(){ cached = null; cachedName = null; });
   }
 })();

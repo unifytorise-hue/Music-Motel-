@@ -38,6 +38,21 @@
       <a href="index.html" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
       <a href="index.html" class="nav-cta" id="open-signup-nav">Create profile</a>
       <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <div class="nav-notif-wrap">
+          <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="nav-bell-dot" id="nav-bell-dot" style="display:none;"></span>
+          </button>
+          <div class="nav-notif-panel" id="nav-notif-panel" style="display:none;">
+            <div class="nav-notif-panel-head">
+              <span>Notifications</span>
+              <button type="button" id="nav-notif-markall-btn">Mark all read</button>
+            </div>
+            <div class="nav-notif-list" id="nav-notif-list">
+              <div class="nav-notif-empty" id="nav-notif-empty">Nothing yet.</div>
+            </div>
+          </div>
+        </div>
         <span class="nav-avatar" id="nav-avatar"></span>
         <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
         <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
@@ -69,6 +84,7 @@
     <div class="mobile-account" id="mobile-account" style="display:none;">
       <div class="mobile-avatar" id="mobile-avatar"></div>
       <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <a href="profile.html#activity-card" class="mobile-switch-link" id="mobile-notif-link">Notifications<span id="mobile-notif-count"></span></a>
       <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
       <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
     </div>
@@ -185,6 +201,7 @@
 <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 
 <script src="js/real-xp.js"></script>
+<script src="js/notifications.js"></script>
 <script src="js/avatar-lightbox.js"></script>
 <script src="js/gear-board.js"></script>
 

@@ -36,7 +36,8 @@
     piano: '<rect x="2" y="6" width="20" height="12" rx="1"/><line x1="6.5" y1="6" x2="6.5" y2="14"/><line x1="11" y1="6" x2="11" y2="14"/><line x1="15.5" y1="6" x2="15.5" y2="14"/><line x1="20" y1="6" x2="20" y2="14"/>',
     saxophone: '<path d="M8 3c2 0 3 1 3 3v7.5c0 2.2 1.3 3.5 3.5 3.5S18 15.7 18 13.5s-1.3-3.5-3.5-3.5"/><circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="14.5" cy="17" r="2"/>',
     trumpet: '<path d="M1 9.5h6l3-2.3 3.5 2.3v4l-3.5 2.3-3-2.3H1z"/><rect x="10.5" y="8" width="2" height="5" rx="0.6"/><rect x="13.3" y="8" width="2" height="5" rx="0.6"/><rect x="16.1" y="8" width="2" height="5" rx="0.6"/><path d="M19 8.5l4 2-4 2z"/>',
-    flute: '<path d="M3 21L20 4"/><path d="M17 3.5l3.5 3.5"/><circle cx="13.5" cy="9" r="0.75" fill="currentColor" stroke="none"/><circle cx="11" cy="11.5" r="0.75" fill="currentColor" stroke="none"/><circle cx="8.5" cy="14" r="0.75" fill="currentColor" stroke="none"/>'
+    flute: '<path d="M3 21L20 4"/><path d="M17 3.5l3.5 3.5"/><circle cx="13.5" cy="9" r="0.75" fill="currentColor" stroke="none"/><circle cx="11" cy="11.5" r="0.75" fill="currentColor" stroke="none"/><circle cx="8.5" cy="14" r="0.75" fill="currentColor" stroke="none"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'
   };
 
   window.mmIcon = function(name, cls){

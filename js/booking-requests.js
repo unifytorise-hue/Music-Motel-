@@ -234,6 +234,9 @@
       statusEl.textContent = '';
       closeQuoteModal();
       refreshRequests();
+      if (window.mmNotify) window.mmNotify(quoteTargetArtist.id, 'booking_requested', function(name){
+        return name + ' requested a quote for a ' + eventType + '.';
+      }, 'requests');
     });
   });
 
@@ -450,6 +453,9 @@
       r.escrow_status = 'held';
       r.escrow_held_at = new Date().toISOString();
       onDone();
+      if (window.mmNotify) window.mmNotify(r.artist_id, 'escrow_funded', function(name){
+        return name + ' funded escrow for your ' + r.event_type + ' (simulated).';
+      }, 'requests');
     });
   }
   function releaseEscrow(r, onDone){
@@ -458,6 +464,9 @@
       r.escrow_status = 'released';
       r.escrow_released_at = new Date().toISOString();
       onDone();
+      if (window.mmNotify) window.mmNotify(r.artist_id, 'escrow_released', function(name){
+        return name + ' released the escrowed funds for your ' + r.event_type + ' (simulated).';
+      }, 'requests');
     });
   }
 
@@ -501,6 +510,9 @@
           if (res.error) return;
           r.status = 'completed';
           renderIncoming();
+          if (window.mmNotify) window.mmNotify(r.client_id, 'booking_completed', function(name){
+            return name + ' marked your ' + r.event_type + ' booking complete.';
+          }, 'requests');
         });
       });
       item.querySelector('.message-btn').addEventListener('click', function(){ openMessages(r); });
@@ -554,6 +566,9 @@
           if (res.error) return;
           r.status = 'accepted';
           renderSent();
+          if (window.mmNotify) window.mmNotify(r.artist_id, 'booking_accepted', function(name){
+            return name + ' accepted your quote for their ' + r.event_type + '.';
+          }, 'requests');
         });
       });
       var declineBtn = item.querySelector('.decline-btn');
@@ -562,6 +577,9 @@
           if (res.error) return;
           r.status = 'declined';
           renderSent();
+          if (window.mmNotify) window.mmNotify(r.artist_id, 'booking_declined', function(name){
+            return name + ' declined your quote for their ' + r.event_type + '.';
+          }, 'requests');
         });
       });
       var reviewBtn = item.querySelector('.review-btn');
@@ -670,6 +688,8 @@
 
   function submitQuote(amount){
     if (!respondingTo) return;
+    var clientId = respondingTo.client_id;
+    var eventType = respondingTo.event_type;
     var statusEl = document.getElementById('respond-quote-status');
     statusEl.textContent = 'Sending…';
     window.mmSupabase.from('booking_requests').update({ status: 'quoted', quote_amount: amount }).eq('id', respondingTo.id)
@@ -681,6 +701,9 @@
         statusEl.textContent = '';
         closeRespondQuote();
         refreshRequests();
+        if (window.mmNotify) window.mmNotify(clientId, 'booking_quoted', function(name){
+          return name + ' sent you a quote for your ' + eventType + ' request.';
+        }, 'requests');
       });
   }
 
@@ -819,6 +842,8 @@
         return;
       }
       var bookingId = messagingBooking.id;
+      var eventType = messagingBooking.event_type;
+      var recipientId = currentUser().id === messagingBooking.client_id ? messagingBooking.artist_id : messagingBooking.client_id;
       statusEl.textContent = 'Sending…';
       window.mmSupabase.from('booking_messages').insert({
         booking_request_id: bookingId,
@@ -832,6 +857,9 @@
         statusEl.textContent = '';
         input.value = '';
         loadAndRenderMessages(bookingId);
+        if (window.mmNotify) window.mmNotify(recipientId, 'booking_message', function(name){
+          return name + ' sent you a message about the ' + eventType + ' booking.';
+        }, 'requests');
       });
     });
   }
