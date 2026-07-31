@@ -129,7 +129,7 @@
     producer_engineer: 'Hire this producer/engineer',
     educator: 'Book a lesson now',
     venue_space: 'Book this space now',
-    manager_agent: 'Connect with this manager/agent',
+    manager_agent: 'Connect/Unify with this manager/agent',
     public_space: 'Book this space now',
     shop: 'Get a quote'
   };
