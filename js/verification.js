@@ -34,7 +34,7 @@
   function loadSignals(){
     var uid = currentUser().id;
     return Promise.all([
-      window.mmSupabase.from('profiles').select('phone,phone_verified_at,id_verified_at,id_verification_confidence,pro_membership_org,pro_membership_number,touring_level').eq('id', uid).maybeSingle(),
+      window.mmSupabase.from('profiles').select('phone,phone_verified_at,id_verified_at,id_verification_confidence,id_verification_session_id,id_verification_provider,pro_membership_org,pro_membership_number,touring_level').eq('id', uid).maybeSingle(),
       window.mmSupabase.from('profile_platform_links').select('*').eq('user_id', uid),
       window.mmSupabase.from('profile_credits').select('id', { count: 'exact', head: true }).eq('user_id', uid),
       window.mmSupabase.from('booking_requests').select('id').eq('artist_id', uid).eq('status', 'completed'),
@@ -85,13 +85,21 @@
 
   function renderIdSection(){
     var statusEl = document.getElementById('verify-id-status-text');
+    var detailEl = document.getElementById('verify-id-detail-text');
     var startBtn = document.getElementById('verify-id-start-btn');
+    var deleteBtn = document.getElementById('verify-id-delete-btn');
     if (myProfile.id_verified_at){
-      statusEl.textContent = 'Verified — confidence ' + (myProfile.id_verification_confidence != null ? Math.round(myProfile.id_verification_confidence) + '%' : 'n/a') + '.';
+      var confidencePct = myProfile.id_verification_confidence != null ? (myProfile.id_verification_confidence * 100).toFixed(1) + '%' : 'n/a';
+      statusEl.textContent = 'Verified — confidence ' + confidencePct + '.';
+      detailEl.style.display = 'block';
+      detailEl.textContent = 'Provider: ' + (myProfile.id_verification_provider || 'n/a') + ' · Session: ' + (myProfile.id_verification_session_id || 'n/a');
       startBtn.textContent = 'Re-verify';
+      deleteBtn.style.display = 'inline-block';
     } else {
       statusEl.textContent = 'Not verified yet.';
-      startBtn.textContent = 'Start ID verification';
+      detailEl.style.display = 'none';
+      startBtn.textContent = 'Start free ID + Liveness check';
+      deleteBtn.style.display = 'none';
     }
   }
 
@@ -194,6 +202,26 @@
   // ===== ID + liveness =====
   document.getElementById('verify-id-start-btn').addEventListener('click', function(){
     if (window.mmOpenIdLiveness) window.mmOpenIdLiveness();
+  });
+
+  // Deletion right (POPIA/GDPR/CPRA access-and-deletion rights, and BIPA's
+  // destruction requirement) — clears the verification result AND the
+  // consent record itself, a full reset back to "not verified, no record
+  // on file" rather than a soft delete.
+  document.getElementById('verify-id-delete-btn').addEventListener('click', function(){
+    if (!confirm('Delete your ID verification data? This removes your ID Verified badge and the record of this check.')) return;
+    var user = currentUser();
+    var statusEl = document.getElementById('verify-id-status-text');
+    window.mmSupabase.from('profiles').update({
+      id_verified_at: null,
+      id_verification_confidence: null,
+      id_verification_session_id: null,
+      id_verification_provider: null,
+      id_verification_consent_at: null
+    }).eq('id', user.id).then(function(res){
+      if (res.error){ statusEl.textContent = res.error.message; return; }
+      loadSignals().then(renderAll);
+    });
   });
 
   authReady.then(init);

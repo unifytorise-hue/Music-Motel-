@@ -299,7 +299,9 @@
         <div class="verification-subsection">
           <h4>Government ID + liveness check</h4>
           <p class="invite-desc" id="verify-id-status-text">Not verified yet.</p>
-          <button class="fan-add-btn" id="verify-id-start-btn" type="button">Start ID verification</button>
+          <p class="rate-card-note" id="verify-id-detail-text" style="display:none;"></p>
+          <button class="fan-add-btn" id="verify-id-start-btn" type="button">Start free ID + Liveness check</button>
+          <button class="fan-add-btn danger" id="verify-id-delete-btn" type="button" style="display:none;">Delete my ID verification data</button>
         </div>
 
         <div class="verification-subsection">
@@ -1035,25 +1037,53 @@
     <div class="signup-body">
 
       <div id="liveness-step-consent">
-        <p class="rate-card-note" style="margin-bottom:14px;">Before we start, here's exactly what happens:</p>
+        <p class="rate-card-note" style="margin-bottom:14px;">ID Verified is completely optional — you can use every other part of Music Motel, including booking and being booked, without it. Before we start, here's exactly what happens:</p>
         <ul class="liveness-consent-list">
-          <li><strong>What we capture:</strong> a photo of an ID and a few seconds of camera video for a liveness check (look straight, turn left/right, smile).</li>
-          <li><strong>Why:</strong> to confirm you're a real person, earning the "ID Verified" badge other members can see and trust.</li>
-          <li><strong>Storage, in this preview:</strong> nothing is uploaded or saved anywhere — every frame stays in your browser and is discarded the moment this flow ends.</li>
-          <li><strong>In a real production launch:</strong> this step would hand off to a certified identity provider (e.g. AWS Rekognition Face Liveness, Persona, Onfido, Jumio, or iProov) under their own security and retention policy, not processed or stored on Music Motel's own servers.</li>
-          <li><strong>Your rights:</strong> you can cancel any time before finishing, and can retry for free if a check doesn't succeed.</li>
+          <li><strong>What we collect:</strong> a photo of a government-issued ID (passport, national ID, or driver's licence) and a short live camera session where you'll be asked to move your head and smile.</li>
+          <li><strong>Why:</strong> solely to confirm you're a real person and issue the "ID Verified" badge on your profile. It is never used for anything else.</li>
+          <li><strong>Retention, in this preview:</strong> nothing is uploaded or saved anywhere — every frame stays in your browser and is discarded the moment this flow ends or you close it.</li>
+          <li><strong>Retention, in a real launch:</strong> raw images/video would be retained only as long as the verification provider's session requires, then deleted — never kept indefinitely, never used to train models, and never sold or shared.</li>
+          <li><strong>Your rights:</strong> this is optional, you can stop at any point before finishing, you can retry for free, and you can request deletion of your verification record at any time from the Verification card on your dashboard.</li>
         </ul>
-        <label class="terms-check"><input type="checkbox" id="liveness-consent-check"><span>I understand and consent to this camera-based check.</span></label>
+        <details class="consent-legal-details">
+          <summary>Read the full privacy &amp; biometric data notice</summary>
+          <div class="consent-legal-body">
+            <p><strong>This notice is specific to ID + Liveness verification</strong> — it is not part of Music Motel's general Terms, because biometric consent must be its own clear, informed choice, not something buried in a broader agreement.</p>
+            <p><strong>South Africa (POPIA):</strong> Your ID photo and liveness video are "special personal information." We only process it with your explicit consent, for the single purpose of issuing the ID Verified badge, and keep only what's needed for the shortest time necessary. You have the right to access, correct, or request deletion of this data at any time, and we'll notify affected users if a breach involving this data ever occurs.</p>
+            <p><strong>EU / UK (GDPR):</strong> Biometric data used for identification is a "special category" under Article 9 — processed here only with your explicit, freely-given, specific, informed, and unambiguous consent, which you can withdraw at any time with no effect on your ability to use the platform. A real launch serving EU users would complete a Data Protection Impact Assessment first and evaluate EU AI Act obligations for biometric identification systems.</p>
+            <p><strong>United States — Illinois (BIPA):</strong> Before any collection, you receive written notice (this screen) that biometric identifiers are being collected, the specific purpose (the ID Verified badge), and the retention period (immediately discarded in this preview). Checking the box below is your written release. We do not sell, lease, trade, or profit from biometric data. A production system would publish a written retention/destruction schedule and destroy data within 3 years of your last interaction, or sooner once its purpose is fulfilled.</p>
+            <p><strong>California (CPRA):</strong> Biometric information used to identify you is "sensitive personal information." You can direct us to limit its use, and request deletion, through the Verification card at any time.</p>
+            <p><strong>In production</strong>, this flow would hand off entirely to a certified identity provider (e.g. AWS Rekognition Face Liveness, Persona, Onfido, Jumio, or iProov) operating under its own security, encryption, and retention policy and a signed data processing agreement restricting its use of your data — Music Motel would store only the verification result (pass/fail, a confidence score, and the provider's session reference), never a long-lived biometric template. Custom biometric anti-spoofing is intentionally not built here; a real launch requires a certified provider and a privacy lawyer's review of this notice, the consent flow, and the retention schedule.</p>
+          </div>
+        </details>
+        <label class="terms-check"><input type="checkbox" id="liveness-consent-check"><span>I have read the above, and I freely, specifically, and unambiguously consent to this ID + liveness check.</span></label>
         <div class="rate-card-note" id="liveness-consent-status" role="status"></div>
         <button class="signup-submit" id="liveness-consent-continue-btn" disabled>Continue</button>
+        <button class="btn-secondary" id="liveness-consent-skip-btn" type="button" style="width:100%; margin-top:10px;">Not now — back to Verification</button>
+      </div>
+
+      <div id="liveness-step-id-capture" style="display:none;">
+        <p class="rate-card-note" style="margin-bottom:10px;">Frame the front of your ID inside the guide, then capture.</p>
+        <div class="liveness-camera-wrap">
+          <video id="liveness-id-video" autoplay playsinline muted></video>
+          <canvas id="liveness-canvas" style="display:none;"></canvas>
+          <img id="liveness-id-preview" alt="Captured ID photo" style="display:none;">
+          <div class="liveness-frame-guide" id="liveness-frame-guide"></div>
+        </div>
+        <div class="rate-card-note" id="liveness-id-camera-error" style="display:none;"></div>
+        <button class="signup-submit" id="liveness-id-capture-btn" type="button">Capture ID photo</button>
+        <div id="liveness-id-review-actions" style="display:none; gap:10px; margin-top:10px;">
+          <button class="btn-secondary" id="liveness-id-retake-btn" type="button" style="flex:1;">Retake</button>
+          <button class="signup-submit" id="liveness-id-use-btn" type="button" style="flex:1; margin-top:0;">Use this photo</button>
+        </div>
       </div>
 
       <div id="liveness-step-camera" style="display:none;">
         <div class="liveness-camera-wrap">
           <video id="liveness-video" autoplay playsinline muted></video>
-          <canvas id="liveness-canvas" style="display:none;"></canvas>
+          <div class="liveness-face-guide"></div>
         </div>
-        <div class="liveness-prompt" id="liveness-prompt">Hold your ID up to the camera</div>
+        <div class="liveness-prompt" id="liveness-prompt">Look straight at the camera</div>
         <div class="liveness-progress" id="liveness-progress"></div>
         <div class="rate-card-note" id="liveness-camera-error" style="display:none;"></div>
       </div>
@@ -1067,6 +1097,7 @@
         <h3 id="liveness-result-heading"></h3>
         <p class="rate-card-note" id="liveness-result-detail"></p>
         <div class="mono liveness-result-meta" id="liveness-result-meta"></div>
+        <p class="rate-card-note" style="margin-top:10px;">No images or video from this session were uploaded or stored — see the privacy notice on the previous step for details.</p>
         <button class="signup-submit" id="liveness-retry-btn" style="display:none;">Try again</button>
         <button class="btn-secondary" id="liveness-done-btn" style="display:none; width:100%; margin-top:10px;">Done</button>
       </div>

@@ -2300,6 +2300,42 @@
   .liveness-result-icon{ font-size:44px; margin-bottom:10px; }
   .liveness-result-meta{ font-size:11px; color:var(--cream-dim); margin:12px 0; word-break:break-all; }
 
+  /* Cosmetic-only overlays — pure CSS shapes, not real face/document
+     detection. See js/id-liveness.js for why: no custom biometric
+     anti-spoofing is built here, only visual affordances that guide
+     framing the same way a real provider's SDK camera view would. */
+  .liveness-frame-guide{
+    position:absolute; inset:14% 8%;
+    border:2px dashed var(--cyan); border-radius:10px;
+    pointer-events:none;
+  }
+  .liveness-face-guide{
+    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+    width:56%; aspect-ratio:3/4;
+    border:2px dashed var(--pink); border-radius:50%;
+    pointer-events:none;
+  }
+  #liveness-id-preview{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .consent-legal-details{
+    margin-bottom:18px;
+    border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px;
+    background:var(--black-3);
+  }
+  .consent-legal-details summary{
+    cursor:pointer; font-family:'JetBrains Mono', monospace;
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--cyan);
+  }
+  .consent-legal-details[open] summary{ margin-bottom:12px; }
+  .consent-legal-body p{ font-size:12.5px; line-height:1.6; color:var(--cream-dim); margin-bottom:12px; }
+  .consent-legal-body p:last-child{ margin-bottom:0; }
+  .consent-legal-body strong{ color:var(--cream); }
+
+  .fan-add-btn.danger{ color:var(--red); border-color:var(--red); }
+  .fan-add-btn.danger:hover{ background:rgba(255,77,77,0.12); }
+
   /* ===== avatar lightbox (tap any profile pic to enlarge) ===== */
   .avatar-lightbox-overlay{ align-items:center; }
   .avatar-lightbox-card{
