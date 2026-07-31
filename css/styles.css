@@ -648,6 +648,20 @@
     .stat-card .lbl{ font-size:11px; line-height:1.35; }
   }
 
+  /* Verifiable-fact "proof" row — deliberately not testimonials, since the
+     platform has no real user reviews to show yet and inventing some would
+     be dishonest. Same border-left color-coded card language as
+     .stat-card/.role-cell, just longer copy instead of a number. */
+  .proof-pillars{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:32px; }
+  @media (max-width:880px){ .proof-pillars{ grid-template-columns:1fr; } }
+  .pillar-card{
+    border:1px solid var(--line); border-radius:10px;
+    padding:22px; background:var(--black-2);
+    border-left:4px solid var(--pillar-color, var(--pink));
+  }
+  .pillar-card h4{ font-family:'Anton', sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:0.02em; color:var(--cream); margin-bottom:8px; }
+  .pillar-card p{ font-family:'JetBrains Mono', monospace; font-size:12.5px; line-height:1.6; color:var(--cream-dim); }
+
   /* ===== patch bay ===== */
   .patchbay{ background:var(--black-2); }
   .patch-console{

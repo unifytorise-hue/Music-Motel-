@@ -49,11 +49,4 @@
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && document.getElementById('avatar-lightbox').classList.contains('open')) closeLightbox();
   });
-
-  // The "Naledi K." card in the how-it-works demo is static sample markup,
-  // not real profile data — wire it through the same tappable-avatar path
-  // for a consistent "tap any profile pic to enlarge" experience, using its
-  // existing pink gradient (no real photo to show).
-  var demoAvatar = document.getElementById('demo-avatar-block');
-  if (demoAvatar && window.mmRenderAvatar) window.mmRenderAvatar(demoAvatar, null, '#FF2D78', 'Naledi K.');
 })();

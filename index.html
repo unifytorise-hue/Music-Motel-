@@ -204,6 +204,20 @@
         </div>
       </div>
     </div>
+    <div class="proof-pillars">
+      <div class="pillar-card" style="--pillar-color:var(--pink);">
+        <h4>Free forever</h4>
+        <p>No subscriptions, no paywalled search — every core feature stays free for musicians, fans, educators, and venues.</p>
+      </div>
+      <div class="pillar-card" style="--pillar-color:var(--cyan);">
+        <h4>Direct connection</h4>
+        <p>No agency middleman or markup on who you reach out to — you contact real profiles yourself.</p>
+      </div>
+      <div class="pillar-card" style="--pillar-color:var(--yellow);">
+        <h4>Real profiles, not filler</h4>
+        <p>Every listing is a real signup — no padded talent pools or recycled stock bios standing in for members.</p>
+      </div>
+    </div>
   </div>
 </section>
 <section class="section" id="roles">
@@ -302,36 +316,21 @@
       </div>
     </div>
 
+    <p class="profile-fake-note" style="margin-top:0; margin-bottom:14px; text-align:left; opacity:1;">Illustrative example profiles from around the world — not real Music Motel members.</p>
+    <div class="patch-tabs" id="global-example-tabs" style="margin-bottom:20px;"></div>
+
     <div class="profile-demo">
       <div class="profile-card">
         <div class="avatar-block" id="demo-avatar-block"></div>
-        <h4>Naledi K.</h4>
-        <div class="role">Session Bassist · Midrand, ZA</div>
-        <div class="xp-row"><span>Profile strength</span><span>82%</span></div>
-        <div class="xp-track"><div class="xp-fill"></div></div>
-        <div class="badge-row">
-          <span class="badge b-verified">✓ Verified</span>
-          <span class="badge b-touring">★ Touring</span>
-          <span class="badge b-gigs">♪ 40+ Gigs</span>
-        </div>
+        <h4 id="global-example-name"></h4>
+        <div class="role" id="global-example-role"></div>
+        <div class="xp-row"><span>Profile strength</span><span id="global-example-strength-pct"></span></div>
+        <div class="xp-track"><div class="xp-fill" id="global-example-strength-fill"></div></div>
+        <div class="badge-row" id="global-example-badges"></div>
       </div>
       <div class="profile-feed">
         <span class="feed-label">Gig list history</span>
-        <div class="feed-item">
-          <span class="feed-dot" style="background:var(--pink);"></span>
-          <div><h5>Backline support — Joburg Jazz Fest</h5><p>Three-night residency, full live recording linked on profile.</p></div>
-          <span class="feed-xp">+50XP</span>
-        </div>
-        <div class="feed-item">
-          <span class="feed-dot" style="background:var(--cyan);"></span>
-          <div><h5>Studio session — "Skylines" EP</h5><p>Bass tracking for an independent R&amp;B release, credited.</p></div>
-          <span class="feed-xp">+30XP</span>
-        </div>
-        <div class="feed-item">
-          <span class="feed-dot" style="background:var(--yellow);"></span>
-          <div><h5>Touring bassist — regional support act</h5><p>14-date run, available for similar bookings on request.</p></div>
-          <span class="feed-xp">+80XP</span>
-        </div>
+        <div id="global-example-feed"></div>
       </div>
     </div>
   </div>
@@ -746,6 +745,7 @@
 <script src="js/profile-modal.js"></script>
 
 <script src="js/avatar-lightbox.js"></script>
+<script src="js/global-examples.js"></script>
 
 <script src="js/signup-location.js"></script>
 
