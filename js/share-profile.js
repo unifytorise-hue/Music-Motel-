@@ -245,9 +245,15 @@
 
       var unifyBtn = document.getElementById('public-profile-unify-btn');
       if (profile.profile_kind === 'band'){
-        unifyBtn.style.display = '';
-        unifyBtn.addEventListener('click', function(){
-          if (window.requestJoinBand) window.requestJoinBand(profile);
+        // Only a musician account can actually be in a band, so a signed-in
+        // fan/venue/educator/shop shouldn't see an option to join one —
+        // signed-out visitors still see it, since clicking prompts signup.
+        (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+          if (currentUser() && accountType !== 'musician') return;
+          unifyBtn.style.display = '';
+          unifyBtn.addEventListener('click', function(){
+            if (window.requestJoinBand) window.requestJoinBand(profile);
+          });
         });
       }
 

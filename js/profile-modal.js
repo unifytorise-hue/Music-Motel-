@@ -130,8 +130,7 @@
       instrumentsHtml +
       '<a class="invite-copy-btn" id="profile-view-full-btn" style="display:block; text-align:center; text-decoration:none; margin-bottom:12px;">View full profile</a>' +
       '<button class="follow-btn-profile" id="profile-follow-btn">+ Follow</button>' +
-      (profile.account_type !== 'fan' ? '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Request a quote</button>' : '') +
-      (isBand ? '<button class="profile-unify-btn" id="profile-unify-btn">Unify with ' + escapeHtmlProfile(profile.name || 'this band') + '</button>' : '');
+      (profile.account_type !== 'fan' ? '<button class="profile-book-btn" id="profile-book-btn">' + (window.mmIcon('calendar') || '') + ' Request a quote</button>' : '');
 
     // profile.avatar_color/avatar_url are remote, other-user-controlled data
     // — mmRenderAvatar assigns them via img.src / a regex-validated color
@@ -157,11 +156,24 @@
       });
     }
 
-    var unifyBtn = document.getElementById('profile-unify-btn');
-    if (unifyBtn){
-      unifyBtn.addEventListener('click', function(){
-        closeProfileModal();
-        if (typeof window.requestJoinBand === 'function') window.requestJoinBand(profile);
+    // Only a musician account can actually be in a band, so a signed-in
+    // fan/venue/educator/shop shouldn't see an option to join one —
+    // signed-out visitors still see it, since clicking prompts signup.
+    if (isBand){
+      (window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)).then(function(accountType){
+        var currentUser = window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser();
+        if (currentUser && accountType !== 'musician') return;
+        var body = document.getElementById('profile-modal-body');
+        if (!body || document.getElementById('profile-unify-btn')) return;
+        var btn = document.createElement('button');
+        btn.className = 'profile-unify-btn';
+        btn.id = 'profile-unify-btn';
+        btn.textContent = 'Unify with ' + (profile.name || 'this band');
+        body.appendChild(btn);
+        btn.addEventListener('click', function(){
+          closeProfileModal();
+          if (typeof window.requestJoinBand === 'function') window.requestJoinBand(profile);
+        });
       });
     }
 

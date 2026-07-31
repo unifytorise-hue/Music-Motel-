@@ -80,7 +80,11 @@
     return '★ ' + avg.toFixed(1) + ' (' + summary.count + (summary.count === 1 ? ' review' : ' reviews') + ')';
   }
 
-  function renderRealArtists(artists, reviewSummaries, rateCards){
+  function renderRealArtists(artists, reviewSummaries, rateCards, myAccountType){
+    // Only a musician account can actually be in a band, so a signed-in
+    // fan/venue/educator/shop shouldn't see an option to join one —
+    // signed-out visitors still see it, since clicking prompts signup.
+    var canUnify = !currentUser() || myAccountType === 'musician';
     var section = document.getElementById('real-artists');
     var grid = document.getElementById('real-artist-grid');
     var empty = document.getElementById('real-artist-empty');
@@ -114,7 +118,7 @@
         '<div class="gear-card-foot">' +
           '<span class="gear-card-loc"><span class="pindot"></span>' + escapeHtml(p.hide_exact_location ? 'Location hidden' : (p.location_label || 'Location not set')) + '</span>' +
           '<div class="gear-card-actions">' +
-            (isBand ? '<button class="request-quote-btn unify-band-btn">Unify</button>' : '') +
+            (isBand && canUnify ? '<button class="request-quote-btn unify-band-btn">Unify</button>' : '') +
             '<button class="request-quote-btn">Request a quote</button>' +
           '</div>' +
         '</div>';
@@ -132,8 +136,11 @@
 
   function initRealArtists(){
     if (!configured()) return;
-    Promise.all([loadRealArtists(), loadReviewSummaries(), loadRateCards()]).then(function(results){
-      renderRealArtists(results[0], results[1], results[2]);
+    Promise.all([
+      loadRealArtists(), loadReviewSummaries(), loadRateCards(),
+      window.mmMyAccountType ? window.mmMyAccountType() : Promise.resolve(null)
+    ]).then(function(results){
+      renderRealArtists(results[0], results[1], results[2], results[3]);
     });
   }
   // Called by js/rate-card.js after a save, so a fresh rate shows up in
