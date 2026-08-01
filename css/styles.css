@@ -1016,10 +1016,16 @@
   @media (max-width:560px){ .roles-grid{ grid-template-columns:1fr; } }
   .role-cell{
     background:var(--black); padding:26px 22px;
-    transition:background 0.2s;
+    transition:background 0.2s, box-shadow 0.2s;
     border-top:3px solid var(--cell-color, transparent);
+    cursor:pointer;
   }
   .role-cell:hover{ background:var(--black-2); }
+  .role-cell:focus-visible{ outline:3px solid var(--cell-color, var(--yellow)); outline-offset:-3px; }
+  .role-cell.glow{
+    background:var(--black-2);
+    box-shadow:inset 0 0 0 1px var(--cell-color), inset 0 0 26px 2px var(--cell-color), 0 0 20px 1px var(--cell-color);
+  }
   .rcell-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .role-cell .rnum{
     font-family:'JetBrains Mono', monospace; font-size:11px;
