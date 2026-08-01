@@ -481,6 +481,11 @@
 
   // ===== distance from me =====
   var userLocation = null;
+  // Tracks whether userLocation came from the GPS button or the city
+  // search box, so the "Sort by distance from me" button only toggles
+  // itself off — clicking it while a searched city is active should
+  // request GPS and override the search, not clear it silently.
+  var locationSource = null;
 
   function haversineKm(lat1, lng1, lat2, lng2){
     var R = 6371;
@@ -507,9 +512,10 @@
   var nearMeStatus = document.getElementById('patch-nearme-status');
 
   nearMeBtn.addEventListener('click', function(){
-    if (userLocation){
+    if (userLocation && locationSource === 'me'){
       // toggle off
       userLocation = null;
+      locationSource = null;
       nearMeBtn.classList.remove('active');
       nearMeText.textContent = 'Sort by distance from me';
       nearMeStatus.textContent = '';
@@ -530,6 +536,8 @@
 
     navigator.geolocation.getCurrentPosition(function(pos){
       userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      locationSource = 'me';
+      if (patchLocInput) patchLocInput.value = '';
       nearMeBtn.disabled = false;
       nearMeBtn.classList.add('active');
       nearMeIcon.classList.remove('pulsing');
@@ -549,6 +557,82 @@
       nearMeStatus.className = 'patch-nearme-status error';
     }, { enableHighAccuracy:true, timeout:10000 });
   });
+
+  // ===== search any city (reuses the same free Nominatim geocoder as the
+  // signup location picker in js/signup-location.js — see that file's
+  // comment on rate limits/production swap-out, which applies here too) =====
+  var patchLocInput = document.getElementById('patch-loc-search-input');
+  var patchLocSuggestions = document.getElementById('patch-loc-suggestions');
+  var patchLocDebounce;
+
+  function escapeHtmlPatchLoc(str){
+    var d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  if (patchLocInput && patchLocSuggestions){
+    patchLocInput.addEventListener('input', function(){
+      var q = patchLocInput.value.trim();
+      clearTimeout(patchLocDebounce);
+      if (q.length < 2){
+        patchLocSuggestions.classList.remove('show');
+        return;
+      }
+      patchLocDebounce = setTimeout(function(){ runPatchCitySearch(q); }, 350);
+    });
+
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.patch-loc-search-wrap')) patchLocSuggestions.classList.remove('show');
+    });
+  }
+
+  function runPatchCitySearch(query){
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=8&featuretype=city&q=' + encodeURIComponent(query);
+    fetch(url, { headers: { 'Accept-Language': navigator.language || 'en' } })
+      .then(function(res){
+        if (!res.ok) throw new Error('Lookup failed');
+        return res.json();
+      })
+      .then(function(results){ renderPatchLocSuggestions(results, query); })
+      .catch(function(){
+        nearMeStatus.textContent = 'Could not reach the location service — check your connection and try again.';
+        nearMeStatus.className = 'patch-nearme-status error';
+        patchLocSuggestions.classList.remove('show');
+      });
+  }
+
+  function renderPatchLocSuggestions(results, query){
+    patchLocSuggestions.innerHTML = '';
+    if (!results || !results.length){
+      patchLocSuggestions.classList.remove('show');
+      nearMeStatus.textContent = 'No matches for "' + query + '". Try a different spelling.';
+      nearMeStatus.className = 'patch-nearme-status error';
+      return;
+    }
+    results.forEach(function(r){
+      var addr = r.address || {};
+      var mainName = addr.city || addr.town || addr.village || addr.municipality || r.display_name.split(',')[0];
+      var region = [addr.state, addr.country].filter(Boolean).join(', ');
+      var item = document.createElement('div');
+      item.className = 'loc-suggestion-item';
+      item.innerHTML = '<div class="city-main">' + escapeHtmlPatchLoc(mainName) + '</div><div class="city-sub">' + escapeHtmlPatchLoc(region) + '</div>';
+      item.addEventListener('click', function(){
+        var label = region ? (mainName + ', ' + region) : mainName;
+        userLocation = { lat: parseFloat(r.lat), lng: parseFloat(r.lon) };
+        locationSource = 'search';
+        patchLocInput.value = label;
+        patchLocSuggestions.classList.remove('show');
+        nearMeBtn.classList.add('active');
+        nearMeText.textContent = 'Sorted by distance';
+        nearMeStatus.textContent = 'Showing roles closest to ' + label + ' ✓';
+        nearMeStatus.className = 'patch-nearme-status success';
+        renderPatchRow();
+      });
+      patchLocSuggestions.appendChild(item);
+    });
+    patchLocSuggestions.classList.add('show');
+  }
 
   renderChips();
   renderRoster();

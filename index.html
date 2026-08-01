@@ -150,7 +150,11 @@
     <div class="content-box hero-search-box">
       <span class="tag" style="color:var(--cyan);">/ Search live profiles</span>
       <h3 class="hero-search-heading">Find your channel.</h3>
-      <p class="hero-search-sub">Filter by category, or sort by how close they are to you.</p>
+      <p class="hero-search-sub">Filter by category, search any city on Earth, or sort by how close they are to you.</p>
+      <div class="patch-loc-search-wrap loc-search-wrap">
+        <input type="text" id="patch-loc-search-input" class="loc-search-input" placeholder="Search any city — Lagos, Tokyo, São Paulo…" autocomplete="off">
+        <div class="loc-suggestions" id="patch-loc-suggestions"></div>
+      </div>
       <div class="patch-controls">
         <div class="patch-tabs" id="patch-tabs"></div>
         <button class="patch-nearme-btn" id="patch-nearme-btn">
@@ -470,6 +474,24 @@
     <div class="cta-buttons">
       <a href="#" class="btn-primary" id="open-signup-final">Create your free profile</a>
     </div>
+  </div>
+</section>
+
+<section class="section ecosystem-section" id="ecosystem">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ How it all connects</span>
+        <h2 class="display">One directory. Every role in the music industry.</h2>
+      </div>
+      <p>See how performing artists, producers, managers, educators, and every other role on the platform work together.</p>
+    </div>
+    <div class="ecosystem-scroll">
+      <a href="img/ecosystem-map.png" target="_blank" rel="noopener">
+        <img src="img/ecosystem-map.png" alt="Diagram of the music industry ecosystem, showing how performing artists, production and sound engineering, songwriting, education, business and management, media and marketing, performance support, therapy and scholarship, legal and financial, instrument making, and music publishing all connect to each other around Music Motel." class="ecosystem-map-img" loading="lazy">
+      </a>
+    </div>
+    <p class="ecosystem-hint">Tap the diagram to view it full size.</p>
   </div>
 </section>
 
