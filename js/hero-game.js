@@ -402,6 +402,18 @@
 
   // ===== patch bay =====
   var activeCat = 'all';
+
+  // Lets other scripts (the clickable ecosystem diagram — see
+  // js/ecosystem-map.js) drive the same category filter as clicking a tab
+  // directly, without duplicating the tab-rendering/PATCH_JACKS filtering
+  // logic that already lives here.
+  window.mmSetPatchCategory = function(catId){
+    if (!PATCH_CATEGORIES.some(function(c){ return c.id === catId; })) return;
+    activeCat = catId;
+    renderPatchTabs();
+    renderPatchRow();
+  };
+
   function renderPatchTabs(){
     var tabs = document.getElementById('patch-tabs');
     tabs.innerHTML = '';

@@ -43,7 +43,7 @@
 
 <header>
   <div class="wrap nav">
-    <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
+    <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"><img src="img/unify-badge.png" alt="Unify" class="nav-unify-badge"></div>
     <nav class="nav-links">
       <a href="#about">About</a>
       <a href="#roles">Who's on it</a>
@@ -484,14 +484,25 @@
         <span class="tag" style="color:var(--cyan);">/ How it all connects</span>
         <h2 class="display">One directory. Every role in the music industry.</h2>
       </div>
-      <p>See how performing artists, producers, managers, educators, and every other role on the platform work together.</p>
+      <p>Tap a category below to see live profiles in that part of the industry.</p>
     </div>
     <div class="ecosystem-scroll">
-      <a href="img/ecosystem-map.png" target="_blank" rel="noopener">
+      <div class="ecosystem-map-wrap">
         <img src="img/ecosystem-map.png" alt="Diagram of the music industry ecosystem, showing how performing artists, production and sound engineering, songwriting, education, business and management, media and marketing, performance support, therapy and scholarship, legal and financial, instrument making, and music publishing all connect to each other around Music Motel." class="ecosystem-map-img" loading="lazy">
-      </a>
+        <button type="button" class="ecosystem-hotspot" data-cat="perform" data-num="01" data-label="Performing Artists" style="--hotspot-color:#9B3FC4; left:33.5%; top:4.4%; width:29.5%; height:11.9%;" aria-label="01 — Performing Artists: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="production" data-num="02" data-label="Production &amp; Sound Eng." style="--hotspot-color:#4ADE80; left:1.6%; top:13.6%; width:29.5%; height:11.9%;" aria-label="02 — Production &amp; Sound Engineering: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="perform" data-num="03" data-label="Songwriting &amp; Composition" style="--hotspot-color:#FF9A3D; left:65.8%; top:13.6%; width:32.3%; height:11.9%;" aria-label="03 — Songwriting &amp; Composition: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="support" data-num="04" data-label="Music Education" style="--hotspot-color:#3B82F6; left:69.0%; top:29.1%; width:29.1%; height:10.8%;" aria-label="04 — Music Education: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="business" data-num="05" data-label="Music Business &amp; Mngmt." style="--hotspot-color:#FF9A3D; left:69.0%; top:46.6%; width:29.1%; height:10.8%;" aria-label="05 — Music Business &amp; Management: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="business" data-num="06" data-label="Media &amp; Marketing" style="--hotspot-color:#FF2D78; left:69.0%; top:59.8%; width:29.1%; height:12.4%;" aria-label="06 — Media &amp; Marketing: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="support" data-num="07" data-label="Performance Support" style="--hotspot-color:#14B8A6; left:69.0%; top:75.0%; width:29.1%; height:11.9%;" aria-label="07 — Performance Support: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="support" data-num="08" data-label="Therapy &amp; Scholarship" style="--hotspot-color:#4ADE80; left:35.1%; top:77.8%; width:28.7%; height:11.5%;" aria-label="08 — Therapy &amp; Scholarship: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="business" data-num="09" data-label="Legal &amp; Financial" style="--hotspot-color:#9B3FC4; left:1.6%; top:75.0%; width:29.5%; height:11.9%;" aria-label="09 — Legal &amp; Financial: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="support" data-num="10" data-label="Instr. Making &amp; Mntnce." style="--hotspot-color:#E8B93D; left:1.6%; top:57.0%; width:29.5%; height:12.0%;" aria-label="10 — Instrument Making &amp; Maintenance: show live profiles"></button>
+        <button type="button" class="ecosystem-hotspot" data-cat="business" data-num="11" data-label="Music Publishing &amp; Lic." style="--hotspot-color:#3B82F6; left:1.6%; top:35.5%; width:29.5%; height:11.9%;" aria-label="11 — Music Publishing &amp; Licensing: show live profiles"></button>
+      </div>
     </div>
-    <p class="ecosystem-hint">Tap the diagram to view it full size.</p>
+    <p class="ecosystem-hint"><a href="img/ecosystem-map.png" target="_blank" rel="noopener">View full-size diagram ↗</a></p>
   </div>
 </section>
 
@@ -499,7 +510,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"></div>
+        <div class="logo-mark"><img src="img/logo-nav.png" alt="Music Motel" class="logo-img"><img src="img/unify-badge.png" alt="Unify" class="nav-unify-badge"></div>
         <img src="img/unify-badge.png" alt="Unify" class="footer-unify-badge">
         <p>The directory for the music industry.<br>Since 2014.<br>Search by instrument and location, then connect directly.</p>
       </div>
@@ -527,6 +538,8 @@
 <script src="js/referral.js"></script>
 
 <script src="js/hero-game.js"></script>
+
+<script src="js/ecosystem-map.js"></script>
 
 <div class="signup-overlay" id="booking-modal" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
   <div class="signup-card booking-modal-card">
