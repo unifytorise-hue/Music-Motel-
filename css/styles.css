@@ -589,6 +589,29 @@
   .section-head h2{ font-size:clamp(32px,4.2vw,52px); max-width:660px; }
   .section-head p{ max-width:380px; color:var(--cream-dim); font-size:15px; line-height:1.6; }
 
+  /* ===== ecosystem diagram (bottom of homepage) ===== */
+  .ecosystem-scroll{
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    padding:4px 0;
+  }
+  .ecosystem-map-img{
+    display:block; margin:0 auto;
+    border-radius:16px; border:1px solid var(--line);
+    width:100%; max-width:900px;
+    cursor:zoom-in;
+  }
+  @media (max-width:820px){
+    /* Shrinking this diagram to fit a phone screen makes the category text
+       unreadable — better to keep it at a legible fixed width and let
+       .ecosystem-scroll's horizontal scroll handle the overflow. */
+    .ecosystem-map-img{ width:720px; max-width:none; }
+  }
+  .ecosystem-hint{
+    text-align:center; margin-top:14px;
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    letter-spacing:0.04em; color:var(--cream-dim);
+  }
+
   /* ===== sponsorship (sponsor.html) ===== */
   .sponsor-band{ background:linear-gradient(135deg, rgba(255,45,120,0.1), rgba(43,232,217,0.07)); }
   .sponsor-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
@@ -748,6 +771,8 @@
   @media (max-width:640px){ .content-box{ padding:24px 20px; } }
 
   .patch-tabs{ display:flex; gap:10px; flex-wrap:wrap; }
+  .patch-loc-search-wrap{ margin-bottom:14px; max-width:360px; }
+  @media (max-width:640px){ .patch-loc-search-wrap{ max-width:none; } }
   .patch-controls{
     display:flex;
     justify-content:space-between;
