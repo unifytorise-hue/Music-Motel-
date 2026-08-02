@@ -97,6 +97,44 @@
     to{ offset-distance:100%; }
   }
 
+  /* ===== edge loop (top/left/right only, viewport-fixed) — always frames
+     the screen while scrolling, same as the original full loop, but with
+     the bottom edge deliberately left out: a closed viewport-fixed
+     rectangle used to drag its bottom edge across whatever page content
+     was currently at the bottom of the screen while scrolling, which read
+     as icons sliding over the text rather than framing it. The footer
+     loop above covers "the bottom," anchored to the real page bottom
+     instead. Plain left/top keyframes (not offset-path:path()) on
+     purpose — a JS-computed SVG path string is the flakiest corner of
+     Motion Path support on mobile Safari/WebKit, and it silently just
+     didn't animate there; left/top with vw/vh-based calc() needs no
+     feature detection and is supported everywhere. Each rider fades out
+     approaching either end so the lap restarting (an instant jump from
+     bottom-right back to bottom-left) is never visible. ===== */
+  .neon-loop-item-edge{
+    position:fixed;
+    top:0; left:0;
+    width:0; height:0;
+    pointer-events:none;
+    z-index:51;
+    animation:
+      neon-edge-travel var(--loop-duration, 34s) linear infinite,
+      neon-loop-edge-fade var(--loop-duration, 34s) linear infinite;
+    animation-delay:var(--loop-delay, 0s), var(--loop-delay, 0s);
+  }
+  @keyframes neon-edge-travel{
+    0%{     left:10px; top:calc(100vh - 10px); }
+    33.33%{ left:10px; top:10px; }
+    66.66%{ left:calc(100vw - 10px); top:10px; }
+    100%{   left:calc(100vw - 10px); top:calc(100vh - 10px); }
+  }
+  @keyframes neon-loop-edge-fade{
+    0%{ opacity:0; }
+    4%{ opacity:1; }
+    96%{ opacity:1; }
+    100%{ opacity:0; }
+  }
+
   /* ===== confetti canvas ===== */
   #confetti-canvas{
     position:fixed; inset:0; pointer-events:none; z-index:999;
@@ -145,6 +183,10 @@
   }
   .nav-unify-badge{
     height:22px; width:auto;
+    /* Extra breathing room beyond .logo-mark's own 10px flex gap — the
+       main logo's drop-shadow glow bleeds a few px past its own edge,
+       which read as the badge crowding right up against it otherwise. */
+    margin-left:6px;
     filter:drop-shadow(0 0 4px rgba(255,45,120,0.3));
   }
   .footer-brand .logo-img{ height:50px; }
