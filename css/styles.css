@@ -174,7 +174,14 @@
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
   }
-  .nav{ display:flex; align-items:center; justify-content:space-between; height:72px; }
+  /* gap is a hard floor between the logo cluster and the right-side
+     cluster even when justify-content:space-between has run out of extra
+     room to distribute — without it, the two clusters can render flush
+     against each other ("touching") on devices where text renders wider
+     than expected (see .nav-burger below for the matching floor on the
+     other edge). position:relative anchors the absolutely-positioned
+     burger on mobile. */
+  .nav{ display:flex; align-items:center; justify-content:space-between; height:72px; gap:10px; position:relative; }
   .logo-mark{
     display:flex; align-items:center; gap:10px;
     font-family:'Anton', sans-serif; font-size:20px;
@@ -371,6 +378,7 @@
   }
   @media (max-width:340px){
     header .wrap{ padding:0 12px; }
+    .nav-burger{ right:12px; }
     .nav-right{ gap:4px; }
     .nav-score{ padding:5px 6px; }
     .nav-cta-compact{ padding:5px 6px; }
@@ -396,7 +404,26 @@
   .nav-burger.open span:nth-child(2){ opacity:0; }
   .nav-burger.open span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
   @media (max-width:900px){
-    .nav-burger{ display:flex; }
+    /* Absolutely positioned and pinned a fixed distance from .nav's own
+       right edge — deliberately taken OUT of the normal flex flow so it
+       can never be the element that gets pushed off-screen. Previous
+       fixes (trimming padding, tightening breakpoints) all assumed a
+       predictable rendered width for the logo/badge/score/buttons, but
+       real devices render that text wider than headless testing ever
+       showed (font-loading/rendering differences), overflowing those
+       assumptions and pushing the burger past the viewport edge anyway.
+       Anchoring it by position instead of by "everything else added up
+       small enough" is the only guarantee that holds regardless of how
+       wide its siblings actually render.
+       right:16px (not 0) — .nav IS `header .wrap` (the markup is
+       `<div class="wrap nav">`, one element with both classes), so the
+       absolute-positioning containing block is that div's own padding
+       edge, i.e. its outer border edge — right:0 sits flush with the
+       true viewport edge, completely bypassing the div's own 16px
+       padding rather than respecting it. Matching that padding value
+       here is what actually keeps the burger off the screen edge. */
+    .nav-burger{ display:flex; position:absolute; top:50%; right:16px; transform:translateY(-50%); }
+    .nav-right{ padding-right:48px; }
   }
 
   .mobile-menu{
