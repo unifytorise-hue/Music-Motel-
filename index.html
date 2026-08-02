@@ -38,6 +38,7 @@
 <body>
 
 <div class="grain"></div>
+<div class="neon-border-loop" id="neon-border-loop" aria-hidden="true"></div>
 <canvas id="confetti-canvas"></canvas>
 <div class="toast" id="toast"><span class="tdot"></span><span id="toast-text">Added!</span></div>
 
@@ -113,6 +114,7 @@
 <script src="js/focus-trap.js"></script>
 
 <script src="js/icons.js"></script>
+<script src="js/neon-border.js"></script>
 
 <script src="js/storage.js"></script>
 
@@ -254,57 +256,57 @@
       <p>11 categories, 100+ specific roles. Search yours below.</p>
     </div>
     <div class="roles-grid">
-      <div class="role-cell" style="--cell-color:var(--pink);">
+      <div class="role-cell" style="--cell-color:var(--pink);" data-cat="perform" role="button" tabindex="0" data-num="01">
         <div class="rcell-head"><span class="rnum">01</span><span class="role-icon" data-icon="mic"></span></div>
         <h4>Performing Artists</h4>
         <ul><li>Musician · Vocalist · Soloist</li><li>Session Musician · Conductor</li><li>Music Director · Band Leader · DJ</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--cyan);">
+      <div class="role-cell" style="--cell-color:var(--cyan);" data-cat="production" role="button" tabindex="0" data-num="02">
         <div class="rcell-head"><span class="rnum">02</span><span class="role-icon" data-icon="headphones"></span></div>
         <h4>Production &amp; Sound Eng.</h4>
         <ul><li>Producer · Recording Engineer</li><li>Mixing &amp; Mastering Engineer</li><li>Sound Designer · Foley Artist</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--yellow);">
+      <div class="role-cell" style="--cell-color:var(--yellow);" data-cat="perform" role="button" tabindex="0" data-num="03">
         <div class="rcell-head"><span class="rnum">03</span><span class="role-icon" data-icon="pen"></span></div>
         <h4>Songwriting &amp; Composition</h4>
         <ul><li>Lyricist · Composer · Songwriter</li><li>Film/TV Composer · Jingle Writer</li><li>Arranger · Orchestrator</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--green);">
+      <div class="role-cell" style="--cell-color:var(--green);" data-cat="support" role="button" tabindex="0" data-num="04">
         <div class="rcell-head"><span class="rnum">04</span><span class="role-icon" data-icon="graduation"></span></div>
         <h4>Music Education</h4>
         <ul><li>Music Teacher · Vocal Coach</li><li>Professor of Music</li><li>Choir Conductor · Workshop Leader</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--purple);">
+      <div class="role-cell" style="--cell-color:var(--purple);" data-cat="business" role="button" tabindex="0" data-num="05">
         <div class="rcell-head"><span class="rnum">05</span><span class="role-icon" data-icon="briefcase"></span></div>
         <h4>Music Business &amp; Mngmt.</h4>
         <ul><li>Artist Manager · Music Agent</li><li>A&amp;R · Record Label Exec.</li><li>Booking Agent · Music Rights Mgr.</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--orange);">
+      <div class="role-cell" style="--cell-color:var(--orange);" data-cat="business" role="button" tabindex="0" data-num="06">
         <div class="rcell-head"><span class="rnum">06</span><span class="role-icon" data-icon="megaphone"></span></div>
         <h4>Media &amp; Marketing</h4>
         <ul><li>Music Journalist · Critic</li><li>PR Mgr. · Digital Marketing Mgr.</li><li>Playlist Curator · Content Creator</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--red);">
+      <div class="role-cell" style="--cell-color:var(--red);" data-cat="support" role="button" tabindex="0" data-num="07">
         <div class="rcell-head"><span class="rnum">07</span><span class="role-icon" data-icon="truck"></span></div>
         <h4>Performance Support</h4>
         <ul><li>Roadie · Stage Manager</li><li>Merch Mgr. · Event Coordinator</li><li>Box Office &amp; Ticketing Mgr.</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--cyan);">
+      <div class="role-cell" style="--cell-color:var(--cyan);" data-cat="support" role="button" tabindex="0" data-num="08">
         <div class="rcell-head"><span class="rnum">08</span><span class="role-icon" data-icon="heart"></span></div>
         <h4>Therapy &amp; Scholarship</h4>
         <ul><li>Music Therapist</li><li>Musicologist · Ethnomusicologist</li><li>Music Librarian</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--pink);">
+      <div class="role-cell" style="--cell-color:var(--pink);" data-cat="business" role="button" tabindex="0" data-num="09">
         <div class="rcell-head"><span class="rnum">09</span><span class="role-icon" data-icon="scale"></span></div>
         <h4>Legal &amp; Financial</h4>
         <ul><li>Music Lawyer</li><li>Royalty Analyst</li><li>Music Accountant</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--yellow);">
+      <div class="role-cell" style="--cell-color:var(--yellow);" data-cat="support" role="button" tabindex="0" data-num="10">
         <div class="rcell-head"><span class="rnum">10</span><span class="role-icon" data-icon="wrench"></span></div>
         <h4>Instr. Making &amp; Mntnce.</h4>
         <ul><li>Luthier · Piano Tuner</li><li>Instrument Repair Tech.</li><li>Sound Equipment Tech.</li></ul>
       </div>
-      <div class="role-cell" style="--cell-color:var(--green);">
+      <div class="role-cell" style="--cell-color:var(--green);" data-cat="business" role="button" tabindex="0" data-num="11">
         <div class="rcell-head"><span class="rnum">11</span><span class="role-icon" data-icon="book"></span></div>
         <h4>Music Publishing &amp; Lic.</h4>
         <ul><li>Music Publisher</li><li>Sync Licensing Agent</li><li>Copyright Manager</li></ul>
