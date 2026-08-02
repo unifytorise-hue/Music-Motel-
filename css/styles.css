@@ -97,6 +97,43 @@
     to{ offset-distance:100%; }
   }
 
+  /* ===== edge loop (top/left/right only, viewport-fixed) — always frames
+     the screen while scrolling, same as the original full loop, but with
+     the bottom edge deliberately left out: a closed viewport-fixed
+     rectangle used to drag its bottom edge across whatever page content
+     was currently at the bottom of the screen while scrolling, which read
+     as icons sliding over the text rather than framing it. The footer
+     loop above covers "the bottom," anchored to the real page bottom
+     instead. offset-path here is an open 3-point path set per-element via
+     JS (js/neon-border.js — offset-path:path() needs literal pixel
+     numbers, not viewport units, recalculated on resize), tracing
+     bottom-left -> top-left -> top-right -> bottom-right — i.e. up the
+     left edge, right along the top, down the right edge. Each rider fades
+     out approaching either end so the lap restarting (an instant jump
+     from bottom-right back to bottom-left) is never visible. ===== */
+  .neon-loop-item-edge{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:51;
+    display:none;
+    offset-anchor:0 0;
+    offset-rotate:0deg;
+    offset-distance:0%;
+    animation:
+      neon-loop-travel var(--loop-duration, 34s) linear infinite,
+      neon-loop-edge-fade var(--loop-duration, 34s) linear infinite;
+    animation-delay:var(--loop-delay, 0s), var(--loop-delay, 0s);
+  }
+  @supports (offset-path: path("M0 0 L1 1")){
+    .neon-loop-item-edge{ display:block; }
+  }
+  @keyframes neon-loop-edge-fade{
+    0%{ opacity:0; }
+    4%{ opacity:1; }
+    96%{ opacity:1; }
+    100%{ opacity:0; }
+  }
+
   /* ===== confetti canvas ===== */
   #confetti-canvas{
     position:fixed; inset:0; pointer-events:none; z-index:999;
