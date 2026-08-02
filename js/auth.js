@@ -101,14 +101,11 @@
     if (!configured) return; // leave the original signed-out-only UI untouched
 
     var signinNav = document.getElementById('open-signin-nav');
-    var signupNav = document.getElementById('open-signup-nav');
     var signinNavCompact = document.getElementById('open-signin-nav-compact');
-    var signupNavCompact = document.getElementById('open-signup-nav-compact');
     var accountEl = document.getElementById('nav-account');
     var accountEmail = document.getElementById('nav-account-email');
     var navAvatar = document.getElementById('nav-avatar');
     var signinMobile = document.getElementById('open-signin-mobile');
-    var signupMobile = document.getElementById('open-signup-mobile');
     var accountMobile = document.getElementById('mobile-account');
     var accountMobileEmail = document.getElementById('mobile-account-email');
     var mobileAvatar = document.getElementById('mobile-avatar');
@@ -128,9 +125,7 @@
     var signedIn = !!currentUser;
     var displayName = (currentProfileName || (currentUser && currentUser.email) || '');
     if (signinNav) signinNav.style.display = signedIn ? 'none' : '';
-    if (signupNav) signupNav.style.display = signedIn ? 'none' : '';
     if (signinNavCompact) signinNavCompact.style.display = signedIn ? 'none' : '';
-    if (signupNavCompact) signupNavCompact.style.display = signedIn ? 'none' : '';
     // Two more "Create your free profile" CTAs live further down the page (hero,
     // bottom cta-section) — pointless to show someone who already has a
     // profile, same reasoning as hiding the nav version above.
@@ -139,7 +134,6 @@
     if (accountEl) accountEl.style.display = signedIn ? 'flex' : 'none';
     if (accountEmail) accountEmail.textContent = signedIn ? displayName : '';
     if (signinMobile) signinMobile.style.display = signedIn ? 'none' : '';
-    if (signupMobile) signupMobile.style.display = signedIn ? 'none' : '';
     if (accountMobile) accountMobile.style.display = signedIn ? 'block' : 'none';
     if (accountMobileEmail) accountMobileEmail.textContent = signedIn ? displayName : '';
     if (signedIn && window.mmRenderAvatar){
@@ -238,6 +232,16 @@
     });
     document.addEventListener('keydown', function(e){
       if (e.key === 'Escape' && signinModal && signinModal.classList.contains('open')) closeSignin();
+    });
+
+    // The header dropped its separate "Sign up"/"Create profile" button in
+    // favor of a single "Login" one — this is how a new visitor who lands
+    // on the sign-in modal still finds their way to the signup flow.
+    var switchToSignup = document.getElementById('signin-switch-to-signup');
+    if (switchToSignup) switchToSignup.addEventListener('click', function(e){
+      e.preventDefault();
+      closeSignin();
+      if (window.openSignup) window.openSignup();
     });
 
     var signinSubmitBtn = document.getElementById('signin-submit-btn');
