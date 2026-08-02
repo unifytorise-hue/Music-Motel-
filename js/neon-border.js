@@ -18,7 +18,7 @@
     { icon: 'trumpet', color: '#4ADE80' },
     { icon: 'flute', color: '#9B3FC4' }
   ];
-  var DURATION = 34; // seconds for one full lap around the frame
+  var DURATION = 22; // seconds for one full lap around the footer frame
 
   ITEMS.forEach(function(item, i){
     var rider = document.createElement('div');
