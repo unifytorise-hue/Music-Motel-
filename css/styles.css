@@ -145,6 +145,10 @@
   }
   .nav-unify-badge{
     height:22px; width:auto;
+    /* Extra breathing room beyond .logo-mark's own 10px flex gap — the
+       main logo's drop-shadow glow bleeds a few px past its own edge,
+       which read as the badge crowding right up against it otherwise. */
+    margin-left:6px;
     filter:drop-shadow(0 0 4px rgba(255,45,120,0.3));
   }
   .footer-brand .logo-img{ height:50px; }
