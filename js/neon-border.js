@@ -51,17 +51,15 @@
   // used to drag its bottom edge across whatever page content was
   // currently at the bottom of the screen while scrolling. The footer loop
   // above is what covers "the bottom," anchored to the real page bottom
-  // instead of the scrolling viewport. Built with a JS-computed SVG path
-  // (offset-path:path(...) needs literal pixel numbers, not viewport
-  // units) recalculated on resize; each rider fades in/out near the two
-  // ends of the path so restarting the lap (jumping from bottom-right back
-  // to bottom-left) is never visible mid-fade. =====
+  // instead of the scrolling viewport. Driven entirely by a CSS
+  // left/top keyframe animation (see styles.css) rather than a JS-computed
+  // offset-path:path() string — that flavor of Motion Path didn't reliably
+  // animate on mobile Safari. Each rider fades in/out near the two ends of
+  // the path so restarting the lap (jumping from bottom-right back to
+  // bottom-left) is never visible mid-fade. =====
   var edgeContainer = document.getElementById('neon-border-edge-loop');
   if (edgeContainer){
     var EDGE_DURATION = 34;
-    var EDGE_MARGIN = 10;
-    var edgeRiders = [];
-
     ITEMS.forEach(function(item, i){
       var rider = document.createElement('div');
       rider.className = 'neon-loop-item-edge';
@@ -70,27 +68,6 @@
       rider.style.setProperty('--loop-delay', (-(i * EDGE_DURATION / ITEMS.length)) + 's');
       rider.appendChild(buildGlyph(item));
       edgeContainer.appendChild(rider);
-      edgeRiders.push(rider);
-    });
-
-    function edgePathString(){
-      var w = window.innerWidth;
-      var h = window.innerHeight;
-      var m = EDGE_MARGIN;
-      // bottom-left -> top-left (up) -> top-right (right along top) -> bottom-right (down)
-      return 'path("M ' + m + ' ' + (h - m) + ' L ' + m + ' ' + m + ' L ' + (w - m) + ' ' + m + ' L ' + (w - m) + ' ' + (h - m) + '")';
-    }
-
-    function applyEdgePath(){
-      var p = edgePathString();
-      edgeRiders.forEach(function(r){ r.style.offsetPath = p; });
-    }
-    applyEdgePath();
-
-    var resizeTimer;
-    window.addEventListener('resize', function(){
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(applyEdgePath, 150);
     });
   }
 })();
