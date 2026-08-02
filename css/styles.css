@@ -166,7 +166,10 @@
 
   /* ===== header ===== */
   header{
-    position:fixed; top:0; left:0; right:0; z-index:50;
+    /* z-index above the edge-loop icons (51) so the header's own solid
+       blurred background hides riders passing behind it, instead of the
+       icons drawing on top of the logo/badges/buttons/hamburger. */
+    position:fixed; top:0; left:0; right:0; z-index:55;
     background:rgba(14,13,18,0.82);
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
@@ -395,7 +398,9 @@
     top:72px; left:0; right:0;
     background:var(--black-2);
     border-bottom:1px solid var(--line);
-    z-index:49;
+    /* Above the edge-loop icons (51) for the same reason as header — an
+       open menu shouldn't have riders crossing over its links either. */
+    z-index:54;
     max-height:0;
     overflow-y:auto;
     transition:max-height 0.3s ease;
