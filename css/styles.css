@@ -50,25 +50,28 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* ===== neon border loop (ambient notes/instruments tracing the screen
-     edges) — each "rider" is sized to the full viewport so its own
-     border-box matches what offset-path:inset() measures against, with
-     offset-anchor:0 0 pinning the visible glyph (a child, translated to
-     center on that corner) to the actual path point. inset() as a motion
-     path starts top-left and runs clockwise — right along the top, down
-     the right side, left along the bottom, up the left side — which is
-     the loop direction asked for. Hidden entirely via @supports rather
-     than shown broken in browsers without Motion Path support. ===== */
+  /* ===== neon border loop (ambient notes/instruments tracing the footer's
+     edges only — NOT the full viewport, so it doesn't appear to drift over
+     the page while scrolling through the main content) — each "rider" is
+     sized to fill its containing block (footer, given position:relative
+     above) via position:absolute+inset:0, so its own border-box matches
+     what offset-path:inset() measures against, with offset-anchor:0 0
+     pinning the visible glyph (a child, translated to center on that
+     corner) to the actual path point. inset() as a motion path starts
+     top-left and runs clockwise — right along the top, down the right
+     side, left along the bottom, up the left side — which is the loop
+     direction asked for. Hidden entirely via @supports rather than shown
+     broken in browsers without Motion Path support. ===== */
   .neon-loop-item{
-    position:fixed; inset:0;
+    position:absolute; inset:0;
     pointer-events:none;
-    z-index:51;
+    z-index:1;
     display:none;
-    offset-path:inset(10px round 16px);
+    offset-path:inset(6px round 14px);
     offset-anchor:0 0;
     offset-rotate:0deg;
     offset-distance:0%;
-    animation:neon-loop-travel var(--loop-duration, 34s) linear infinite;
+    animation:neon-loop-travel var(--loop-duration, 22s) linear infinite;
     animation-delay:var(--loop-delay, 0s);
   }
   @supports (offset-path: inset(0px)){
@@ -1824,7 +1827,7 @@
   .cta-section p{ color:var(--cream-dim); max-width:460px; margin:0 auto 36px; font-size:16px; line-height:1.6; }
   .cta-buttons{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; }
 
-  footer{ padding:48px 0 36px; }
+  footer{ padding:48px 0 36px; position:relative; overflow:hidden; }
   .footer-grid{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; margin-bottom:36px; }
   .footer-brand .logo-mark{ margin-bottom:14px; }
   .footer-brand p{ color:var(--cream-dim); font-size:13.5px; max-width:280px; line-height:1.6; }
