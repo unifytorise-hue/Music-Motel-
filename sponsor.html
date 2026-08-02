@@ -39,8 +39,7 @@
     </nav>
     <div class="nav-right">
       <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
-      <a href="index.html" class="nav-cta" id="open-signin-nav" style="display:none;">Sign in</a>
-      <a href="index.html" class="nav-cta" id="open-signup-nav">Create profile</a>
+      <a href="index.html" class="nav-cta" id="open-signin-nav">Login</a>
       <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
         <div class="nav-notif-wrap">
           <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
@@ -62,8 +61,7 @@
         <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
         <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
       </div>
-      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact" style="display:none;">Sign in</a>
-      <a href="index.html" class="nav-cta-compact" id="open-signup-nav-compact">Sign up</a>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact">Login</a>
       <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -83,8 +81,7 @@
     <a href="businesses.html">For businesses</a>
     <a href="gear.html">Donate gear</a>
     <a href="sponsor.html">Advertise</a>
-    <a href="index.html" class="mobile-cta" id="open-signin-mobile" style="display:none;">Sign in</a>
-    <a href="index.html" class="mobile-cta" id="open-signup-mobile">Create profile</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile">Login</a>
     <div class="mobile-account" id="mobile-account" style="display:none;">
       <div class="mobile-avatar" id="mobile-avatar"></div>
       <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
@@ -194,16 +191,16 @@
 <script src="js/notifications.js"></script>
 
 <script>
-  // #open-signin-nav / #open-signup-nav / #open-signin-mobile / #open-signup-mobile
-  // keep the same IDs as index.html so js/auth.js's renderAuthUI() can still
+  // #open-signin-nav / #open-signin-mobile / #open-signin-nav-compact keep
+  // the same IDs as index.html so js/auth.js's renderAuthUI() can still
   // correctly hide/show them based on signed-in state on this page. But
   // auth.js's own click handler calls e.preventDefault() and then tries to
-  // open a modal that doesn't exist here (openSignin()/openSignup() both
-  // no-op if the modal element is missing) — so without this, these would be
-  // dead links. A second, independent listener still fires after the first
-  // one's preventDefault(), since preventDefault only suppresses the
-  // browser's default navigation, not other JS listeners on the same element.
-  ['open-signin-nav', 'open-signup-nav', 'open-signin-mobile', 'open-signup-mobile', 'open-signin-nav-compact', 'open-signup-nav-compact'].forEach(function(id){
+  // open a modal that doesn't exist here (openSignin() no-ops if the modal
+  // element is missing) — so without this, these would be dead links. A
+  // second, independent listener still fires after the first one's
+  // preventDefault(), since preventDefault only suppresses the browser's
+  // default navigation, not other JS listeners on the same element.
+  ['open-signin-nav', 'open-signin-mobile', 'open-signin-nav-compact'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function(){ window.location.href = 'index.html'; });
   });
