@@ -358,7 +358,13 @@
        breathing room for body copy) buys back the space this row needs. */
     header .wrap{ padding:0 16px; }
   }
-  @media (max-width:420px){
+  @media (max-width:480px){
+    /* Was max-width:420px — on phones whose effective CSS viewport lands
+       in the 420-480px gap (larger screens, or the OS font/display-scale
+       setting effectively shrinking available CSS px), the looser >420px
+       spacing didn't actually fit: combined with the logo, UNIFY badge,
+       XP pill and both buttons, the hamburger got pushed off the right
+       edge of the screen entirely instead of just looking cramped. */
     .nav-right{ gap:6px; }
     .nav-score{ padding:6px 8px; font-size:11px; }
     .nav-cta-compact{ padding:6px 8px; font-size:10px; }
