@@ -51,7 +51,7 @@
     window.__mmPendingProfileCompletion = null;
     window.openProfileCompletion(pendingUser);
   }
-  ['open-signup-nav','open-signup-hero','open-signup-final','open-signup-mobile','open-signup-nav-compact'].forEach(function(id){
+  ['open-signup-hero','open-signup-final'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function(e){ e.preventDefault(); closeMobileMenu(); openSignup(); });
   });
