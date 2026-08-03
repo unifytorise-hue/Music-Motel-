@@ -11,6 +11,10 @@
     --green:#4ADE80;
     --red:#FF4D4D;
     --purple:#9B3FC4;
+    /* Lighter tint of --purple for small text/outline use on dark
+       backgrounds — --purple itself is ~3.3:1 against --black-2, below
+       the 4.5:1 WCAG AA minimum for text this size. This hits ~6.6:1. */
+    --purple-accessible:#B983FF;
     --orange:#FF9A3D;
     --cream:#F7F3EA;
     --cream-dim:#B8B2C4;
@@ -335,7 +339,6 @@
     padding:7px 10px; border-radius:6px;
     white-space:nowrap;
   }
-  #open-signup-nav-compact{ background:var(--cream); color:var(--black); }
   #open-signin-nav-compact{ border:1px solid var(--line); color:var(--cream); }
 
   @media (max-width:900px){
@@ -1212,8 +1215,8 @@
     font-family:'JetBrains Mono', monospace;
     font-size:11.5px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.03em;
-    color:var(--purple);
-    border:1.5px solid var(--purple);
+    color:var(--purple-accessible);
+    border:1.5px solid var(--purple-accessible);
     border-radius:999px;
     padding:8px 14px;
     transition:all 0.2s;
@@ -1349,8 +1352,8 @@
     font-family:'JetBrains Mono', monospace;
     font-size:12px; font-weight:700;
     text-transform:uppercase; letter-spacing:0.03em;
-    color:var(--purple);
-    border:1.5px solid var(--purple);
+    color:var(--purple-accessible);
+    border:1.5px solid var(--purple-accessible);
     border-radius:999px;
     padding:8px 16px;
     transition:all 0.2s;
