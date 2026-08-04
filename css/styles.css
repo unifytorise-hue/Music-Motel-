@@ -56,30 +56,34 @@
 
   /* ===== neon border loop (ambient notes/instruments tracing the footer's
      edges only — NOT the full viewport, so it doesn't appear to drift over
-     the page while scrolling through the main content) — each "rider" is
-     sized to fill its containing block (footer, given position:relative
-     above) via position:absolute+inset:0, so its own border-box matches
-     what offset-path:inset() measures against, with offset-anchor:0 0
-     pinning the visible glyph (a child, translated to center on that
-     corner) to the actual path point. inset() as a motion path starts
-     top-left and runs clockwise — right along the top, down the right
-     side, left along the bottom, up the left side — which is the loop
-     direction asked for. Hidden entirely via @supports rather than shown
-     broken in browsers without Motion Path support. ===== */
+     the page while scrolling through the main content). Deliberately only
+     3 sides — right, bottom, left — with the top edge left out: riding
+     across the top of the footer box put icons in the footer's own
+     top-padding band, right where the page content above it ends, which
+     read as icons drifting across that content rather than framing the
+     footer. Plain left/top % keyframes (relative to the footer, since
+     each rider is position:absolute inside position:relative footer) —
+     not offset-path — same reasoning as the viewport edge loop: it's the
+     one motion-path flavor that reliably animates everywhere, including
+     mobile Safari. Each rider fades out approaching the top-left corner
+     and back in at top-right, so the lap restarting (skipping over the
+     top edge) is never visible mid-fade. ===== */
   .neon-loop-item{
-    position:absolute; inset:0;
+    position:absolute;
+    top:0; left:0;
+    width:0; height:0;
     pointer-events:none;
     z-index:1;
-    display:none;
-    offset-path:inset(6px round 14px);
-    offset-anchor:0 0;
-    offset-rotate:0deg;
-    offset-distance:0%;
-    animation:neon-loop-travel var(--loop-duration, 22s) linear infinite;
-    animation-delay:var(--loop-delay, 0s);
+    animation:
+      neon-footer-travel var(--loop-duration, 22s) linear infinite,
+      neon-loop-edge-fade var(--loop-duration, 22s) linear infinite;
+    animation-delay:var(--loop-delay, 0s), var(--loop-delay, 0s);
   }
-  @supports (offset-path: inset(0px)){
-    .neon-loop-item{ display:block; }
+  @keyframes neon-footer-travel{
+    0%{     top:6px; left:calc(100% - 6px); }
+    33.33%{ top:calc(100% - 6px); left:calc(100% - 6px); }
+    66.66%{ top:calc(100% - 6px); left:6px; }
+    100%{   top:6px; left:6px; }
   }
   .neon-loop-glyph{
     position:absolute; top:0; left:0;
@@ -96,11 +100,6 @@
     font-size:22px; line-height:1;
     text-shadow:0 0 6px currentColor, 0 0 14px currentColor;
   }
-  @keyframes neon-loop-travel{
-    from{ offset-distance:0%; }
-    to{ offset-distance:100%; }
-  }
-
   /* ===== edge loop (top/left/right only, viewport-fixed) — always frames
      the screen while scrolling, same as the original full loop, but with
      the bottom edge deliberately left out: a closed viewport-fixed
@@ -752,13 +751,6 @@
   .ecosystem-hotspot.glow{
     border-color:var(--hotspot-color);
     box-shadow:0 0 22px 3px var(--hotspot-color), inset 0 0 18px 1px var(--hotspot-color);
-  }
-  @media (max-width:820px){
-    /* Shrinking this diagram to fit a phone screen makes the category text
-       unreadable — better to keep it at a legible fixed width and let
-       .ecosystem-scroll's horizontal scroll handle the overflow. */
-    .ecosystem-map-wrap{ width:720px; max-width:none; }
-    .ecosystem-map-img{ width:720px; max-width:none; }
   }
   .ecosystem-hint{
     text-align:center; margin-top:14px;
