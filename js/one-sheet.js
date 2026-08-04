@@ -1,5 +1,5 @@
 (function(){
-  function configured(){ return !!(window.mmSupabaseConfigured && window.mmSupabase); }
+  var configured = window.mmConfigured;
 
   var btn = document.getElementById('public-profile-download-onesheet-btn');
   if (!btn) return;

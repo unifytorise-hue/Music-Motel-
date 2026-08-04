@@ -1,6 +1,6 @@
 (function(){
-  function configured(){ return !!(window.mmSupabaseConfigured && window.mmSupabase); }
-  function currentUser(){ return window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser(); }
+  var configured = window.mmConfigured;
+  var currentUser = window.mmCurrentUser;
   var authReady = window.mmAuthReady || Promise.resolve();
 
   // Shared by every dashboard section that only makes sense for an

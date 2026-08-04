@@ -92,11 +92,7 @@
     }
   ];
 
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtml = window.mmEscapeHtml;
 
   var tabsEl = document.getElementById('global-example-tabs');
   if (!tabsEl) return;

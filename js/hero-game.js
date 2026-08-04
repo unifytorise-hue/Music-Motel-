@@ -301,11 +301,7 @@
     }
   }
 
-  function escapeHtmlGame(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtmlGame = window.mmEscapeHtml;
 
   function renderRoster(){
     var roster = document.getElementById('roster');
@@ -570,18 +566,13 @@
     }, { enableHighAccuracy:true, timeout:10000 });
   });
 
-  // ===== search any city (reuses the same free Nominatim geocoder as the
-  // signup location picker in js/signup-location.js — see that file's
-  // comment on rate limits/production swap-out, which applies here too) =====
+  // ===== search any city (reuses the shared window.mmNominatimSearch —
+  // see the rate-limit note next to its definition in js/mm-utils.js) =====
   var patchLocInput = document.getElementById('patch-loc-search-input');
   var patchLocSuggestions = document.getElementById('patch-loc-suggestions');
   var patchLocDebounce;
 
-  function escapeHtmlPatchLoc(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtmlPatchLoc = window.mmEscapeHtml;
 
   if (patchLocInput && patchLocSuggestions){
     patchLocInput.addEventListener('input', function(){
@@ -600,12 +591,7 @@
   }
 
   function runPatchCitySearch(query){
-    var url = 'https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=8&featuretype=city&q=' + encodeURIComponent(query);
-    fetch(url, { headers: { 'Accept-Language': navigator.language || 'en' } })
-      .then(function(res){
-        if (!res.ok) throw new Error('Lookup failed');
-        return res.json();
-      })
+    window.mmNominatimSearch(query)
       .then(function(results){ renderPatchLocSuggestions(results, query); })
       .catch(function(){
         nearMeStatus.textContent = 'Could not reach the location service — check your connection and try again.';
@@ -623,9 +609,8 @@
       return;
     }
     results.forEach(function(r){
-      var addr = r.address || {};
-      var mainName = addr.city || addr.town || addr.village || addr.municipality || r.display_name.split(',')[0];
-      var region = [addr.state, addr.country].filter(Boolean).join(', ');
+      var label = window.mmNominatimResultLabel(r);
+      var mainName = label.mainName, region = label.region;
       var item = document.createElement('div');
       item.className = 'loc-suggestion-item';
       item.innerHTML = '<div class="city-main">' + escapeHtmlPatchLoc(mainName) + '</div><div class="city-sub">' + escapeHtmlPatchLoc(region) + '</div>';

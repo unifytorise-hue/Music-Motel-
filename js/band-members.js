@@ -1,11 +1,7 @@
 (function(){
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
-  function configured(){ return !!(window.mmSupabaseConfigured && window.mmSupabase); }
-  function currentUser(){ return window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser(); }
+  var escapeHtml = window.mmEscapeHtml;
+  var configured = window.mmConfigured;
+  var currentUser = window.mmCurrentUser;
   function isSignedIn(){ return !!(configured() && currentUser()); }
   var authReady = window.mmAuthReady || Promise.resolve();
 

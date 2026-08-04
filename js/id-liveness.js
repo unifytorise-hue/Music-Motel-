@@ -1,5 +1,5 @@
 (function(){
-  function currentUser(){ return window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser(); }
+  var currentUser = window.mmCurrentUser;
 
   if (!document.getElementById('id-liveness-modal')) return;
 

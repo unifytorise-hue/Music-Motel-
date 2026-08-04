@@ -4,11 +4,7 @@
   var storageGet = window.siteStorage.get;
   var storageSet = window.siteStorage.set;
 
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtml = window.mmEscapeHtml;
 
   var SEED_GEAR = [
     { id:'g1', name:'Yamaha FG800 Acoustic Guitar', category:'Guitar', condition:'Good — light fret wear, new strings', loc:'Austin, US', claimed:false },
