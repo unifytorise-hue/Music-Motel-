@@ -46,11 +46,7 @@
     }
   ];
 
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtml = window.mmEscapeHtml;
 
   // ===== "instruments I play" persistence — same local/remote split used
   // everywhere else on the site (gig log, following, gear board) =====

@@ -95,11 +95,7 @@
   }
   var authReady = window.mmAuthReady || Promise.resolve();
 
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtml = window.mmEscapeHtml;
 
   // ===== gig log =====
   var GIG_LOG_KEY = 'fan-gig-log';

@@ -1,13 +1,9 @@
 (function(){
-  function currentUser(){ return window.mmAuth && window.mmAuth.getUser && window.mmAuth.getUser(); }
+  var currentUser = window.mmCurrentUser;
 
   if (!document.getElementById('mb-search-btn')) return;
 
-  function escapeHtml(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtml = window.mmEscapeHtml;
 
   // ===== MusicBrainz credit import =====
   // Real, live calls to the public MusicBrainz API

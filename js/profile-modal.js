@@ -11,11 +11,7 @@
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
 
-  function escapeHtmlProfile(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtmlProfile = window.mmEscapeHtml;
 
   window.openProfile = function(jack){
     var p = jack.person;

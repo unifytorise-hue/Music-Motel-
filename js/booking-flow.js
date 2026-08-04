@@ -14,11 +14,7 @@
     if (window.releaseFocusTrap) window.releaseFocusTrap();
   }
 
-  function escapeHtmlBooking(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtmlBooking = window.mmEscapeHtml;
 
   window.openBooking = function(artist){
     currentBookingArtist = artist;

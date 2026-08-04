@@ -129,11 +129,7 @@
   // Escapes text before it's placed into innerHTML below. mainName/region
   // come from Nominatim and query is the user's raw typed input, both of
   // which need escaping since they're inserted as HTML, not just text.
-  function escapeHtmlLoc(str){
-    var d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  var escapeHtmlLoc = window.mmEscapeHtml;
 
   searchInput.addEventListener('input', function(){
     var q = searchInput.value.trim();
@@ -147,21 +143,11 @@
     searchDebounce = setTimeout(function(){ runCitySearch(q); }, 350);
   });
 
-  // All three calls to nominatim.openstreetmap.org in this file (city
-  // search here, plus the two reverse-geocode calls below) hit the free
-  // public Nominatim instance directly from the browser. That's fine for
-  // this demo's traffic, but Nominatim's usage policy caps it at ~1
-  // request/second and disallows autocomplete-style querying at real
-  // production volume (https://operations.osmfoundation.org/policies/nominatim/).
-  // Before real launch traffic, swap these for a self-hosted Nominatim
-  // instance or a paid geocoding provider.
+  // The two reverse-geocode calls further below (map click / GPS) hit the
+  // same Nominatim instance directly — see the rate-limit note next to
+  // window.mmNominatimSearch in js/mm-utils.js, which applies to those too.
   function runCitySearch(query){
-    var url = 'https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=8&featuretype=city&q=' + encodeURIComponent(query);
-    fetch(url, { headers: { 'Accept-Language': navigator.language || 'en' } })
-      .then(function(res){
-        if (!res.ok) throw new Error('Lookup failed');
-        return res.json();
-      })
+    window.mmNominatimSearch(query)
       .then(function(results){
         renderSuggestions(results, query);
       })
@@ -180,9 +166,8 @@
     }
     statusEl.textContent = results.length + ' match' + (results.length === 1 ? '' : 'es') + ' found';
     results.forEach(function(r){
-      var addr = r.address || {};
-      var mainName = addr.city || addr.town || addr.village || addr.municipality || r.display_name.split(',')[0];
-      var region = [addr.state, addr.country].filter(Boolean).join(', ');
+      var label = window.mmNominatimResultLabel(r);
+      var mainName = label.mainName, region = label.region;
       var item = document.createElement('div');
       item.className = 'loc-suggestion-item';
       item.innerHTML = '<div class="city-main">' + escapeHtmlLoc(mainName) + '</div><div class="city-sub">' + escapeHtmlLoc(region) + '</div>';
