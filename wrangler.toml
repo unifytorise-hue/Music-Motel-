@@ -1,0 +1,10 @@
+# Cloudflare Workers static-assets deployment config — this is a plain
+# static site (no build step, no server-side code), so there's no
+# entry-point script here, just an [assets] directory. Wrangler serves
+# everything in `directory` directly, equivalent to what Cloudflare Pages
+# used to do before Pages was folded into Workers.
+name = "music-motel"
+compatibility_date = "2026-08-04"
+
+[assets]
+directory = "."
