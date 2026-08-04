@@ -147,7 +147,13 @@
   .toast{
     position:fixed;
     bottom:28px; left:50%;
-    transform:translate(-50%, 120%);
+    /* calc(100% + 40px), not 120% — 120% of the toast's OWN height doesn't
+       account for the 28px `bottom` offset it's already sitting on, so it
+       always left a sliver visible right at the viewport's bottom edge
+       instead of fully disappearing. 100% (full own height) + enough
+       extra to clear that 28px gap with margin guarantees it's completely
+       off-screen when hidden, regardless of how tall the message makes it. */
+    transform:translate(-50%, calc(100% + 40px));
     background:var(--cream);
     color:var(--black);
     font-family:'JetBrains Mono', monospace;
@@ -735,7 +741,7 @@
   .ecosystem-map-img{
     display:block; margin:0 auto;
     border-radius:16px; border:1px solid var(--line);
-    width:100%; max-width:900px;
+    width:100%; max-width:900px; height:auto;
   }
   .ecosystem-hotspot{
     position:absolute;
