@@ -135,37 +135,45 @@
     <h1 class="display">Find your<br>people in <span class="accent">music.</span></h1>
     <p class="hero-sub">Search any city for vocalists, engineers, and 100+ other roles. See real profiles, then connect.</p>
 
-    <div class="game">
-      <div class="game-head">
-        <div class="game-title"><span data-icon="gamepad"></span> <strong>BUILD YOUR BAND</strong> — tap roles to recruit · scroll for more</div>
-        <div class="game-rank" id="rank-badge">SOLO ACT</div>
+    <div class="hero-widgets-grid">
+      <div class="game">
+        <div class="game-head">
+          <div class="game-title"><span data-icon="gamepad"></span> <strong>BUILD YOUR BAND</strong> — tap roles to recruit · scroll for more</div>
+          <div class="game-rank" id="rank-badge">SOLO ACT</div>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div>
+        <div class="chip-grid" id="chip-grid">
+          <!-- chips injected by JS -->
+        </div>
+        <div class="roster" id="roster">
+          <span class="roster-empty">Your band is empty. Tap a role above to recruit your first member →</span>
+        </div>
+        <div class="band-real-matches" id="band-real-matches">
+          <div class="band-real-matches-head">Real people near you who fit this role</div>
+          <div id="band-real-matches-list">
+            <span class="band-real-matches-empty">Recruit a role above to see real profiles that match.</span>
+          </div>
+        </div>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div>
-      <div class="chip-grid" id="chip-grid">
-        <!-- chips injected by JS -->
-      </div>
-      <div class="roster" id="roster">
-        <span class="roster-empty">Your band is empty. Tap a role above to recruit your first member →</span>
-      </div>
-    </div>
 
-    <div class="content-box hero-search-box">
-      <span class="tag" style="color:var(--cyan);">/ Search live profiles</span>
-      <h3 class="hero-search-heading">Find your channel.</h3>
-      <p class="hero-search-sub">Filter by category, search any city on Earth, or sort by how close they are to you.</p>
-      <div class="patch-loc-search-wrap loc-search-wrap">
-        <input type="text" id="patch-loc-search-input" class="loc-search-input" placeholder="Search any city — Lagos, Tokyo, São Paulo…" autocomplete="off">
-        <div class="loc-suggestions" id="patch-loc-suggestions"></div>
+      <div class="content-box hero-search-box">
+        <span class="tag" style="color:var(--cyan);">/ Search live profiles</span>
+        <h3 class="hero-search-heading">Find your channel.</h3>
+        <p class="hero-search-sub">Filter by category, search any city on Earth, or sort by how close they are to you.</p>
+        <div class="patch-loc-search-wrap loc-search-wrap">
+          <input type="text" id="patch-loc-search-input" class="loc-search-input" placeholder="Search any city — Lagos, Tokyo, São Paulo…" autocomplete="off">
+          <div class="loc-suggestions" id="patch-loc-suggestions"></div>
+        </div>
+        <div class="patch-controls">
+          <div class="patch-tabs" id="patch-tabs"></div>
+          <button class="patch-nearme-btn" id="patch-nearme-btn">
+            <span class="patch-nearme-icon" id="patch-nearme-icon"></span>
+            <span id="patch-nearme-text">Sort by distance from me</span>
+          </button>
+        </div>
+        <div class="patch-nearme-status" id="patch-nearme-status"></div>
+        <div class="patch-row" id="patch-row"></div>
       </div>
-      <div class="patch-controls">
-        <div class="patch-tabs" id="patch-tabs"></div>
-        <button class="patch-nearme-btn" id="patch-nearme-btn">
-          <span class="patch-nearme-icon" id="patch-nearme-icon"></span>
-          <span id="patch-nearme-text">Sort by distance from me</span>
-        </button>
-      </div>
-      <div class="patch-nearme-status" id="patch-nearme-status"></div>
-      <div class="patch-row" id="patch-row"></div>
     </div>
 
     <div class="hero-ctas">

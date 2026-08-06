@@ -525,10 +525,25 @@
     margin:26px 0 0;
   }
 
+  /* ---- Hero widgets: Build Your Band game + live-profile search side by
+     side, so the "search real people" value prop is visible immediately
+     rather than only after scrolling past the game. Single column on
+     narrow screens, where side-by-side would cramp both. ---- */
+  .hero-widgets-grid{
+    position:relative; z-index:1;
+    margin-top:48px;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .hero-widgets-grid{ grid-template-columns:1fr; gap:32px; }
+  }
+
   /* ---- Build Your Band game ---- */
   .game{
     position:relative; z-index:1;
-    margin-top:48px;
     border:1px solid var(--line);
     border-radius:14px;
     background:linear-gradient(180deg, var(--black-3), var(--black-2));
@@ -655,9 +670,59 @@
   }
   .roster-slot button:hover{ color:var(--red); }
 
+  /* ---- real-profile matches for the recruited band roles: only shown
+     once at least one role is recruited (toggled via JS), so the game
+     doesn't open with an empty "no matches" panel. ---- */
+  .band-real-matches{
+    display:none;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+  .band-real-matches-head{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px;
+    text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--cream-dim); margin-bottom:12px;
+  }
+  .band-real-matches-empty{
+    font-size:13px; color:var(--cream-dim); line-height:1.6;
+  }
+  .band-real-matches-hint{
+    font-size:12px; color:var(--cream-dim); opacity:0.75;
+    margin-bottom:10px;
+  }
+  .band-real-match-row{
+    display:flex; align-items:center; gap:12px;
+    padding:10px 8px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background 0.15s;
+  }
+  .band-real-match-row:hover, .band-real-match-row:focus-visible{
+    background:rgba(255,255,255,0.04);
+  }
+  .band-real-match-row + .band-real-match-row{ border-top:1px solid var(--line); }
+  .band-real-match-avatar{
+    width:36px; height:36px; border-radius:9px; flex-shrink:0;
+    display:block; border:1px solid var(--match-color, var(--line));
+  }
+  .band-real-match-meta{
+    flex:1; min-width:0;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .band-real-match-name{ font-size:14px; font-weight:700; }
+  .band-real-match-role{
+    font-size:11.5px; color:var(--cream-dim);
+    font-family:'JetBrains Mono', monospace; text-transform:uppercase;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .band-real-match-distance{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px;
+    color:var(--cyan); flex-shrink:0; white-space:nowrap;
+  }
+
   .hero-search-box{
     position:relative; z-index:1;
-    margin-top:32px;
   }
   .hero-search-heading{
     font-family:'Anton', sans-serif;
