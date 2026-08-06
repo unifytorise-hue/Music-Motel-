@@ -924,6 +924,36 @@
   }
   @media (max-width:640px){ .content-box{ padding:24px 20px; } }
 
+  /* ===== legal pages (privacy/terms) — long-form body text needs a
+     narrower measure and more line-height than the marketing pages'
+     punchy short copy, so it stays readable at length. ===== */
+  .legal-content{ max-width:760px; margin:0 auto; }
+  .legal-content .legal-updated{
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    color:var(--cream-dim); margin-bottom:32px;
+  }
+  .legal-content h2.legal-h2{
+    font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700;
+    margin:40px 0 14px; color:var(--cream);
+  }
+  .legal-content h2.legal-h2:first-of-type{ margin-top:0; }
+  .legal-content h3{
+    font-family:'Space Grotesk', sans-serif; font-size:16px; font-weight:700;
+    margin:24px 0 10px; color:var(--cream);
+  }
+  .legal-content p{ color:var(--cream-dim); line-height:1.7; margin-bottom:14px; }
+  .legal-content ul{ color:var(--cream-dim); line-height:1.7; margin:0 0 14px 20px; }
+  .legal-content li{ margin-bottom:6px; }
+  .legal-content a{ color:var(--cyan); text-decoration:underline; text-underline-offset:2px; }
+  .legal-content strong{ color:var(--cream); }
+  .legal-notice-box{
+    border:1px solid rgba(232,185,61,0.35); border-radius:12px;
+    background:rgba(232,185,61,0.06);
+    padding:18px 20px; margin:0 0 32px;
+    font-size:14px; line-height:1.6; color:var(--cream-dim);
+  }
+  .legal-notice-box strong{ color:var(--yellow); }
+
   .patch-tabs{ display:flex; gap:10px; flex-wrap:wrap; }
   .patch-loc-search-wrap{ margin-bottom:14px; max-width:360px; }
   @media (max-width:640px){ .patch-loc-search-wrap{ max-width:none; } }

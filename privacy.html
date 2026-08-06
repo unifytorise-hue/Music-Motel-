@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Music Motel</title>
+<link rel="canonical" href="https://beautiful-pixie-f8235c.netlify.app/privacy.html">
+<meta name="description" content="How Music Motel collects, uses, and protects your personal information, including account, location, and ID verification data.">
+<meta property="og:title" content="Privacy Policy — Music Motel">
+<meta property="og:description" content="How Music Motel collects, uses, and protects your personal information.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://beautiful-pixie-f8235c.netlify.app/privacy.html">
+<meta property="og:image" content="https://beautiful-pixie-f8235c.netlify.app/img/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://beautiful-pixie-f8235c.netlify.app/img/social-card.png">
+<meta name="theme-color" content="#0E0D12">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="neon-border-edge-loop" id="neon-border-edge-loop" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo-mark"><a href="index.html"><img src="img/logo-nav.png" width="170" height="168" alt="Music Motel" class="logo-img"></a><img src="img/unify-badge.png" width="699" height="233" alt="Unify" class="nav-unify-badge"></div>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#roles">Who's on it</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="profile.html">My profile</a>
+      <a href="profile.html#my-rate">My Rate</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="index.html" class="nav-cta" id="open-signin-nav">Login</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <div class="nav-notif-wrap">
+          <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="nav-bell-dot" id="nav-bell-dot" style="display:none;"></span>
+          </button>
+          <div class="nav-notif-panel" id="nav-notif-panel" style="display:none;">
+            <div class="nav-notif-panel-head">
+              <span>Notifications</span>
+              <button type="button" id="nav-notif-markall-btn">Mark all read</button>
+            </div>
+            <div class="nav-notif-list" id="nav-notif-list">
+              <div class="nav-notif-empty" id="nav-notif-empty">Nothing yet.</div>
+            </div>
+          </div>
+        </div>
+        <span class="nav-avatar" id="nav-avatar"></span>
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact">Login</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <a href="profile.html">My profile</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#roles">Who's on it</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="profile.html#my-rate">My Rate</a>
+    <a href="funding.html">Fund a project</a>
+    <a href="businesses.html">For businesses</a>
+    <a href="gear.html">Donate gear</a>
+    <a href="sponsor.html">Advertise</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile">Login</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <a href="profile.html#activity-card" class="mobile-switch-link" id="mobile-notif-link">Notifications<span id="mobile-notif-count"></span></a>
+      <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/focus-trap.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/mm-utils.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/nav.js"></script>
+
+<section class="section" id="privacy" style="padding-top:150px;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--cyan);">/ Legal</span>
+        <h2 class="display">Privacy Policy.</h2>
+      </div>
+    </div>
+
+    <div class="legal-content">
+      <p class="legal-updated">Last updated: [DATE] · Applies to musicmotel.com and all Music Motel apps and services</p>
+
+      <div class="legal-notice-box">
+        <strong>Draft notice:</strong> this policy is a starting template written to match what Music Motel's product actually does today. It has not been reviewed by a lawyer. Before you rely on it with real users — especially given the ID/liveness verification feature below — have it reviewed by legal counsel qualified in your operating jurisdiction(s), particularly for POPIA (South Africa), and GDPR/CCPA if you serve EU or California residents. Replace every [BRACKETED] placeholder before publishing.
+      </div>
+
+      <p>Music Motel ("Music Motel," "we," "us," or "our") operates a directory and marketplace connecting musicians, engineers, businesses, and other music-industry professionals ("the Service"). This policy explains what personal information we collect, why we collect it, how it's used and shared, and the choices and rights you have.</p>
+
+      <h2 class="legal-h2">1. Information we collect</h2>
+
+      <h3>Account information</h3>
+      <p>When you sign up, we collect your email address, a hashed password (or, if you sign in with Google, your name, email, and profile photo from your Google account), and the account type you select (e.g. musician, fan, business, manager/agent).</p>
+
+      <h3>Profile information</h3>
+      <p>Anything you choose to add to your public profile: your name, bio, instruments/skills, music taste, a photo or avatar, media portfolio (audio, video, or image links), rate card, and release/credit information you import (see "Third-party services" below).</p>
+
+      <h3>Location information</h3>
+      <p>To power city-based search, we collect a city or coordinate location you provide directly, or that you select via an interactive map or your device's GPS (with your permission).</p>
+
+      <h3>Identity verification data — sensitive</h3>
+      <p>If you complete our optional ID + liveness verification, we collect an image of your government-issued ID document and a short liveness capture of your face, used solely to confirm you're a real person and to compare against your ID photo. This is biometric and government-ID data, and we treat it as more sensitive than the rest of your profile:</p>
+      <ul>
+        <li>It is used only for identity verification and fraud prevention, never for public display or marketing.</li>
+        <li>You can permanently delete your verification data at any time from your profile's verification settings.</li>
+        <li>[DESCRIBE ACTUAL RETENTION PERIOD AND STORAGE LOCATION ONCE FINALIZED — e.g. "deleted automatically after verification completes" or "retained for N days for fraud-review purposes."]</li>
+      </ul>
+
+      <h3>Booking, payment, and transaction information</h3>
+      <p>Details of bookings you make or receive (dates, amounts, messages between the parties), reviews, and — once payments are enabled — payment method and transaction information. [PAYMENT PROCESSOR NAME, ONCE INTEGRATED] processes card details directly; we do not store full card numbers.</p>
+
+      <h3>Usage and device information</h3>
+      <p>Standard technical data collected automatically: IP address, browser and device type, pages visited, and referral source, collected via our hosting/CDN provider's server logs.</p>
+
+      <h3>Local storage</h3>
+      <p>We use your browser's local storage (not third-party tracking cookies) to remember things like whether you've already claimed a one-time bonus, or your last-used search filters, so the Service works smoothly across visits.</p>
+
+      <h2 class="legal-h2">2. How we use your information</h2>
+      <ul>
+        <li>To create and operate your account and public profile.</li>
+        <li>To power location- and category-based search across the directory.</li>
+        <li>To verify identity and help prevent fraud and impersonation.</li>
+        <li>To process bookings, payments, and platform fees, and to communicate with you about them.</li>
+        <li>To send account, booking, and activity notifications.</li>
+        <li>To provide customer support and respond to your requests.</li>
+        <li>To maintain the security and integrity of the Service.</li>
+        <li>To comply with legal obligations.</li>
+      </ul>
+
+      <h2 class="legal-h2">3. Who we share information with</h2>
+      <p>We do not sell your personal information. We share it only with:</p>
+      <ul>
+        <li><strong>Other users</strong> — your public profile is visible to anyone using the directory; booking and message details are visible to the other party in that booking.</li>
+        <li><strong>Service providers</strong> who process data on our behalf under contract, currently: Supabase (database, authentication, and file storage), Cloudflare (hosting and content delivery), and Google (sign-in, if you choose that option).</li>
+        <li><strong>Third-party lookups you trigger</strong> — city search queries are sent to OpenStreetMap's Nominatim geocoding service; artist credit imports are sent to MusicBrainz/Discogs. Only the search terms you enter are sent, not your account details.</li>
+        <li><strong>[PAYMENT PROCESSOR NAME]</strong>, once payment processing is enabled, to handle transactions.</li>
+        <li><strong>Law enforcement or regulators</strong>, where required by law or to protect the rights, safety, or property of Music Motel or others.</li>
+      </ul>
+
+      <h2 class="legal-h2">4. International data transfers</h2>
+      <p>Our service providers may process and store data in countries other than your own. Where required, we rely on appropriate safeguards (such as standard contractual clauses) for these transfers. [CONFIRM AND DETAIL ONCE HOSTING/PROVIDER REGIONS ARE FINALIZED.]</p>
+
+      <h2 class="legal-h2">5. Data retention</h2>
+      <p>We keep your account and profile information for as long as your account is active. If you delete your account, we delete or anonymize your personal information within [RETENTION PERIOD], except where we're required to retain it longer for legal, fraud-prevention, or dispute-resolution purposes. Verification data can be deleted independently and immediately, at any time, from your account settings.</p>
+
+      <h2 class="legal-h2">6. Your rights</h2>
+      <p>Depending on where you live, you may have the right to: access the personal information we hold about you; correct inaccurate information; request deletion; object to or restrict certain processing; and receive a copy of your data in a portable format. To exercise any of these rights, contact us at [PRIVACY CONTACT EMAIL]. If you're in South Africa and unsatisfied with our response, you may complain to the Information Regulator. If you're in the EU/EEA or UK, you may complain to your local data protection authority.</p>
+
+      <h2 class="legal-h2">7. Children's privacy</h2>
+      <p>The Service is not directed at children under 18, and we do not knowingly collect personal information from children under [13/16 — set per your target markets] without appropriate consent. If you believe a child has provided us information, contact us at [PRIVACY CONTACT EMAIL] and we will delete it.</p>
+
+      <h2 class="legal-h2">8. Security</h2>
+      <p>We use industry-standard measures to protect your information, including encryption in transit (HTTPS) and database access controls. No method of transmission or storage is 100% secure, and we cannot guarantee absolute security.</p>
+
+      <h2 class="legal-h2">9. Changes to this policy</h2>
+      <p>We may update this policy from time to time. We'll update the "Last updated" date above, and where changes are material, we'll provide additional notice (such as an in-app or email notification).</p>
+
+      <h2 class="legal-h2">10. Contact us</h2>
+      <p>[COMPANY LEGAL NAME]<br>[REGISTERED ADDRESS]<br>[PRIVACY CONTACT EMAIL]</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="neon-border-loop" id="neon-border-loop" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark"><img src="img/logo-nav.png" width="170" height="168" alt="Music Motel" class="logo-img"></div>
+        <img src="img/unify-badge.png" width="699" height="233" alt="Unify" class="footer-unify-badge">
+        <p>The directory for the music industry.<br>Since 2014.<br>Search by instrument and location, then connect directly.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="index.html#about">About</a>
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#roles">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h5>Get involved</h5>
+          <a href="index.html#cta">Create profile</a>
+        </div>
+        <div class="footer-col">
+          <h5>Legal</h5>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="cookies.html">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
+      <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<script src="js/neon-border.js"></script>
+
+<script src="js/real-xp.js"></script>
+<script src="js/notifications.js"></script>
+</body>
+</html>
