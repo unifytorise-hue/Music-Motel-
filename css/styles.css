@@ -537,6 +537,14 @@
     gap:24px;
     align-items:start;
   }
+  /* Grid items default to min-width:auto, which lets a wide-content child
+     (the chip-grid's flex-wrapped role chips) refuse to shrink below its
+     intrinsic width and blow the track out past the grid's own width —
+     invisible on desktop since there's room to spare, but on mobile it
+     forced .game past the viewport edge and got silently clipped by an
+     ancestor's overflow:hidden instead of wrapping/scrolling. min-width:0
+     lets the item actually shrink to its grid track's resolved width. */
+  .hero-widgets-grid > *{ min-width:0; }
   @media (max-width:900px){
     .hero-widgets-grid{ grid-template-columns:1fr; gap:32px; }
   }
