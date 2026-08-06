@@ -7,6 +7,8 @@
   // block right after the focus-trap utility).
   var storageGet = window.siteStorage.get;
   var storageSet = window.siteStorage.set;
+  var configured = window.mmConfigured;
+  var escapeHtmlMatch = window.mmEscapeHtml;
 
   // Referral-code generation, the invite link, and incoming-referral
   // detection now live in js/referral.js, loaded on every page — the
@@ -65,6 +67,56 @@
     {name:'Tour Manager', color:'#4ADE80'},
     {name:'A&R', color:'#FF9A3D'}
   ];
+
+  // Maps each (performer-title) ROLES name to the real instrument-picker
+  // vocabulary used in js/instrument-modal.js (e.g. "Guitarist" ->
+  // "Guitar"), plus a couple of extra terms for roles that live in
+  // role_label free text rather than the instruments list (Vocalist,
+  // Producer, Sound Engineer, etc. — nobody picks "Vocals" from an
+  // instrument picker). Used by loadRealMatchesForBand() below to turn a
+  // tapped role into an actual search against real profiles.
+  var ROLE_SEARCH_TERMS = {
+    'Vocalist': ['vocal', 'singer', 'vocalist'],
+    'Guitarist': ['guitar'],
+    'Bassist': ['bass guitar', 'electric bass', 'bass'],
+    'Drummer': ['drum', 'percussion'],
+    'Keyboardist': ['piano', 'keyboard', 'synth', 'organ'],
+    'Violinist': ['violin'],
+    'Cellist': ['cello'],
+    'Double Bassist': ['double bass'],
+    'Harpist': ['harp'],
+    'Banjo Player': ['banjo'],
+    'Mandolinist': ['mandolin'],
+    'Ukulele Player': ['ukulele'],
+    'Sitar Player': ['sitar'],
+    'Saxophonist': ['saxophone'],
+    'Flutist': ['flute'],
+    'Clarinetist': ['clarinet'],
+    'Oboist': ['oboe'],
+    'Bassoonist': ['bassoon'],
+    'Bagpiper': ['bagpipe'],
+    'Trumpeter': ['trumpet'],
+    'Trombonist': ['trombone'],
+    'French Horn Player': ['french horn'],
+    'Tuba Player': ['tuba'],
+    'Percussionist': ['percussion', 'drum'],
+    'Djembe Player': ['djembe'],
+    'Vibraphonist': ['vibraphone'],
+    'Marimba Player': ['marimba'],
+    'DJ': ['turntable', 'dj'],
+    'Synth Player': ['synth'],
+    'Turntablist': ['turntable'],
+    'Producer': ['producer'],
+    'Sound Engineer': ['sound engineer', 'engineer'],
+    'Accordionist': ['accordion'],
+    'Harmonica Player': ['harmonica'],
+    'Kora Player': ['kora'],
+    'Steel Drum Player': ['steel drum'],
+    'Songwriter': ['songwriter', 'writer'],
+    'Composer': ['composer'],
+    'Tour Manager': ['tour manager'],
+    'A&R': ['a&r', 'a and r']
+  };
 
   var RANKS = [
     {min:0, name:'SOLO ACT'},
@@ -378,6 +430,7 @@
     band.push({ name: role.name, color: role.color, roleIdx: idx });
     setXP(xp + 25);
     renderRoster();
+    loadRealMatchesForBand();
     chipEl.classList.add('added');
     var rect = chipEl.getBoundingClientRect();
     burstConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
@@ -389,11 +442,115 @@
     band.splice(pos, 1);
     setXP(Math.max(0, xp - 25));
     renderRoster();
+    loadRealMatchesForBand();
     // Look the chip up by its data-idx (set once in renderChips) rather than
     // substring-matching textContent — exact and immune to name collisions
     // (e.g. "Bassist" vs "Double Bassist") regardless of ROLES ordering.
     var chip = document.querySelector('.chip[data-idx="' + removed.roleIdx + '"]');
     if (chip) chip.classList.remove('added');
+  }
+
+  // ===== real matches: turns the fantasy "band" into an actual, live
+  // search — every role recruited above queries real registered profiles
+  // (not the fictional ROLES data), same as a signed-in visitor would get
+  // from the nearby-players search on their dashboard, but it works for
+  // signed-out visitors too (this runs on the public homepage) and needs
+  // no follow-graph, since mmCanViewProfile() already handles the
+  // signed-out case (public profiles only) on its own. =====
+  var realMatchesReqId = 0;
+  function loadRealMatchesForBand(){
+    var panel = document.getElementById('band-real-matches');
+    var list = document.getElementById('band-real-matches-list');
+    if (!panel || !list) return;
+
+    if (!band.length){
+      panel.style.display = 'none';
+      return;
+    }
+    panel.style.display = 'block';
+
+    if (!configured() || !window.mmSupabase){
+      list.innerHTML = '<p class="band-real-matches-empty">Live matches need the site\'s backend connected — this is a preview build.</p>';
+      return;
+    }
+
+    var thisReq = ++realMatchesReqId;
+    list.innerHTML = '<p class="band-real-matches-empty">Searching…</p>';
+
+    var terms = [];
+    band.forEach(function(member){
+      (ROLE_SEARCH_TERMS[member.name] || [member.name.toLowerCase()]).forEach(function(t){
+        if (terms.indexOf(t) === -1) terms.push(t);
+      });
+    });
+
+    window.mmSupabase.from('profiles')
+      .select('id,name,account_type,role_label,bio,location_label,lat,lng,avatar_color,avatar_url,profile_kind,instruments,availability_status,availability_until,profile_visibility,hide_exact_location,hide_rate')
+      .then(function(res){
+        if (thisReq !== realMatchesReqId) return; // a newer search superseded this one
+        var rows = res.data || [];
+        var matches = rows.filter(function(p){
+          if (!window.mmCanViewProfile(p, null, null)) return false;
+          var haystacks = (p.instruments || []).map(function(i){ return i.toLowerCase(); });
+          if (p.role_label) haystacks.push(p.role_label.toLowerCase());
+          return terms.some(function(term){
+            return haystacks.some(function(h){ return h.indexOf(term) !== -1 || term.indexOf(h) !== -1; });
+          });
+        });
+        matches.forEach(function(p){
+          p._distanceKm = (userLocation && p.lat != null && p.lng != null)
+            ? haversineKm(userLocation.lat, userLocation.lng, p.lat, p.lng)
+            : null;
+        });
+        matches.sort(function(a, b){
+          if (a._distanceKm == null && b._distanceKm == null) return a.name.localeCompare(b.name);
+          if (a._distanceKm == null) return 1;
+          if (b._distanceKm == null) return -1;
+          return a._distanceKm - b._distanceKm;
+        });
+        renderRealMatches(matches.slice(0, 6));
+      })
+      .catch(function(){
+        if (thisReq !== realMatchesReqId) return;
+        list.innerHTML = '<p class="band-real-matches-empty">Could not load live matches right now.</p>';
+      });
+  }
+
+  function renderRealMatches(matches){
+    var list = document.getElementById('band-real-matches-list');
+    if (!list) return;
+    if (!matches.length){
+      list.innerHTML = '<p class="band-real-matches-empty">No registered profiles match your recruited roles yet' +
+        (userLocation ? ' near this location' : '') + ' — be the first.</p>';
+      return;
+    }
+    list.innerHTML = '';
+    if (!userLocation){
+      var hint = document.createElement('p');
+      hint.className = 'band-real-matches-hint';
+      hint.textContent = 'Set a location in the search box → to sort these by distance.';
+      list.appendChild(hint);
+    }
+    matches.forEach(function(p){
+      var row = document.createElement('div');
+      row.className = 'band-real-match-row';
+      row.style.setProperty('--match-color', p.avatar_color || '#9B3FC4');
+      row.setAttribute('role', 'button');
+      row.setAttribute('tabindex', '0');
+      var distanceHtml = p._distanceKm != null ? '<span class="band-real-match-distance">' + escapeHtmlMatch(formatDistance(p._distanceKm)) + '</span>' : '';
+      row.innerHTML =
+        '<span class="band-real-match-avatar" data-avatar></span>' +
+        '<span class="band-real-match-meta">' +
+          '<span class="band-real-match-name">' + escapeHtmlMatch(p.name || 'Unnamed profile') + '</span>' +
+          '<span class="band-real-match-role">' + escapeHtmlMatch(p.role_label || '') + '</span>' +
+        '</span>' +
+        distanceHtml;
+      if (window.mmRenderAvatar) window.mmRenderAvatar(row.querySelector('[data-avatar]'), p.avatar_url, p.avatar_color, p.name);
+      function open(){ if (window.openRealProfile) window.openRealProfile(p, p._distanceKm); }
+      row.addEventListener('click', open);
+      row.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
+      list.appendChild(row);
+    });
   }
 
   // ===== patch bay =====
@@ -529,6 +686,7 @@
       nearMeStatus.textContent = '';
       nearMeStatus.className = 'patch-nearme-status';
       renderPatchRow();
+      loadRealMatchesForBand();
       return;
     }
     if (!('geolocation' in navigator)){
@@ -553,6 +711,7 @@
       nearMeStatus.textContent = 'Showing the closest roles first ✓';
       nearMeStatus.className = 'patch-nearme-status success';
       renderPatchRow();
+      loadRealMatchesForBand();
     }, function(err){
       nearMeBtn.disabled = false;
       nearMeIcon.classList.remove('pulsing');
@@ -625,6 +784,7 @@
         nearMeStatus.textContent = 'Showing roles closest to ' + label + ' ✓';
         nearMeStatus.className = 'patch-nearme-status success';
         renderPatchRow();
+        loadRealMatchesForBand();
       });
       patchLocSuggestions.appendChild(item);
     });
