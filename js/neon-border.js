@@ -30,16 +30,29 @@
 
   // ===== footer loop: closed rectangle traced around the footer itself
   // (see css — position:absolute inside a position:relative footer), so it
-  // only exists at the very bottom of the document, not the viewport. =====
+  // only exists at the very bottom of the document, not the viewport.
+  // Deliberately a SMALLER subset of ITEMS than the edge loop below — with
+  // all 12, each of the 3 segments (right/bottom/left) is "in flight" for
+  // about a third of the loop's duration, so roughly 12 * 1/3 = 4 riders
+  // end up on the same side at once. The footer got noticeably taller
+  // once the Legal links were added, and 4-deep on one side reads as
+  // clutter/overlap rather than a single ring circling the footer. 4
+  // riders total keeps it to about one per side. =====
+  var FOOTER_ITEMS = [
+    { note: '♪', color: '#FF2D78' },
+    { icon: 'guitar', color: '#2BE8D9' },
+    { icon: 'drum', color: '#4ADE80' },
+    { icon: 'piano', color: '#FF9A3D' }
+  ];
   var footerContainer = document.getElementById('neon-border-loop');
   if (footerContainer){
     var FOOTER_DURATION = 22;
-    ITEMS.forEach(function(item, i){
+    FOOTER_ITEMS.forEach(function(item, i){
       var rider = document.createElement('div');
       rider.className = 'neon-loop-item';
       rider.style.color = item.color;
       rider.style.setProperty('--loop-duration', FOOTER_DURATION + 's');
-      rider.style.setProperty('--loop-delay', (-(i * FOOTER_DURATION / ITEMS.length)) + 's');
+      rider.style.setProperty('--loop-delay', (-(i * FOOTER_DURATION / FOOTER_ITEMS.length)) + 's');
       rider.appendChild(buildGlyph(item));
       footerContainer.appendChild(rider);
     });
