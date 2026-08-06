@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — Music Motel</title>
+<link rel="canonical" href="https://beautiful-pixie-f8235c.netlify.app/terms.html">
+<meta name="description" content="The terms governing your use of Music Motel, including account rules, booking fees, identity verification, and content policies.">
+<meta property="og:title" content="Terms of Service — Music Motel">
+<meta property="og:description" content="The terms governing your use of Music Motel.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://beautiful-pixie-f8235c.netlify.app/terms.html">
+<meta property="og:image" content="https://beautiful-pixie-f8235c.netlify.app/img/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://beautiful-pixie-f8235c.netlify.app/img/social-card.png">
+<meta name="theme-color" content="#0E0D12">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="neon-border-edge-loop" id="neon-border-edge-loop" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo-mark"><a href="index.html"><img src="img/logo-nav.png" width="170" height="168" alt="Music Motel" class="logo-img"></a><img src="img/unify-badge.png" width="699" height="233" alt="Unify" class="nav-unify-badge"></div>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#roles">Who's on it</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="profile.html">My profile</a>
+      <a href="profile.html#my-rate">My Rate</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-score">★ <span id="nav-xp">0</span> XP</div>
+      <a href="index.html" class="nav-cta" id="open-signin-nav">Login</a>
+      <div class="nav-account" id="nav-account" style="display:none; align-items:center; gap:10px;">
+        <div class="nav-notif-wrap">
+          <button class="nav-bell-btn" id="nav-bell-btn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="nav-bell-dot" id="nav-bell-dot" style="display:none;"></span>
+          </button>
+          <div class="nav-notif-panel" id="nav-notif-panel" style="display:none;">
+            <div class="nav-notif-panel-head">
+              <span>Notifications</span>
+              <button type="button" id="nav-notif-markall-btn">Mark all read</button>
+            </div>
+            <div class="nav-notif-list" id="nav-notif-list">
+              <div class="nav-notif-empty" id="nav-notif-empty">Nothing yet.</div>
+            </div>
+          </div>
+        </div>
+        <span class="nav-avatar" id="nav-avatar"></span>
+        <span id="nav-account-email" class="mono" style="font-size:11px; color:var(--cream-dim);"></span>
+        <button class="nav-switch-link" id="nav-switch-account-btn" type="button">Switch account</button>
+        <button class="nav-cta" id="nav-signout-btn" type="button">Sign out</button>
+      </div>
+      <a href="index.html" class="nav-cta-compact" id="open-signin-nav-compact">Login</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <a href="profile.html">My profile</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#roles">Who's on it</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="profile.html#my-rate">My Rate</a>
+    <a href="funding.html">Fund a project</a>
+    <a href="businesses.html">For businesses</a>
+    <a href="gear.html">Donate gear</a>
+    <a href="sponsor.html">Advertise</a>
+    <a href="index.html" class="mobile-cta" id="open-signin-mobile">Login</a>
+    <div class="mobile-account" id="mobile-account" style="display:none;">
+      <div class="mobile-avatar" id="mobile-avatar"></div>
+      <div class="mono" id="mobile-account-email" style="font-size:12px; color:var(--cream-dim); margin-bottom:10px;"></div>
+      <a href="profile.html#activity-card" class="mobile-switch-link" id="mobile-notif-link">Notifications<span id="mobile-notif-count"></span></a>
+      <button class="mobile-switch-link" id="mobile-switch-account-btn" type="button">Switch account</button>
+      <button class="mobile-cta" id="mobile-signout-btn" type="button">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/focus-trap.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/mm-utils.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/nav.js"></script>
+
+<section class="section" id="terms" style="padding-top:150px;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="tag" style="color:var(--pink);">/ Legal</span>
+        <h2 class="display">Terms of Service.</h2>
+      </div>
+    </div>
+
+    <div class="legal-content">
+      <p class="legal-updated">Last updated: [DATE] · Applies to musicmotel.com and all Music Motel apps and services</p>
+
+      <div class="legal-notice-box">
+        <strong>Draft notice:</strong> this is a starting template written to match what Music Motel's product actually does today — it has not been reviewed by a lawyer. Sections 6 (Identity verification), 8 (Funding campaigns), and the fee terms in Section 5 carry real legal and regulatory exposure once real payments are switched on; have counsel qualified in your operating jurisdiction(s) review the whole document, and those sections especially, before publishing or relying on it. Replace every [BRACKETED] placeholder first.
+      </div>
+
+      <p>These Terms of Service ("Terms") govern your access to and use of Music Motel (the "Service"), operated by [COMPANY LEGAL NAME] ("Music Motel," "we," "us," or "our"). By creating an account or using the Service, you agree to these Terms. If you don't agree, don't use the Service.</p>
+
+      <h2 class="legal-h2">1. Eligibility</h2>
+      <p>You must be at least [13/16/18 — set per your target markets] years old to create an account. If you're under the age of majority where you live, you may only use the Service with the involvement of a parent or legal guardian, to the extent required by local law. By creating an account, you confirm the information you provide is accurate and that you meet these requirements.</p>
+
+      <h2 class="legal-h2">2. Your account</h2>
+      <p>You're responsible for keeping your login credentials secure and for all activity under your account. Tell us immediately at [SUPPORT CONTACT EMAIL] if you suspect unauthorized use. You may hold more than one account only where the Service explicitly supports it (for example, a personal account and a linked band/business account).</p>
+
+      <h2 class="legal-h2">3. What Music Motel is — and isn't</h2>
+      <p>Music Motel is a directory and marketplace that helps musicians, engineers, businesses, and other music-industry professionals find and connect with each other, and helps arrange and pay for bookings between them. <strong>We are not a party to the agreements users make with each other</strong> — the actual performance, service, or booking arrangement is between the users involved. We don't guarantee the accuracy of any profile, the quality or safety of any performance or service, or that any booking will be completed as agreed.</p>
+
+      <h2 class="legal-h2">4. Acceptable use</h2>
+      <p>When using the Service, you agree not to:</p>
+      <ul>
+        <li>Impersonate another person or misrepresent your identity, skills, or credentials.</li>
+        <li>Post content that is unlawful, defamatory, harassing, hateful, sexually explicit involving minors, or that infringes someone else's intellectual property or privacy rights.</li>
+        <li>Use the Service to scrape, harvest, or resell other users' contact information or profile data.</li>
+        <li>Circumvent the Service's booking or payment flow to avoid platform fees, once payments are enabled.</li>
+        <li>Upload malicious code, or attempt to disrupt, reverse-engineer, or gain unauthorized access to the Service.</li>
+        <li>Use the Service for any purpose that violates applicable law.</li>
+      </ul>
+
+      <h3>Content you post</h3>
+      <p>You keep ownership of the profile content, media, and other material you upload ("User Content"), but you grant Music Motel a non-exclusive, worldwide, royalty-free license to host, display, and distribute it as needed to operate and promote the Service (for example, showing your profile in search results, or featuring it on the homepage). You're solely responsible for your User Content and for having the rights to post it.</p>
+
+      <h3>Reporting and takedowns</h3>
+      <p>If you believe content on the Service infringes your copyright, violates these Terms, or is otherwise unlawful, contact us at [ABUSE/COPYRIGHT CONTACT EMAIL] with a description of the content, its location on the Service, and (for copyright claims) a statement of your good-faith belief that the use is unauthorized. We'll review reports and may remove content, suspend, or terminate accounts at our discretion. [IF TARGETING US USERS: ADD A FORMAL DMCA-COMPLIANT NOTICE-AND-TAKEDOWN PROCEDURE WITH A DESIGNATED AGENT REGISTERED WITH THE US COPYRIGHT OFFICE.]</p>
+
+      <h2 class="legal-h2">5. Bookings and fees</h2>
+      <p>Music Motel currently facilitates bookings between users. Where a platform fee applies (currently referenced at 10% of the booking amount), it is disclosed before the booking is confirmed and is deducted from the amount paid to the artist/service provider. [ONCE REAL PAYMENT PROCESSING IS LIVE: describe how and when funds are actually collected and released, which processor handles it, and your refund/dispute policy. Today, booking status in the app reflects the state of an arrangement between users — it does not itself move money.]</p>
+      <p>Bookings are agreements between the users involved. We may provide tools to help resolve disputes between users, but we are not obligated to do so and are not responsible for a user's failure to honor a booking.</p>
+
+      <h2 class="legal-h2">6. Identity verification</h2>
+      <p>Music Motel offers optional identity verification, which involves capturing an image of a government-issued ID and a short liveness (facial) capture. This is biometric and government-ID data, handled as described in our <a href="privacy.html">Privacy Policy</a>. By starting the verification flow, you separately and explicitly consent to that collection and processing, for the sole purpose of confirming your identity and preventing fraud. You can withdraw this consent and delete your verification data at any time from your account settings — doing so does not affect the rest of your account, though it may remove any "verified" badge on your profile.</p>
+      <p>[IF YOU ARE TARGETING USERS IN A JURISDICTION WITH A DEDICATED BIOMETRIC PRIVACY LAW — e.g. Illinois' BIPA — CONFIRM WITH COUNSEL WHETHER ADDITIONAL, SEPARATELY-SIGNED WRITTEN CONSENT AND A PUBLISHED RETENTION SCHEDULE ARE REQUIRED BEFORE OFFERING THIS FEATURE TO RESIDENTS OF THAT JURISDICTION.]</p>
+
+      <h2 class="legal-h2">7. Reviews and ratings</h2>
+      <p>Reviews must reflect a genuine experience with the user being reviewed. We may remove reviews that are fraudulent, abusive, or that violate these Terms, but we don't independently verify the accuracy of every review, and we're not liable for review content.</p>
+
+      <h2 class="legal-h2">8. Funding campaigns</h2>
+      <p>The Service allows users to create funding campaigns and allows others to pledge financial support. Campaigns on Music Motel are <strong>rewards- or support-based only — no campaign may offer equity, profit-sharing, interest, or any other financial security in return for a pledge.</strong> Music Motel acts only as a facilitator of these pledges; we do not guarantee that a campaign will be completed, that a creator will deliver what they promised, or that pledged funds will be used as described. [CONFIRM ACTUAL REFUND POLICY, PLEDGE-COLLECTION TIMING, AND WHETHER YOUR MODEL REQUIRES REGISTRATION AS A CROWDFUNDING INTERMEDIARY IN YOUR OPERATING JURISDICTION(S) — RULES VARY SIGNIFICANTLY BY COUNTRY.]</p>
+
+      <h2 class="legal-h2">9. Third-party services</h2>
+      <p>The Service uses third-party services to operate, including Supabase (authentication, database, storage), Cloudflare (hosting), OpenStreetMap/Nominatim (location search), MusicBrainz/Discogs (credit lookups), and Google (optional sign-in). Your use of features backed by these services is also subject to those providers' own terms.</p>
+
+      <h2 class="legal-h2">10. Disclaimers</h2>
+      <p>The Service is provided "as is" and "as available," without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the Service will be uninterrupted, secure, or error-free, or that any user, booking, review, or piece of content is accurate, safe, or lawful.</p>
+
+      <h2 class="legal-h2">11. Limitation of liability</h2>
+      <p>To the maximum extent permitted by law, Music Motel and its officers, employees, and affiliates will not be liable for any indirect, incidental, special, consequential, or punitive damages, or for any loss of profits, revenue, or data, arising from your use of the Service or any booking, transaction, or interaction between users. [SET A LIABILITY CAP APPROPRIATE TO YOUR RISK PROFILE AND INSURANCE, TYPICALLY THE GREATER OF A FIXED SUM OR FEES PAID TO MUSIC MOTEL IN THE PRECEDING 12 MONTHS.]</p>
+
+      <h2 class="legal-h2">12. Indemnification</h2>
+      <p>You agree to indemnify and hold Music Motel harmless from any claim or demand, including reasonable legal fees, arising out of your breach of these Terms, your User Content, or your use of the Service.</p>
+
+      <h2 class="legal-h2">13. Termination</h2>
+      <p>You may stop using the Service and delete your account at any time. We may suspend or terminate your account if you violate these Terms, or where we reasonably believe it's necessary to protect the Service, other users, or third parties.</p>
+
+      <h2 class="legal-h2">14. Governing law and disputes</h2>
+      <p>These Terms are governed by the laws of [GOVERNING JURISDICTION], without regard to conflict-of-law principles. [ADD YOUR PREFERRED DISPUTE-RESOLUTION MECHANISM — COURTS, ARBITRATION, ETC. — WITH COUNSEL'S INPUT.]</p>
+
+      <h2 class="legal-h2">15. Changes to these Terms</h2>
+      <p>We may update these Terms from time to time. We'll update the "Last updated" date above, and where changes are material, we'll provide additional notice. Continuing to use the Service after changes take effect means you accept the updated Terms.</p>
+
+      <h2 class="legal-h2">16. Contact us</h2>
+      <p>[COMPANY LEGAL NAME]<br>[REGISTERED ADDRESS]<br>[SUPPORT CONTACT EMAIL]</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="neon-border-loop" id="neon-border-loop" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark"><img src="img/logo-nav.png" width="170" height="168" alt="Music Motel" class="logo-img"></div>
+        <img src="img/unify-badge.png" width="699" height="233" alt="Unify" class="footer-unify-badge">
+        <p>The directory for the music industry.<br>Since 2014.<br>Search by instrument and location, then connect directly.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="index.html#about">About</a>
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#roles">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h5>Get involved</h5>
+          <a href="index.html#cta">Create profile</a>
+        </div>
+        <div class="footer-col">
+          <h5>Legal</h5>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="cookies.html">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footer-year">2025</span> MUSIC MOTEL. UNIFY®.</span>
+      <span>BUILT FOR THE PEOPLE WHO MAKE THE MUSIC.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<script src="js/neon-border.js"></script>
+
+<script src="js/real-xp.js"></script>
+<script src="js/notifications.js"></script>
+</body>
+</html>
