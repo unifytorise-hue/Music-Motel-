@@ -143,130 +143,130 @@
         bio:'Jazz-trained vocalist who crossed into indie pop. Available for session work, features, and live backing vocals across the tri-state area.',
         badges:[{label:'Verified', icon:'✓'},{label:'Session Ready', icon:'♪'}],
         gigs:[
-          {title:'Backing vocals — Brooklyn Steel headline show', detail:'Three-night run, two original songs co-written on the spot.', xp:60},
-          {title:'Studio feature — "Quiet Static" single', detail:'Lead vocal feature for an independent electronic producer.', xp:40},
-          {title:'Wedding & private event singer', detail:'Solo acoustic sets, 30+ bookings over the past year.', xp:25}
+          {title:'Backing vocals — Brooklyn Steel headline show', detail:'Three-night run, two original songs co-written on the spot.', xp:60, date:'Jun 2026'},
+          {title:'Studio feature — "Quiet Static" single', detail:'Lead vocal feature for an independent electronic producer.', xp:40, date:'Feb 2026'},
+          {title:'Wedding & private event singer', detail:'Solo acoustic sets, 30+ bookings over the past year.', xp:25, date:'Ongoing since 2024'}
         ]}},
     {name:'Bassists', loc:'Midrand, ZA', cat:'perform', color:'#FF2D78', lat:-25.9992, lng:28.1267,
       person:{ name:'Naledi Khumalo', role:'Session Bassist', strength:82,
         bio:'Session and touring bassist with a background in jazz and Afrobeat. Comfortable with upright and electric, reads charts on first pass.',
         badges:[{label:'Verified', icon:'✓'},{label:'Touring', icon:'★'},{label:'40+ Gigs', icon:'♪'}],
         gigs:[
-          {title:'Backline support — Joburg Jazz Fest', detail:'Three-night residency, full live recording linked on profile.', xp:50},
-          {title:'Studio session — "Skylines" EP', detail:'Bass tracking for an independent R&B release, credited.', xp:30},
-          {title:'Touring bassist — regional support act', detail:'14-date run, available for similar bookings on request.', xp:80}
+          {title:'Backline support — Joburg Jazz Fest', detail:'Three-night residency, full live recording linked on profile.', xp:50, date:'Apr 2026'},
+          {title:'Studio session — "Skylines" EP', detail:'Bass tracking for an independent R&B release, credited.', xp:30, date:'Jan 2026'},
+          {title:'Touring bassist — regional support act', detail:'14-date run, available for similar bookings on request.', xp:80, date:'Oct 2025'}
         ]}},
     {name:'Guitarists', loc:'Austin, US', cat:'perform', color:'#FF2D78', lat:30.2672, lng:-97.7431,
       person:{ name:'Jonah Reyes', role:'Guitarist / Multi-instrumentalist', strength:71,
         bio:'Texas blues-rock guitarist doubling on pedal steel. Plays weekly residencies around East Austin and takes select touring offers.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'Weekly residency — Continental Club', detail:'Standing Tuesday slot, house band plus rotating guests.', xp:45},
-          {title:'Session work — local Americana releases', detail:'Pedal steel and lead guitar on three EPs this year.', xp:35}
+          {title:'Weekly residency — Continental Club', detail:'Standing Tuesday slot, house band plus rotating guests.', xp:45, date:'Ongoing since 2025'},
+          {title:'Session work — local Americana releases', detail:'Pedal steel and lead guitar on three EPs this year.', xp:35, date:'2025'}
         ]}},
     {name:'Session Drummers', loc:'London, UK', cat:'perform', color:'#FF2D78', lat:51.5074, lng:-0.1278,
       person:{ name:'Priya Anand', role:'Session Drummer', strength:74,
         bio:'Session drummer across pop, soul, and broken beat. Owns a fully mic\'d kit and home studio for remote tracking.',
         badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'mic'}],
         gigs:[
-          {title:'Remote tracking — three-track EP', detail:'Drums recorded and stems delivered within 48 hours.', xp:30},
-          {title:'Live support — UK club tour', detail:'8-date run backing a touring soul artist.', xp:55}
+          {title:'Remote tracking — three-track EP', detail:'Drums recorded and stems delivered within 48 hours.', xp:30, date:'May 2026'},
+          {title:'Live support — UK club tour', detail:'8-date run backing a touring soul artist.', xp:55, date:'Nov 2025'}
         ]}},
     {name:'Sound Engineers', loc:'Mumbai, IN', cat:'production', color:'#2BE8D9', lat:19.0760, lng:72.8777,
       person:{ name:'Arjun Mehta', role:'Live Sound Engineer', strength:69,
         bio:'FOH and monitor engineer for mid-size venues and festivals across Maharashtra. Comfortable with both analog and digital consoles.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'FOH — regional music festival', detail:'Three-stage festival, managed front-of-house for the main stage.', xp:60},
-          {title:'Monitor engineer — touring act', detail:'12-date support tour across western India.', xp:45}
+          {title:'FOH — regional music festival', detail:'Three-stage festival, managed front-of-house for the main stage.', xp:60, date:'Jul 2026'},
+          {title:'Monitor engineer — touring act', detail:'12-date support tour across western India.', xp:45, date:'Mar 2026'}
         ]}},
     {name:'Mixing Engineers', loc:'Lagos, NG', cat:'production', color:'#2BE8D9', lat:6.5244, lng:3.3792,
       person:{ name:'Chidi Okafor', role:'Mixing Engineer', strength:80,
         bio:'Afrobeats and amapiano mixing engineer. Worked on tracks that charted regionally; open to remote mixing for international artists.',
         badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'mic'}],
         gigs:[
-          {title:'Mix credit — regional chart single', detail:'Full mix and light mastering for an Afrobeats single.', xp:70},
-          {title:'EP mixing — independent artist', detail:'Five-track EP, turnaround within two weeks.', xp:40}
+          {title:'Mix credit — regional chart single', detail:'Full mix and light mastering for an Afrobeats single.', xp:70, date:'May 2026'},
+          {title:'EP mixing — independent artist', detail:'Five-track EP, turnaround within two weeks.', xp:40, date:'Feb 2026'}
         ]}},
     {name:'Producers', loc:'Atlanta, US', cat:'production', color:'#2BE8D9', lat:33.7490, lng:-84.3880,
       person:{ name:'Marcus Bell', role:'Music Producer', strength:76,
         bio:'Trap and R&B producer running a home studio in Atlanta. Built beats for independent rappers and is opening up session slots.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'Production — independent rap EP', detail:'Produced and mixed a six-track project, released independently.', xp:50},
-          {title:'Beat placement — regional artist single', detail:'One placement on a single with regional radio play.', xp:35}
+          {title:'Production — independent rap EP', detail:'Produced and mixed a six-track project, released independently.', xp:50, date:'Dec 2025'},
+          {title:'Beat placement — regional artist single', detail:'One placement on a single with regional radio play.', xp:35, date:'Sep 2025'}
         ]}},
     {name:'Mastering Engineers', loc:'Berlin, DE', cat:'production', color:'#2BE8D9', lat:52.5200, lng:13.4050,
       person:{ name:'Lena Vogel', role:'Mastering Engineer', strength:85,
         bio:'Mastering engineer for electronic and techno labels across Berlin. Vinyl-aware mastering, fast turnaround for label deadlines.',
         badges:[{label:'Verified', icon:'✓'},{label:'Remote Ready', icon:'mic'}],
         gigs:[
-          {title:'Label mastering — techno EP series', detail:'Ongoing mastering relationship with a Berlin techno label.', xp:55},
-          {title:'Vinyl pre-master — independent release', detail:'Prepared masters specifically for vinyl cut.', xp:30}
+          {title:'Label mastering — techno EP series', detail:'Ongoing mastering relationship with a Berlin techno label.', xp:55, date:'Ongoing since 2025'},
+          {title:'Vinyl pre-master — independent release', detail:'Prepared masters specifically for vinyl cut.', xp:30, date:'Apr 2026'}
         ]}},
     {name:'Tour Managers', loc:'Berlin, DE', cat:'business', color:'#FFD319', lat:52.5200, lng:13.4050,
       person:{ name:'Felix Hartmann', role:'Tour Manager', strength:73,
         bio:'Tour manager for mid-size touring acts across the EU. Handles logistics, advancing, and budgets from a single point of contact.',
         badges:[{label:'Verified', icon:'✓'},{label:'Touring', icon:'★'}],
         gigs:[
-          {title:'EU tour management — 22 dates', detail:'Full logistics and advancing for a six-week European tour.', xp:90},
-          {title:'Festival routing — summer run', detail:'Coordinated routing for five festival appearances.', xp:40}
+          {title:'EU tour management — 22 dates', detail:'Full logistics and advancing for a six-week European tour.', xp:90, date:'Jun 2026'},
+          {title:'Festival routing — summer run', detail:'Coordinated routing for five festival appearances.', xp:40, date:'Jul 2026'}
         ]}},
     {name:'Artist Managers', loc:'Los Angeles, US', cat:'business', color:'#FFD319', lat:34.0522, lng:-118.2437,
       person:{ name:'Simone Carter', role:'Artist Manager', strength:77,
         bio:'Manages a small, intentional roster of independent artists. Focused on sync placements and sustainable touring, not overnight hype.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'Sync placement — streaming series', detail:'Landed a placement for a client track in a streaming original.', xp:65},
-          {title:'Roster development — independent artist', detail:'Guided release strategy for a debut EP rollout.', xp:35}
+          {title:'Sync placement — streaming series', detail:'Landed a placement for a client track in a streaming original.', xp:65, date:'Mar 2026'},
+          {title:'Roster development — independent artist', detail:'Guided release strategy for a debut EP rollout.', xp:35, date:'Jan 2026'}
         ]}},
     {name:'Booking Agents', loc:'Toronto, CA', cat:'business', color:'#FFD319', lat:43.6532, lng:-79.3832,
       person:{ name:'Owen Fraser', role:'Booking Agent', strength:70,
         bio:'Books club and mid-size venue shows across Ontario and Quebec for indie and emerging acts.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'Regional tour booking — 10 dates', detail:'Booked a club tour across Ontario and Quebec.', xp:50},
-          {title:'Festival slot booking', detail:'Secured a mid-stage slot at a regional summer festival.', xp:30}
+          {title:'Regional tour booking — 10 dates', detail:'Booked a club tour across Ontario and Quebec.', xp:50, date:'May 2026'},
+          {title:'Festival slot booking', detail:'Secured a mid-stage slot at a regional summer festival.', xp:30, date:'Jul 2026'}
         ]}},
     {name:'Music Publishers', loc:'Paris, FR', cat:'business', color:'#FFD319', lat:48.8566, lng:2.3522,
       person:{ name:'Camille Dubois', role:'Music Publisher', strength:81,
         bio:'Independent publisher representing songwriters across pop and film/TV sync. Based in Paris, works internationally.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'Sync placement — European TV drama', detail:'Placed a catalogue track in a recurring TV series.', xp:60},
-          {title:'Co-publishing deal — emerging songwriter', detail:'Signed and began administering a new songwriter catalogue.', xp:40}
+          {title:'Sync placement — European TV drama', detail:'Placed a catalogue track in a recurring TV series.', xp:60, date:'Feb 2026'},
+          {title:'Co-publishing deal — emerging songwriter', detail:'Signed and began administering a new songwriter catalogue.', xp:40, date:'Nov 2025'}
         ]}},
     {name:'Music Therapists', loc:'Toronto, CA', cat:'support', color:'#4ADE80', lat:43.6532, lng:-79.3832,
       person:{ name:'Dr. Hannah Lee', role:'Music Therapist', strength:88,
         bio:'Registered music therapist working with both pediatric and elder-care settings. Also offers sessions for performing musicians managing performance anxiety.',
         badges:[{label:'Verified', icon:'✓'},{label:'Licensed', icon:'graduation'}],
         gigs:[
-          {title:'Hospital program — pediatric ward', detail:'Weekly sessions as part of an ongoing hospital arts program.', xp:50},
-          {title:'Performance anxiety workshop', detail:'Ran a workshop series for a local conservatory\'s performance majors.', xp:35}
+          {title:'Hospital program — pediatric ward', detail:'Weekly sessions as part of an ongoing hospital arts program.', xp:50, date:'Ongoing since 2024'},
+          {title:'Performance anxiety workshop', detail:'Ran a workshop series for a local conservatory\'s performance majors.', xp:35, date:'Mar 2026'}
         ]}},
     {name:'Luthiers', loc:'Cremona, IT', cat:'support', color:'#4ADE80', lat:45.1333, lng:10.0333,
       person:{ name:'Giulia Ferrari', role:'Luthier — String Instrument Maker', strength:90,
         bio:'Third-generation luthier in Cremona\'s violin-making tradition. Builds and restores violins, violas, and cellos for working musicians and collectors.',
         badges:[{label:'Verified', icon:'✓'},{label:'Master Craft', icon:'trophy'}],
         gigs:[
-          {title:'Commissioned violin build', detail:'Hand-built violin commissioned by a touring soloist.', xp:90},
-          {title:'Restoration — 19th century cello', detail:'Full structural restoration of a damaged antique cello.', xp:70}
+          {title:'Commissioned violin build', detail:'Hand-built violin commissioned by a touring soloist.', xp:90, date:'Jan 2026'},
+          {title:'Restoration — 19th century cello', detail:'Full structural restoration of a damaged antique cello.', xp:70, date:'Sep 2025'}
         ]}},
     {name:'Stage Managers', loc:'Sydney, AU', cat:'support', color:'#4ADE80', lat:-33.8688, lng:151.2093,
       person:{ name:'Liam O\'Brien', role:'Stage Manager', strength:72,
         bio:'Stage manager for theatre and live music productions across Sydney. Calm under pressure, meticulous with run-of-show docs.',
         badges:[{label:'Verified', icon:'✓'}],
         gigs:[
-          {title:'Stage management — touring musical', detail:'Managed a 6-week regional run of a touring musical production.', xp:65},
-          {title:'Festival stage management', detail:'Ran a secondary stage across a 3-day music festival.', xp:45}
+          {title:'Stage management — touring musical', detail:'Managed a 6-week regional run of a touring musical production.', xp:65, date:'Apr 2026'},
+          {title:'Festival stage management', detail:'Ran a secondary stage across a 3-day music festival.', xp:45, date:'Jul 2026'}
         ]}},
     {name:'Piano Tuners', loc:'Vienna, AT', cat:'support', color:'#4ADE80', lat:48.2082, lng:16.3738,
       person:{ name:'Stefan Gruber', role:'Piano Tuner & Technician', strength:84,
         bio:'Trained piano technician maintaining concert hall and conservatory instruments across Vienna, including historical instrument restoration.',
         badges:[{label:'Verified', icon:'✓'},{label:'Master Craft', icon:'trophy'}],
         gigs:[
-          {title:'Concert hall maintenance contract', detail:'Ongoing tuning and voicing for a chamber music venue.', xp:55},
-          {title:'Historical instrument restoration', detail:'Restored a 1920s grand piano for a private collector.', xp:75}
+          {title:'Concert hall maintenance contract', detail:'Ongoing tuning and voicing for a chamber music venue.', xp:55, date:'Ongoing since 2023'},
+          {title:'Historical instrument restoration', detail:'Restored a 1920s grand piano for a private collector.', xp:75, date:'Oct 2025'}
         ]}}
   ];
 

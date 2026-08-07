@@ -29,9 +29,10 @@
     }).join('');
 
     var gigsHtml = p.gigs.map(function(g){
+      var dateHtml = g.date ? '<span class="profile-gig-date">' + escapeHtmlProfile(g.date) + '</span>' : '';
       return '<div class="profile-gig-item">' +
         '<span class="profile-gig-dot"></span>' +
-        '<div style="flex:1;"><h5>' + escapeHtmlProfile(g.title) + '</h5><p>' + escapeHtmlProfile(g.detail) + '</p></div>' +
+        '<div style="flex:1;"><h5>' + escapeHtmlProfile(g.title) + '</h5>' + dateHtml + '<p>' + escapeHtmlProfile(g.detail) + '</p></div>' +
         '<span class="profile-gig-xp">+' + escapeHtmlProfile(g.xp) + 'XP</span>' +
         '</div>';
     }).join('');
