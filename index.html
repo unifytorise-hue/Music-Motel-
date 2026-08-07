@@ -135,7 +135,11 @@
     <h1 class="display">Find your<br>people in <span class="accent">music.</span></h1>
     <p class="hero-sub">Search any city for vocalists, engineers, and 100+ other roles. See real profiles, then connect.</p>
 
-    <div class="hero-widgets-grid">
+    <div class="hero-widgets-grid tab-search" id="hero-widgets-grid">
+      <div class="hero-widgets-tabs" id="hero-widgets-tabs">
+        <button type="button" class="hero-widgets-tab active" data-tab="search">Search live profiles</button>
+        <button type="button" class="hero-widgets-tab" data-tab="game">Build your band</button>
+      </div>
       <div class="game">
         <div class="game-head">
           <div class="game-title"><span data-icon="gamepad"></span> <strong>BUILD YOUR BAND</strong> — tap roles to recruit · scroll for more</div>
@@ -557,6 +561,8 @@
 <script src="js/referral.js"></script>
 
 <script src="js/hero-game.js"></script>
+
+<script src="js/hero-tabs.js"></script>
 
 <script src="js/ecosystem-map.js"></script>
 

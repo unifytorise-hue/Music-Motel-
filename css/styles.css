@@ -545,8 +545,34 @@
      ancestor's overflow:hidden instead of wrapping/scrolling. min-width:0
      lets the item actually shrink to its grid track's resolved width. */
   .hero-widgets-grid > *{ min-width:0; }
+  /* Tab switcher: desktop/tablet has room to show the game and the
+     live-profile search side by side, so the tabs stay hidden and both
+     widgets render at once. Below 900px there isn't room for two usable
+     columns, so only one widget shows at a time, picked via these tabs —
+     defaults to search (the .tab-search class in the markup) so search
+     is what a mobile visitor sees first, without JS required for that
+     default to take effect. ---- */
+  .hero-widgets-tabs{ display:none; }
   @media (max-width:900px){
-    .hero-widgets-grid{ grid-template-columns:1fr; gap:32px; }
+    .hero-widgets-grid{ grid-template-columns:1fr; gap:0; }
+    .hero-widgets-tabs{
+      display:flex; gap:8px;
+      margin-bottom:20px;
+    }
+    .hero-widgets-tab{
+      flex:1;
+      font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.03em;
+      padding:12px 10px; border-radius:10px;
+      border:1.5px solid var(--line); color:var(--cream-dim);
+      background:var(--black-3);
+      transition:all 0.2s;
+    }
+    .hero-widgets-tab.active{
+      background:var(--cyan); border-color:var(--cyan); color:var(--black);
+    }
+    .hero-widgets-grid.tab-search .game{ display:none; }
+    .hero-widgets-grid.tab-game .hero-search-box{ display:none; }
   }
 
   /* ---- Build Your Band game ---- */
